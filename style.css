@@ -1,0 +1,131 @@
+/* 기본 스타일 */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    text-align: center;
+}
+
+/* 히어로 섹션 (상단 로고) */
+.hero {
+    background-color: #1a1a1a;
+    color: white;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.hero h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3.5em;
+    margin: 0;
+    letter-spacing: 5px;
+}
+
+.hero p {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2em;
+    font-weight: 300;
+    margin-top: 10px;
+    color: #ccc;
+}
+
+/* 카드 컨테이너 */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
+    padding: 20px;
+}
+
+/* 개별 카드 스타일 */
+.card {
+    background-size: cover;
+    background-position: center;
+    color: white;
+    margin: 15px;
+    flex: 1 1 320px;
+    min-height: 500px;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.card:hover:not(.disabled) {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+/* --- 이미지 배경 (차량 이미지 Pexels 링크로 최종 교체) --- */
+#finds { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max'); }
+#rides { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.pexels.com/photos/16827483/pexels-photo-16827483/free-photo-of-close-up-of-a-tesla-steering-wheel.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'); }
+#stays { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max'); }
+/* ----------------------------------------------------------------- */
+
+.card-content {
+    padding: 30px;
+    width: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+    box-sizing: border-box;
+}
+
+.card h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2em;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.card p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.button {
+    display: inline-block;
+    background-color: white;
+    color: #1a1a1a;
+    padding: 12px 25px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.button:hover:not(.disabled) {
+    background-color: #f0c14b;
+    color: black;
+}
+
+/* 준비 중 카드 스타일 */
+.card.disabled {
+    cursor: not-allowed;
+}
+
+.card.disabled .button {
+    background-color: #555;
+    color: #ccc;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* 푸터 (하단 저작권) */
+footer {
+    padding: 20px;
+    background-color: #1a1a1a;
+    color: #aaa;
+    font-size: 0.9em;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.5em; }
+    .hero p { font-size: 1em; }
+    .card { min-height: 400px; }
+}
