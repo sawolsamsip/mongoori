@@ -86,7 +86,7 @@ main.container {
 /* --- 카드 배경 이미지 --- */
 #finds { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/finds-bg.jpg'); }
 #rides { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/rides-bg.jpg'); }
-#stays { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/stays-bg.jpeg'); }
+#stays { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/stays-bg.jpg'); }
 
 .card-content {
     padding: 30px;
