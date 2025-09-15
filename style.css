@@ -62,9 +62,9 @@ body {
 }
 
 /* --- 이미지 배경 (차량 이미지 Pexels 링크로 최종 교체) --- */
-#finds { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max'); }
-#rides { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.pexels.com/photos/16827483/pexels-photo-16827483/free-photo-of-close-up-of-a-tesla-steering-wheel.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'); }
-#stays { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max'); }
+#finds { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/finds-bg.jpg'); }
+#rides { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/rides-bg.jpg'); }
+#stays { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/stays-bg.jpg'); }
 /* ----------------------------------------------------------------- */
 
 .card-content {
