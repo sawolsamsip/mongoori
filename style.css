@@ -1,18 +1,27 @@
+/* :root는 CSS 변수를 정의하는 곳입니다. 여기서 색상만 바꾸면 사이트 전체 색상이 바뀝니다. */
+:root {
+    --primary-dark: #1a1a1a;
+    --primary-light: #f4f4f4;
+    --text-dark: #333;
+    --text-light: #fff;
+    --text-muted: #ccc;
+    --accent-color: #f0c14b;
+}
+
 /* 기본 스타일 */
 body {
     margin: 0;
     font-family: 'Roboto', sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
+    background-color: var(--primary-light);
+    color: var(--text-dark);
     text-align: center;
 }
 
 /* 히어로 섹션 (상단 로고) */
 .hero {
-    background-color: #1a1a1a;
-    color: white;
+    background-color: var(--primary-dark);
+    color: var(--text-light);
     padding: 60px 20px;
-    text-align: center;
 }
 
 .hero h1 {
@@ -27,7 +36,7 @@ body {
     font-size: 1.2em;
     font-weight: 300;
     margin-top: 10px;
-    color: #ccc;
+    color: var(--text-muted);
 }
 
 /* 카드 컨테이너 */
@@ -43,7 +52,7 @@ body {
 .card {
     background-size: cover;
     background-position: center;
-    color: white;
+    color: var(--text-light);
     margin: 15px;
     flex: 1 1 320px;
     min-height: 500px;
@@ -61,11 +70,10 @@ body {
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
 }
 
-/* --- 이미지 배경 (차량 이미지 Pexels 링크로 최종 교체) --- */
+/* --- 카드 배경 이미지 --- */
 #finds { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/finds-bg.jpg'); }
 #rides { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/rides-bg.jpg'); }
-#stays { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/stays-bg.jpeg'); }
-/* ----------------------------------------------------------------- */
+#stays { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/stays-bg.jpg'); }
 
 .card-content {
     padding: 30px;
@@ -77,8 +85,7 @@ body {
 .card h2 {
     font-family: 'Montserrat', sans-serif;
     font-size: 2em;
-    margin-top: 0;
-    margin-bottom: 10px;
+    margin: 0 0 10px 0;
 }
 
 .card p {
@@ -89,18 +96,20 @@ body {
 
 .button {
     display: inline-block;
-    background-color: white;
-    color: #1a1a1a;
-    padding: 12px 25px;
+    background-color: var(--text-light);
+    color: var(--primary-dark);
+    padding: 12px 28px;
     border-radius: 50px;
     text-decoration: none;
     font-weight: bold;
+    font-size: 0.95em; /* 버튼 폰트 크기 통일 */
+    letter-spacing: 0.5px; /* 자간 미세 조정 */
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .button:hover:not(.disabled) {
-    background-color: #f0c14b;
-    color: black;
+    background-color: var(--accent-color);
+    color: var(--primary-dark);
 }
 
 /* 준비 중 카드 스타일 */
@@ -117,10 +126,29 @@ body {
 
 /* 푸터 (하단 저작권) */
 footer {
-    padding: 20px;
-    background-color: #1a1a1a;
+    padding: 30px 20px;
+    background-color: var(--primary-dark);
     color: #aaa;
     font-size: 0.9em;
+}
+
+footer p {
+    margin: 0;
+}
+
+footer a {
+    color: #aaa;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: var(--text-light);
+}
+
+.separator {
+    margin: 0 10px;
+    color: #555;
 }
 
 /* 모바일 반응형 */
@@ -128,4 +156,5 @@ footer {
     .hero h1 { font-size: 2.5em; }
     .hero p { font-size: 1em; }
     .card { min-height: 400px; }
+    .separator { display: block; margin: 8px 0; } /* 모바일에서는 줄바꿈 처리 */
 }
