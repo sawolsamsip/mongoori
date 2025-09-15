@@ -64,7 +64,7 @@ body {
 /* --- 이미지 배경 (차량 이미지 Pexels 링크로 최종 교체) --- */
 #finds { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/finds-bg.jpg'); }
 #rides { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/rides-bg.jpg'); }
-#stays { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/stays-bg.jpg'); }
+#stays { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/stays-bg.jpeg'); }
 /* ----------------------------------------------------------------- */
 
 .card-content {
