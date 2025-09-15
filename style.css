@@ -39,13 +39,15 @@ body {
     color: var(--text-muted);
 }
 
-/* 카드 컨테이너 */
+/* 카드 컨테이너 - 화면이 넓어져도 카드가 너무 벌어지지 않게 최대 너비를 설정합니다. */
 .container {
     display: flex;
     justify-content: center;
     align-items: stretch;
     flex-wrap: wrap;
     padding: 20px;
+    max-width: 1200px; /* 최대 너비 설정 */
+    margin: 0 auto; /* 컨테이너 중앙 정렬 */
 }
 
 /* 개별 카드 스타일 */
@@ -102,8 +104,8 @@ body {
     border-radius: 50px;
     text-decoration: none;
     font-weight: bold;
-    font-size: 0.95em; /* 버튼 폰트 크기 통일 */
-    letter-spacing: 0.5px; /* 자간 미세 조정 */
+    font-size: 0.95em;
+    letter-spacing: 0.5px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -156,5 +158,4 @@ footer a:hover {
     .hero h1 { font-size: 2.5em; }
     .hero p { font-size: 1em; }
     .card { min-height: 400px; }
-    .separator { display: block; margin: 8px 0; } /* 모바일에서는 줄바꿈 처리 */
 }
