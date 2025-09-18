@@ -1,16 +1,10 @@
-/* :root는 CSS 변수를 정의하는 곳입니다. 여기서 색상만 바꾸면 사이트 전체 색상이 바뀝니다. */
 :root {
     --primary-dark: #1a1a1a;
     --primary-light: #f4f4f4;
     --text-dark: #333;
     --text-light: #fff;
     --text-muted: #ccc;
-    --accent-color: #4A90E2; /* 포인터 컬러 */
-}
-
-/* 기본 스타일 */
-html {
-    scroll-behavior: smooth; /* 부드러운 스크롤 효과 */
+    --accent-color: #4A90E2;
 }
 
 body {
@@ -21,57 +15,6 @@ body {
     text-align: center;
 }
 
-/* --- 상단 네비게이션 바 --- */
-.main-header {
-    background-color: rgba(26, 26, 26, 0.9);
-    padding: 15px 30px;
-    position: sticky;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    backdrop-filter: blur(10px);
-}
-
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.logo {
-    font-family: 'Montserrat', sans-serif;
-    color: var(--text-light);
-    font-size: 1.5em;
-    font-weight: 700;
-    text-decoration: none;
-}
-
-.nav-menu {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-}
-
-.nav-menu li {
-    margin-left: 25px;
-}
-
-.nav-menu a {
-    color: var(--text-light);
-    text-decoration: none;
-    font-weight: 400;
-    transition: color 0.3s ease;
-}
-
-.nav-menu a:hover {
-    color: var(--accent-color);
-}
-
-/* 히어로 섹션 */
 .hero {
     background-color: var(--primary-dark);
     color: var(--text-light);
@@ -80,9 +23,9 @@ body {
 
 .hero h1 {
     font-family: 'Montserrat', sans-serif;
-    font-size: 3em;
+    font-size: 3.5em;
     margin: 0;
-    line-height: 1.4;
+    letter-spacing: 5px;
 }
 
 .hero p {
@@ -93,40 +36,16 @@ body {
     color: var(--text-muted);
 }
 
-/* 컨테이너 */
 .container {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-/* --- 브랜드 스토리 섹션 --- */
-.about {
-    padding: 60px 20px;
-    text-align: center;
-}
-.about h2 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 2.2em;
-    margin-bottom: 20px;
-}
-.about p {
-    font-size: 1.1em;
-    line-height: 1.8;
-    color: #555;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-/* 카드 래퍼 */
-.cards-wrapper {
     display: flex;
     justify-content: center;
     align-items: stretch;
     flex-wrap: wrap;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 20px auto;
 }
 
-/* 개별 카드 스타일 */
 .card {
     background-size: cover;
     background-position: center;
@@ -148,7 +67,6 @@ body {
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
 }
 
-/* 카드 배경 이미지 */
 #finds { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/finds-bg.jpg'); }
 #rides { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/rides-bg.jpg'); }
 #stays { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/stays-bg.jpg'); }
@@ -190,7 +108,6 @@ body {
     color: var(--text-light);
 }
 
-/* 준비 중 카드 스타일 */
 .card.disabled {
     cursor: not-allowed;
 }
@@ -207,7 +124,6 @@ body {
     color: #ccc;
 }
 
-/* 푸터 */
 footer {
     padding: 30px 20px;
     background-color: var(--primary-dark);
@@ -215,9 +131,7 @@ footer {
     font-size: 0.9em;
 }
 
-footer p {
-    margin: 0;
-}
+footer p { margin: 0; }
 
 footer a {
     color: #aaa;
@@ -225,134 +139,15 @@ footer a {
     transition: color 0.3s ease;
 }
 
-footer a:hover {
-    color: var(--text-light);
-}
+footer a:hover { color: var(--text-light); }
 
 .separator {
     margin: 0 10px;
     color: #555;
 }
 
-
-/* --- Sub Page Styles --- */
-.page-title {
-    padding: 60px 20px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-}
-
-.page-title h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 2.8em;
-    margin: 0 0 10px 0;
-}
-
-.page-title p {
-    font-size: 1.1em;
-    color: #666;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-/* Finds Page - Product Grid */
-.product-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    padding: 60px 0;
-}
-
-.product-card {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    overflow: hidden;
-    width: 300px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    transition: box-shadow 0.3s ease;
-    text-align: center;
-    background-color: #fff;
-}
-
-.product-card:hover {
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-}
-
-.product-image img {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    display: block;
-}
-
-.product-card h3 {
-    font-family: 'Montserrat', sans-serif;
-    margin: 15px 20px 5px 20px;
-    font-size: 1.2em;
-}
-
-.product-card .price {
-    margin: 0 20px 15px 20px;
-    font-weight: bold;
-    color: var(--accent-color);
-}
-
-.product-card .button {
-    margin: 0 20px 20px 20px;
-}
-
-/* Rides Page - Service Details */
-.service-details {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 50px;
-    padding: 60px 0;
-    text-align: left;
-}
-
-.service-image {
-    flex: 1 1 500px;
-}
-
-.service-image img {
-    width: 100%;
-    border-radius: 15px;
-}
-
-.service-description {
-    flex: 1 1 400px;
-}
-
-.service-description h2 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 2em;
-}
-
-.service-description ul {
-    list-style: none;
-    padding: 0;
-    margin: 20px 0;
-}
-
-.service-description li {
-    padding: 8px 0;
-    font-size: 1.1em;
-}
-
-
-/* 모바일 반응형 */
 @media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-    }
-    .nav-menu {
-        margin-top: 15px;
-    }
-    .hero h1 { font-size: 2.2em; }
+    .hero h1 { font-size: 2.5em; }
     .hero p { font-size: 1em; }
     .card { min-height: 400px; }
-    .about h2 { font-size: 1.8em; }
-    .page-title h1 { font-size: 2em; }
 }
