@@ -1,0 +1,24 @@
+name: Deploy to OCI Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. GitHub 저장소의 코드를 Actions 가상 머신으로 가져옵니다.
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      # 2. 가져온 코드 전체를 OCI 서버의 지정된 폴더로 복사합니다.
+      - name: Copy files to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          source: "./" # 현재 폴더의 모든 파일을
+          target: ${{ secrets.WORK_DIR }} # 이 폴더로 전송
