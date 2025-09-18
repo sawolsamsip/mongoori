@@ -5,41 +5,84 @@
     --text-dark: #333;
     --text-light: #fff;
     --text-muted: #ccc;
-    --accent-color: #f0c14b;
+    --accent-color: #4A90E2; /* 포인터 컬러 변경 */
 }
 
 /* 기본 스타일 */
+html {
+    scroll-behavior: smooth; /* 부드러운 스크롤 효과 */
+}
+
 body {
     margin: 0;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Noto Sans KR', sans-serif; /* 한글 폰트 우선 적용 */
     background-color: var(--primary-light);
     color: var(--text-dark);
     text-align: center;
-    
-    /* --- STICKY FOOTER FIX --- */
+}
+
+/* --- 상단 네비게이션 바 --- */
+.main-header {
+    background-color: rgba(26, 26, 26, 0.9);
+    padding: 15px 30px;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+.navbar {
     display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* body가 최소한 화면 전체 높이를 차지하도록 설정 */
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-/* --- STICKY FOOTER FIX --- */
-main.container {
-    flex-grow: 1; /* main 영역이 남은 공간을 모두 차지하도록 설정 */
+.logo {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-light);
+    font-size: 1.5em;
+    font-weight: 700;
+    text-decoration: none;
 }
 
+.nav-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
 
-/* 히어로 섹션 (상단 로고) */
+.nav-menu li {
+    margin-left: 25px;
+}
+
+.nav-menu a {
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: 400;
+    transition: color 0.3s ease;
+}
+
+.nav-menu a:hover {
+    color: var(--accent-color);
+}
+
+/* 히어로 섹션 */
 .hero {
     background-color: var(--primary-dark);
     color: var(--text-light);
-    padding: 60px 20px;
+    padding: 80px 20px;
 }
 
 .hero h1 {
     font-family: 'Montserrat', sans-serif;
-    font-size: 3.5em;
+    font-size: 3em;
     margin: 0;
-    letter-spacing: 5px;
+    line-height: 1.4;
 }
 
 .hero p {
@@ -50,14 +93,28 @@ main.container {
     color: var(--text-muted);
 }
 
-/* 카드 컨테이너 - 화면이 넓어져도 카드가 너무 벌어지지 않게 최대 너비를 설정합니다. */
+/* 컨테이너 */
 .container {
-    display: flex;
-    justify-content: center;
-    align-items: stretch;
-    flex-wrap: wrap;
     padding: 20px;
     max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- 브랜드 스토리 섹션 --- */
+.about {
+    padding: 60px 20px;
+    text-align: center;
+}
+.about h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.2em;
+    margin-bottom: 20px;
+}
+.about p {
+    font-size: 1.1em;
+    line-height: 1.8;
+    color: #555;
+    max-width: 800px;
     margin: 0 auto;
 }
 
@@ -78,12 +135,20 @@ main.container {
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
+/* 카드 래퍼 추가 */
+.cards-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
 .card:hover:not(.disabled) {
     transform: translateY(-10px);
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
 }
 
-/* --- 카드 배경 이미지 --- */
+/* --- 카드 배경 이미지 (중요: 이 파일들을 images 폴더에 넣어야 합니다) --- */
 #finds { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/finds-bg.jpg'); }
 #rides { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/rides-bg.jpg'); }
 #stays { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/stays-bg.jpg'); }
@@ -120,9 +185,9 @@ main.container {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.button:hover:not(.disabled) {
+.button:hover {
     background-color: var(--accent-color);
-    color: var(--primary-dark);
+    color: var(--text-light);
 }
 
 /* 준비 중 카드 스타일 */
@@ -135,6 +200,11 @@ main.container {
     color: #ccc;
     cursor: not-allowed;
     pointer-events: none;
+}
+
+.card.disabled .button:hover {
+    background-color: #555;
+    color: #ccc;
 }
 
 /* 푸터 (하단 저작권) */
@@ -166,7 +236,14 @@ footer a:hover {
 
 /* 모바일 반응형 */
 @media (max-width: 768px) {
-    .hero h1 { font-size: 2.5em; }
+    .navbar {
+        flex-direction: column;
+    }
+    .nav-menu {
+        margin-top: 15px;
+    }
+    .hero h1 { font-size: 2.2em; }
     .hero p { font-size: 1em; }
     .card { min-height: 400px; }
+    .about h2 { font-size: 1.8em; }
 }
