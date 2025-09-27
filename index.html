@@ -1,69 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>mongoori - Your Curated Lifestyle</title>
-    <meta name="description" content="Discover curated products, premium rentals, and unique spaces offered by mongoori.">
- 
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mongoori.com/">
-    <meta property="og:title" content="mongoori - Your Curated Lifestyle">
-    <meta property="og:description" content="Discover curated products, premium rentals, and unique spaces.">
-    <meta property="og:image" content="https://mongoori.com/images/preview-image.jpg">
-
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://mongoori.com/">
-    <meta property="twitter:title" content="mongoori - Your Curated Lifestyle">
-    <meta property="twitter:description" content="Discover curated products, premium rentals, and unique spaces.">
-    <meta property="twitter:image" content="https://mongoori.com/images/preview-image.jpg">
-
+    <title>Seouloved | 당신의 일상을 위한 감도 높은 제안</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500&family=Noto+Serif+KR:wght@600&display=swap" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data: https://images.unsplash.com;">
 </head>
 <body>
-    
-    <header class="hero">
-        <h1>mongoori</h1>
-        <p>Your Curated Lifestyle</p>
+    <header class="main-header">
+        <div class="container">
+            <a href="#" class="logo">Seouloved</a>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#finds">Finds</a></li>
+                    <li><a href="#stories">Stories</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
-    <main class="container">
-        <section class="card" id="finds">
-            <div class="card-content">
-                <h2>mongoori Finds</h2>
-                <p>Discover unique and stylish items that add joy to your everyday life.</p>
-                <a href="#" class="button">Shop Now</a>
+    <main>
+        <section class="intro-section">
+            <div class="container">
+                <div class="intro-text">
+                    <h1>당신의 일상을 위한<br>감도 높은 제안</h1>
+                    <p>우리는 매일의 순간들이 모여 삶이 된다고 믿습니다.<br>Seouloved는 세심하게 고른 사물과 깊이 있는 이야기를 통해<br>그 순간들을 더욱 풍요롭게 만듭니다.</p>
+                </div>
             </div>
         </section>
 
-        <section class="card" id="rides">
-            <div class="card-content">
-                <h2>mongoori Rides</h2>
-                <p>Experience a premium Tesla rental service for your next journey.</p>
-                <a href="#" class="button">Book Your Tesla</a>
-            </div>
-        </section>
-
-        <section class="card disabled" id="stays">
-            <div class="card-content">
-                <h2>mongoori Stays</h2>
-                <p>Coming Soon</p>
-                <a href="javascript:void(0);" class="button" title="This service is not yet available">Stay Tuned</a>
-            </div>
+        <section class="content-grid">
+            <div class="container">
+                <div class="grid-item large" id="finds">
+                    <img src="https://images.unsplash.com/photo-1617324829334-a3a83a9d9b0a?w=800" alt="감도 높은 제품">
+                    <div class="item-caption">
+                        <h3>Seouloved Finds</h3>
+                        <p>일상에 아름다움을 더하는 사물들.</p>
+                        <a href="#">자세히 보기 &rarr;</a>
+                    </div>
+                </div>
+                <div class="grid-item" id="stories">
+                    <img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=800" alt="책과 이야기">
+                     <div class="item-caption">
+                        <h3>Seouloved Stories</h3>
+                        <p>삶의 영감을 주는 이야기.</p>
+                        <a href="#">자세히 보기 &rarr;</a>
+                    </div>
+                </div>
+                <div class="grid-item text-block" id="about">
+                    <h2>우리의 생각</h2>
+                    <p>Seouloved는 한국의 창의성과 장인 정신을 존중합니다. 단순히 물건을 파는 것을 넘어, 그것에 담긴 이야기와 철학을 전달하고자 합니다. 당신의 삶에 오래도록 머무를 가치를 제안합니다.</p>
+                </div>
+                 </div>
         </section>
     </main>
 
-    <footer>
-        <p>
-            <a href="mailto:contact@mongoori.com">Contact Us</a>
-            <span class="separator">|</span>
-            &copy; 2025 mongoori LLC. All Rights Reserved.
-        </p>
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2025 Seouloved. All Rights Reserved.</p>
+        </div>
     </footer>
-
 </body>
 </html>
