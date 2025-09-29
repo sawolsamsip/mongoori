@@ -1,0 +1,41 @@
+
+.dropzone {
+    border: 2px dashed #999;
+    border-radius: 12px;
+    min-height: 160px;
+    padding: 16px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: #666;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+
+  .dropzone.highlight {
+    border-color: #3366ff;
+    background: #f4f7ff;
+    color: #335;
+  }
+  
+
+  .dropzone:focus-visible {
+    outline: 3px solid #88aaff;
+    outline-offset: 2px;
+  }
+  
+ 
+  #grid img {
+    max-width: 200px;
+    height: 200px;
+    object-fit: contain;
+    display: block;
+  }
+  
+
+  .flashes { padding: 8px 12px; background: #f7f7f7; border-radius: 8px; }
+  .flashes li { margin: 4px 0; }
+  
+
+  button.disabled { opacity: 0.5; pointer-events: none; }
