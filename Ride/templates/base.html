@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <title>{% block title %}Mongoori Rides{% endblock %}</title>
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous">
+        <!-- AdminLTE CSS-->
+        <link rel="stylesheet" 
+            href="{{ url_for('static', filename='adminlte/css/adminlte.min.css') }}">
+        <!-- Custom CSS-->
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+
+    <body class="hold-transition sidebar-mini layout-fixed">
+        <!-- Navbar -->
+        <nav class="app-header navbar navbar-expand bg-body">
+            <!--Begin::Container -->
+            <div class="container-fluid">
+                <!--Start Navbar links -->
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="/admin/add_vehicle" class="nav-link">Add Vehicle</a>
+                    </li>
+                </ul>
+                <!-- End Navbar links -->
+
+
+                <ul class="navbar-nav ms-auto">
+                    <!-- User menu -->
+                    <li class="nav-item dropdown user-menu">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <span>Admin Test</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                            <li class="user-header text-bg-primary">
+                                <p>
+                                    Admin Test
+                                </p>
+                            </li>
+                            <!-- Menu Footer-->
+                            <li class="user-footer">
+                                <a href="#" class="btn btn-default btn-flat">Change Password</a>
+                                <a href="#" class="btn btn-default btn-flat float-end">Sign out</a>
+                            </li> 
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- specific content for each html -->
+        <main class="container mt-4">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Bootstrap JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+        <!-- JS for action -->
+        <script src="{{ url_for('static', filename='adminlte/js/adminlte.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='upload.js') }}"></script>
+    </body>
+</html>
