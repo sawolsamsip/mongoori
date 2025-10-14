@@ -25,7 +25,7 @@ Mongoori - Add Vehicle
                 </div>
                 
                 <!--Row begin-->
-                <div class = "row">
+                <div class = "row mb-3">
                     <div class = "col-4">
                         <label for = "make" class="form-label">MAKE</label>
                         <input id = "make" name = "make" type="text" value = "TESLA" class="form-control">
@@ -35,7 +35,7 @@ Mongoori - Add Vehicle
                     <div class="col-4">
                         <label for="model" class="form-label">MODEL</label>
                         <select class="form-select" id="model" required>
-                            <option selected disabled value="">Choose...</option>
+                            
                             <option>Model 3</option>
                             <option>Model Y</option>
                         </select>
@@ -43,11 +43,38 @@ Mongoori - Add Vehicle
 
                     <div class = "col-4">
                         <label for = "year" class="form-label">YEAR</label>
-                        <select id="year" name='year' class="form-select"></selects>
+                        <select id="year" name='year' class="form-select">
+                            <option selected disabled value="">Choose...</option>
+                        </select>
                     </div>
                 </div>
                 <!--Row End-->
 
+                <!--Row Start-->
+                <div class = "row mb-3">
+                    <div class="col-4">
+                        <label for="trim" class="form-label">TRIM</label>
+                        <select id="trim" name="trim" class="form-select" disabled>
+                            <option selected disabled value="">Choose...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-4">
+                        <label for="exterior" class="form-label">EXTERIOR</label>
+                        <select id="exterior" name="exterior" class="form-select" disabled>
+                            <option selected disabled value="">Choose...</option>
+                        </select>
+                    </div>
+
+                    <div class="col-4">
+                        <label for="interior" class="form-label">INTERIOR</label>
+                        <select id="interior" name="interior" class="form-select" disabled>
+                            <option selected disabled value="">Choose...</option>
+                        </select>
+                    </div>
+
+                </div>
+                <!--Row End-->
 
             </div>
             <!-- Card body end -->
@@ -56,7 +83,7 @@ Mongoori - Add Vehicle
             <div class="card-footer">
                 <button type="submit" class = "btn btn-primary">Submit</button>
             </div>
-            <!-- Fotter End-->
+            <!-- Footer End-->
         </form>
         <!-- Form End -->
     </div>
