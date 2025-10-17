@@ -68,13 +68,55 @@ Mongoori - Add Vehicle
 
                     <div class="col-4">
                         <label for="interior" class="form-label">INTERIOR</label>
-                        <select id="interior" name="interior" class="form-select" disabled>
+                        <select id="interior" name="interior" class="form-select">
                             <option selected disabled value="">Choose...</option>
+                            <option value="black">Black</option>
+                            <option value="bnw">Black and White</option>
                         </select>
                     </div>
 
                 </div>
                 <!--Row End-->
+                
+                <!--Row Start-->
+                <div class = "row mb-3">
+                    <div class="col-4">
+                        <label for="plate_number" class="form-label">PLATE NUMBER</label>
+                        <input id = "plate_number" name = "plate_number" type = "text" class="form-control" required/>
+                    </div>
+                    <div class="col-3">
+                        <label for="mileage" class="form-label">MILEAGE</label>
+                        <input id = "mileage" name = "mileage" type = "text" class="form-control" required pattern="[0-9]+"/>
+                    </div>
+                    <div class="col-5">
+                        <label for="software" class="form-label">Software Package</label>
+                        <select id="software" name="software" class="form-select">
+                            <option selected disabled value="">Choose...</option>
+                            <option value="autopilot">Autopilot</option>
+                            <option value="EAP">Enhanced Autopilot</option>
+                            <option value="FSD">Full Self-Driving</option>
+                        </select>
+                    </div>
+
+                </div>
+                <!--Row End-->
+
+                
+                <div class = "mb-3">
+                    <label for="warranty" class="form-label">WARRANTY</label>
+                    <div class="row fw-bold text-secondary mb-1">
+                        <div class="col-md-4">Warranty Type</div>
+                        <div class="col-md-3">Expire Date</div>
+                        <div class="col-md-3">Expire Miles</div>
+                        <div class="col-md-2"></div>
+                    </div>
+                    <div class="container-fluid p-0" id="warranty-container"></div>
+                    <button type="button" class="btn btn-info mb-2" onclick="addWarranty()">
+                        <i class="fa fa-plus-circle"></i> add
+                    </button>
+                    
+                </div>
+                
 
             </div>
             <!-- Card body end -->
