@@ -15,7 +15,7 @@ Mongoori - Add Vehicle
         <!-- Card header End-->
 
         <!-- Form Begin -->
-        <form>
+        <form id = "vehicleForm" method="post">
             <!-- Card body -->
             <div class="card-body">
                 <div class="mb-3">
@@ -82,11 +82,11 @@ Mongoori - Add Vehicle
                 <div class = "row mb-3">
                     <div class="col-4">
                         <label for="plate_number" class="form-label">PLATE NUMBER</label>
-                        <input id = "plate_number" name = "plate_number" type = "text" class="form-control" required/>
+                        <input id = "plate_number" name = "plate_number" type = "text" class="form-control" />
                     </div>
                     <div class="col-3">
                         <label for="mileage" class="form-label">MILEAGE</label>
-                        <input id = "mileage" name = "mileage" type = "text" class="form-control" required pattern="[0-9]+"/>
+                        <input id = "mileage" name = "mileage" type = "text" class="form-control" pattern="[0-9]+"/>
                     </div>
                     <div class="col-5">
                         <label for="software" class="form-label">Software Package</label>

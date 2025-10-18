@@ -83,6 +83,74 @@ document.addEventListener("DOMContentLoaded", function () {
     yearSelect.addEventListener("change", updateTrims);
     trimSelect.addEventListener("change", updateExterior);
 
+    // Form submit with AJAX
+
+    const form = document.getElementById("vehicleForm");
+    if (!form) return;
+
+    function clearErrors(){
+        form.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+        form.querySelectorAll(".invalid-feedback").forEach(el => el.remove());
+    }
+
+    function showFieldError(name, msg) {
+        const input = form.querySelector(`[name="${name}"]`);
+        if (!input) return;
+        input.classList.add("is-invalid");
+        const fb = document.createElement("div");
+        fb.className = "invalid-Feedback";
+        fb.textContent = msg;
+        input.insertAdjacentElement("afterend", fb);
+    }
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        clearErrors();
+
+        const formData = new FormData(form);
+        const msgBox = document.getElementById("toastMsg");
+
+        const vin = (formData.get("vin") || "").trim().toUpperCase();
+        if(!vin) {
+            showFieldError("vin", "VIN is required.");
+            msgBox.textContent = "input VIN";
+            msgBox.className = "text-danger fw-bold mt-2";
+            return;
+        }
+
+        if (vin.length !== 17){
+            showFieldError("vin", "VIN is required.");
+            msgBox.textContent = "Incorrect VIN length";
+            msgBox.className = "text-danger fw-bold mt-2";
+            return;
+        }
+        try{
+            const res = await fetch("/admin/add_vehicle", {method: "POST", body: formData});
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok && data.next_url){
+                window.location.href = data.next_url;
+                return ;
+            }
+            
+            if (data.errors){
+                Object.entries(data.errors).forEach(([field, msg]) => showFieldError(field, msg));
+            }
+
+            msgBox.textContent = data.message || "input error";
+            msgBox.className = "text-danger fw-bold mt-2"
+
+        } catch (err) {
+            console.error("Network error", err);
+            msgBox.textContent = "Network Error";
+            msgBox.className = "text-warning fw-bold mt-2";
+
+        }
+
+    });
+
+
+
 });
 
 function addWarranty(){
@@ -152,3 +220,4 @@ function addWarranty(){
 
     container.appendChild(row);
 }
+
