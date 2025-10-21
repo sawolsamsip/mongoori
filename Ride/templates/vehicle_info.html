@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}
+Mongoori - Vehicle List
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card card-primary card-outline mb-4">
+        <!-- Card header -->
+        <div class="card-header">
+            <div class="card-title">Vehicle Information</div>
+        </div>
+        
+        <div class="card-body">
+        <!--div for Table-->
+            <table id = "vehicleTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>VIN</th>
+                        <th>Model</th>
+                        <th>Year</th>
+                        <th>Trim</th>
+                        <th>Exterior</th>
+                        <th>Interior</th>
+                        <th>Plate</th>
+                        <th>Mileage</th>
+                        <th>Software</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for v in vehicles %}
+                    <tr>
+                        <td>{{v[1]}}</td>
+                        <td>{{v[2]}}</td>
+                        <td>{{v[3]}}</td>
+                        <td>{{v[4]}}</td>
+                        <td>{{v[5]}}</td>
+                        <td>{{v[6]}}</td>
+                        <td>{{v[7]}}</td>
+                        <td>{{v[8]}}</td>
+                        <td>{{v[9]}}</td>
+                        <td>{{v[10]}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!--div for Table end-->
+
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+      $('#vehicleTable').DataTable({
+        responsive: false,
+        autoWidth: false,
+        scrollX: true,
+      });
+    });
+</script>
+{% endblock %}

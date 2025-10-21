@@ -4,7 +4,7 @@
     <head>
         <meta charset="utf-8">
         <title>{% block title %}Mongoori Rides{% endblock %}</title>
-
+        
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -13,6 +13,15 @@
         <!-- AdminLTE CSS-->
         <link rel="stylesheet" 
             href="{{ url_for('static', filename='adminlte/css/adminlte.min.css') }}">
+        
+        <!--Font Awesome 6-->
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+        <!-- DataTables CSS-->
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
         <!-- Custom CSS-->
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
@@ -31,6 +40,11 @@
                     <li class="nav-item">
                         <a href="/admin/add_vehicle" class="nav-link">Add Vehicle</a>
                     </li>
+                    
+                    <li class="nav-item">
+                        <a href="/admin/vehicle_info" class="nav-link">Vehicle Information</a>
+                    </li>
+
                 </ul>
                 <!-- End Navbar links -->
 
@@ -63,6 +77,11 @@
             {% block content %}{% endblock %}
         </main>
 
+        <!-- jQuery + DataTables JS -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
         <!-- Bootstrap JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
@@ -71,5 +90,6 @@
         <!-- JS for action -->
         <script src="{{ url_for('static', filename='adminlte/js/adminlte.min.js') }}"></script>
         <script src="{{ url_for('static', filename='upload.js') }}"></script>
+        {% block scripts %}{% endblock %}
     </body>
 </html>

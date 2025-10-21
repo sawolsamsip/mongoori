@@ -138,9 +138,21 @@ def get_exteriors():
     return jsonify(exteriors)
 
 
-@app.route('/base')
-def base_preview():
-    return(render_template("base.html"))
+@app.route("/admin/vehicle_info", methods=["GET"])
+def admin_vehicle_list():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+    
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT vehicle_id, vin, model, model_year, trim, exterior, interior, plate_number, odometer, software, vehicle_status
+        FROM vehicle
+        ORDER BY created_at DESC
+    """)
+    vehicles = cur.fetchall()
+    conn.close()
+    return(render_template("vehicle_info.html", vehicles=vehicles))
 
 @app.route('/admin/debug_session')
 def debug_session():
