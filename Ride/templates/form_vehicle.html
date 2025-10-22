@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-Mongoori - Add Vehicle
+Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -10,17 +10,29 @@ Mongoori - Add Vehicle
     <div class="card card-primary card-outline mb-4">
         <!-- Card header -->
         <div class="card-header">
-            <div class="card-title">Add New Vehicle</div>
+            <div class="card-title">
+                {% if mode == 'edit' %}
+                    Edit Vehicle Information
+                {% else %}
+                    Add New Vehicle
+                {% endif %}
+            </div>
         </div>
         <!-- Card header End-->
 
         <!-- Form Begin -->
-        <form id = "vehicleForm" method="post">
+        <form id = "vehicleForm" method="post"
+            action = "{% if mode == 'edit' %}
+                {{ url_for('update_vehicle', vehicle_id=vehicle.vehicle_id) }}
+            {% else %}
+                {{ url_for('admin_input_vehicle') }}
+            {% endif %}">
             <!-- Card body -->
             <div class="card-body">
                 <div class="mb-3">
                     <label for="VIN" class="form-label">VIN</label>
-                    <input id = "vin" name = "vin" type = "text" class="form-control" minlength="17" maxlength="17"
+                    <input id = "vin" name = "vin" type = "text" class="form-control" 
+                        value =  "{% if mode == 'edit' %}{{ vehicle.vin }}{% endif %}" minlength="17" maxlength="17"
         pattern="[A-HJ-NPR-Z0-9]{17}" required/>
                 </div>
                 

@@ -14,7 +14,7 @@ Mongoori - Vehicle List
         
         <div class="card-body">
         <!--div for Table-->
-            <table id = "vehicleTable" class="table table-bordered table-striped">
+            <table id = "vehicleTable" class="table table-bordered table-hover">
                 <thead>
                     <tr>
                         <th>VIN</th>
@@ -32,7 +32,7 @@ Mongoori - Vehicle List
 
                 <tbody>
                     {% for v in vehicles %}
-                    <tr>
+                    <tr data-id="{{v[0]}}" style="cursor:pointer;">
                         <td>{{v[1]}}</td>
                         <td>{{v[2]}}</td>
                         <td>{{v[3]}}</td>
@@ -64,6 +64,16 @@ Mongoori - Vehicle List
         autoWidth: false,
         scrollX: true,
       });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const rows = document.querySelectorAll("#vehicleTable tbody tr");
+    rows.forEach(row => {
+        row.addEventListener("click", () => {
+            const id = row.dataset.id;
+            window.location.href = `/admin/edit_vehicle/${id}`;
+            });
+        });
     });
 </script>
 {% endblock %}

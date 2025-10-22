@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, abort
 import sqlite3
 from werkzeug.security import check_password_hash
 from dotenv import load_dotenv
@@ -12,6 +12,9 @@ app = Flask(__name__)
 load_dotenv()
 app.secret_key = os.getenv("SECRET_KEY")
 DB_PATH = "app.db"
+
+def make_dict(cursor, row):
+    return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
 
 def get_pacific_time():
     now = datetime.now(ZoneInfo("America/Los_Angeles"))
@@ -55,7 +58,7 @@ def admin_add_vehicle():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
     
-    return render_template("form_vehicle.html")
+    return render_template("form_vehicle.html", mode='add')
 
 @app.route('/admin/add_vehicle', methods = ['POST'])
 def admin_input_vehicle():
@@ -153,6 +156,32 @@ def admin_vehicle_list():
     vehicles = cur.fetchall()
     conn.close()
     return(render_template("vehicle_info.html", vehicles=vehicles))
+
+@app.route("/admin/edit_vehicle/<int:vehicle_id>", methods=['GET'])
+def edit_vehicle(vehicle_id):
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+    
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = make_dict
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT * FROM vehicle WHERE vehicle_id = ?", (vehicle_id,)
+    )
+    vehicle = cur.fetchone()
+    conn.close()
+
+    if not vehicle:
+        abort(404)
+
+    return render_template("form_vehicle.html", mode="edit", vehicle = vehicle)
+
+@app.route("/admin/update_vehicle/<int:vehicle_id>", methods=['POST'])
+def update_vehicle(vehicle_id):
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+
+
 
 @app.route('/admin/debug_session')
 def debug_session():
