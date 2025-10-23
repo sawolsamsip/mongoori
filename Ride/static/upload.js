@@ -4,6 +4,29 @@ document.addEventListener("DOMContentLoaded", function () {
     const trimSelect = document.getElementById("trim");
 
     const exteriorSelect = document.getElementById("exterior");
+    const interiorSelect = document.getElementById("interior");
+
+    const softwareSelect = document.getElementById("software");
+
+    //when editing, load existing values
+    const selectedModel = modelSelect.dataset.selected;
+    const selectedYear = yearSelect.dataset.selected;
+    const selectedTrim = trimSelect.dataset.selected;
+    const selectedExterior = exteriorSelect.dataset.selected;
+    const selectedInterior = interiorSelect.dataset.selected;
+    const selectedSoftware = softwareSelect.dataset.selected;
+
+    if (selectedModel) {
+        modelSelect.value = selectedModel;
+    }
+    
+    if (selectedInterior) {
+        interiorSelect.value = selectedInterior;
+    }
+
+    if (selectedSoftware) {
+        softwareSelect.value = selectedSoftware;
+    }
 
     const startYear = 2023;
     const endYear = new Date().getFullYear() + 1;
@@ -12,12 +35,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const option = document.createElement("option");
         option.value = year;
         option.textContent = year;
+
+        if (String(year) === selectedYear){
+            option.selected = true;
+        }
         
         yearSelect.appendChild(option);
     }
 
     // get trim
-    async function updateTrims() {
+    async function updateTrims(init = false) {
         const model = modelSelect.value;
         const year = yearSelect.value;
 
@@ -35,11 +62,20 @@ document.addEventListener("DOMContentLoaded", function () {
                         const opt = document.createElement("option");
                         opt.value = t;
                         opt.textContent = t;
+
+                        if (init && selectedTrim === t) opt.selected = true;
+
                         trimSelect.appendChild(opt);
                         
                     });
                     trimSelect.disabled = false;
                 }
+
+                if (init && selectedTrim) {
+                    await updateExterior(true);
+                }
+
+
             } catch(err){
                 console.error("Error while loading trim: ", err);
             }
@@ -47,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // get exterior
-    async function updateExterior() {
+    async function updateExterior(init = false) {
         const model = modelSelect.value;
         const year = yearSelect.value;
         const trim = trimSelect.value;
@@ -66,6 +102,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         const opt = document.createElement("option");
                         opt.value = t;
                         opt.textContent = t;
+                        
+                        if (init && selectedExterior === t) opt.selected = true;
+
                         exteriorSelect.appendChild(opt);
                         
                     });
@@ -76,12 +115,18 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     }
+    
 
     //
 
-    modelSelect.addEventListener("change", updateTrims);
-    yearSelect.addEventListener("change", updateTrims);
-    trimSelect.addEventListener("change", updateExterior);
+    modelSelect.addEventListener("change", ()=> updateTrims(false));
+    yearSelect.addEventListener("change", ()=> updateTrims(false));
+    trimSelect.addEventListener("change", ()=>updateExterior(false));
+
+    if (selectedModel && selectedYear){
+        updateTrims(true);
+    }
+
 
     // Form submit with AJAX
 
@@ -125,7 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         try{
-            const res = await fetch("/admin/add_vehicle", {method: "POST", body: formData});
+            const res = await fetch(form.action, {method: "POST", body: formData});
             const data = await res.json().catch(() => ({}));
 
             if (res.ok && data.next_url){

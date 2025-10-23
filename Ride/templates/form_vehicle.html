@@ -22,11 +22,7 @@ Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
 
         <!-- Form Begin -->
         <form id = "vehicleForm" method="post"
-            action = "{% if mode == 'edit' %}
-                {{ url_for('update_vehicle', vehicle_id=vehicle.vehicle_id) }}
-            {% else %}
-                {{ url_for('admin_input_vehicle') }}
-            {% endif %}">
+            action = "{% if mode == 'edit' %}{{ url_for('admin_update_vehicle', vehicle_id=vehicle.vehicle_id) }}{% else %}{{ url_for('admin_input_vehicle') }}{% endif %}">
             <!-- Card body -->
             <div class="card-body">
                 <div class="mb-3">
@@ -46,16 +42,16 @@ Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
 
                     <div class="col-4">
                         <label for="model" class="form-label">MODEL</label>
-                        <select class="form-select" id="model" required>
-                            
-                            <option>Model 3</option>
-                            <option>Model Y</option>
+                        <select class="form-select" id="model" name="model" data-selected="{{ vehicle.model or '' }}" required>
+                            <option disabled selected value="">Choose...</option>
+                            <option value="Model 3">Model 3</option>
+                            <option value="Model Y">Model Y</option>
                         </select>
                     </div>
 
                     <div class = "col-4">
                         <label for = "year" class="form-label">YEAR</label>
-                        <select id="year" name='year' class="form-select">
+                        <select id="year" name='year' class="form-select" data-selected="{{ vehicle.model_year or '' }}">
                             <option selected disabled value="">Choose...</option>
                         </select>
                     </div>
@@ -66,24 +62,24 @@ Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
                 <div class = "row mb-3">
                     <div class="col-4">
                         <label for="trim" class="form-label">TRIM</label>
-                        <select id="trim" name="trim" class="form-select" disabled>
+                        <select id="trim" name="trim" class="form-select" data-selected="{{ vehicle.trim or '' }}" disabled>
                             <option selected disabled value="">Choose...</option>
                         </select>
                     </div>
                     
                     <div class="col-4">
                         <label for="exterior" class="form-label">EXTERIOR</label>
-                        <select id="exterior" name="exterior" class="form-select" disabled>
+                        <select id="exterior" name="exterior" class="form-select" data-selected="{{ vehicle.exterior or '' }}" disabled>
                             <option selected disabled value="">Choose...</option>
                         </select>
                     </div>
 
                     <div class="col-4">
                         <label for="interior" class="form-label">INTERIOR</label>
-                        <select id="interior" name="interior" class="form-select">
+                        <select id="interior" name="interior" class="form-select" data-selected="{{ vehicle.interior or '' }}">
                             <option selected disabled value="">Choose...</option>
                             <option value="black">Black</option>
-                            <option value="bnw">Black and White</option>
+                            <option value="Black and White">Black and White</option>
                         </select>
                     </div>
 
@@ -94,15 +90,15 @@ Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
                 <div class = "row mb-3">
                     <div class="col-4">
                         <label for="plate_number" class="form-label">PLATE NUMBER</label>
-                        <input id = "plate_number" name = "plate_number" type = "text" class="form-control" />
+                        <input id = "plate_number" name = "plate_number" type = "text" class="form-control" value="{{ vehicle.plate_number or '' }}"/>
                     </div>
                     <div class="col-3">
                         <label for="mileage" class="form-label">MILEAGE</label>
-                        <input id = "mileage" name = "mileage" type = "text" class="form-control" pattern="[0-9]+"/>
+                        <input id = "mileage" name = "mileage" type = "text" class="form-control" pattern="[0-9]+" value="{{ vehicle.odometer or '' }}"/>
                     </div>
                     <div class="col-5">
                         <label for="software" class="form-label">Software Package</label>
-                        <select id="software" name="software" class="form-select">
+                        <select id="software" name="software" class="form-select" data-selected="{{ vehicle.software or '' }}">
                             <option selected disabled value="">Choose...</option>
                             <option value="autopilot">Autopilot</option>
                             <option value="EAP">Enhanced Autopilot</option>

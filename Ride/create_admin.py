@@ -37,7 +37,7 @@ def main():
     try:
         cur = conn.cursor()
         try:
-            cur.execute("INSERT INTO AdminUser (username, password_hash) VALUES (?, ?)",
+            cur.execute("INSERT INTO admin_user (username, password_hash) VALUES (?, ?)",
                         (username, pw_hash))
             conn.commit()
             print(f"Admin user {username} created successfully.")

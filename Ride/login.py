@@ -18,12 +18,12 @@ def make_dict(cursor, row):
 
 def get_pacific_time():
     now = datetime.now(ZoneInfo("America/Los_Angeles"))
-    return now.strftime()
+    return now.strftime("%Y-%m-%d %H:%M:%S")
 
 def get_admin_user(username):
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("SELECT admin_id, username, password_hash FROM AdminUser WHERE username = ?", (username,))
+    cur.execute("SELECT admin_id, username, password_hash FROM admin_user WHERE username = ?", (username,))
     row = cur.fetchone()
     conn.close()
     return row
@@ -58,7 +58,7 @@ def admin_add_vehicle():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
     
-    return render_template("form_vehicle.html", mode='add')
+    return render_template("form_vehicle.html", mode='add', vehicle={})
 
 @app.route('/admin/add_vehicle', methods = ['POST'])
 def admin_input_vehicle():
@@ -177,9 +177,50 @@ def edit_vehicle(vehicle_id):
     return render_template("form_vehicle.html", mode="edit", vehicle = vehicle)
 
 @app.route("/admin/update_vehicle/<int:vehicle_id>", methods=['POST'])
-def update_vehicle(vehicle_id):
+def admin_update_vehicle(vehicle_id):
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
+    
+    vin = (request.form.get("vin") or "").strip().upper()
+    make = (request.form.get("make") or "").strip()
+    model = (request.form.get("model") or "").strip()
+    year = (request.form.get("year") or "").strip()
+    trim = (request.form.get("trim") or "").strip()
+    exterior = (request.form.get("exterior") or "").strip()
+    interior = (request.form.get("interior") or "").strip()
+    plate_number = (request.form.get("plate_number") or "").strip().upper()
+    mileage = (request.form.get("mileage") or "").strip()
+    software = (request.form.get("software") or "").strip()
+
+    errors = {}
+
+    if not vin:
+        errors["vin"] = "VIN is required."
+    elif len(vin) != 17:
+        errors["vin"] = "Incorrect VIN length"
+    
+    if errors:
+        return jsonify(message = "check the input fields", errors=errors), 422
+    
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE vehicle
+            SET vin = ?, make = ?, model = ?, model_year = ?, trim = ?,
+                    exterior = ?, interior = ?, plate_number = ?, odometer = ?,
+                    software = ?
+            WHERE vehicle_id = ?
+            
+        """, (vin, make or None, model or None, year or None, trim or None, exterior or None, interior or None, plate_number or None, mileage or None, software or None, vehicle_id))
+        conn.commit()
+        conn.close()
+    except sqlite3.IntegrityError:
+        return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
+    
+    return jsonify(next_url=url_for("admin_dashboard")), 200
+
+
 
 
 
