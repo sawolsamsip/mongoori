@@ -109,7 +109,7 @@ Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
                 </div>
                 <!--Row End-->
 
-                
+                {% if mode != 'edit' %}
                 <div class = "mb-3">
                     <label for="warranty" class="form-label">WARRANTY</label>
                     <div class="row fw-bold text-secondary mb-1">
@@ -124,7 +124,7 @@ Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
                     </button>
                     
                 </div>
-                
+                {% endif %}
 
             </div>
             <!-- Card body end -->

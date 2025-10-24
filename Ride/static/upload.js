@@ -209,7 +209,7 @@ function addWarranty(){
     col1.className = "col-md-4";
     
     const select = document.createElement("select");
-    select.name = "warranty_type[]";
+    select.name = "warranty_type";
     select.className = "form-select";
     
     const options = ["", "Basic Vehicle", "Battery", "Drive Unit"];
@@ -230,7 +230,7 @@ function addWarranty(){
     col2.className = "col-md-3";
     const expireDate = document.createElement("input");
     expireDate.type = "date";
-    expireDate.name = "warranty_expire[]";
+    expireDate.name = "warranty_expire_date";
     expireDate.className = "form-control";
     
     col2.appendChild(expireDate);
@@ -240,7 +240,7 @@ function addWarranty(){
     col3.className = "col-md-3";
     const milesInput = document.createElement("input");
     milesInput.type = "number";
-    milesInput.name = "warranty_miles[]";
+    milesInput.name = "warranty_expire_miles";
     milesInput.placeholder = "Miles";
     milesInput.className = "form-control";
     
