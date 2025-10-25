@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS vehicle (
     exterior TEXT,
     interior TEXT,
     plate_number TEXT,
-    odometer INTEGER,
+    mileage INTEGER,
     software TEXT,
     vehicle_status TEXT NOT NULL CHECK(vehicle_status IN ('Active', 'Inactive', 'Maintenance', 'Sold')),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -17,8 +17,13 @@ CREATE TABLE IF NOT EXISTS vehicle (
 
 CREATE TABLE IF NOT EXISTS warranty (
     warranty_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    
-)
+    vehicle_id INTEGER NOT NULL,
+    warranty_type TEXT NOT NULL,
+    expire_date DATETIME,
+    expire_miles INTEGER,
+    FOREIGN KEY(vehicle_id) REFERENCES vehicle(vehicle_id)
+
+);
 
 -- CREATE TABLE IF NOT EXISTS purchase (
 --     purchase_id INTEGER PRIMARY KEY AUTOINCREMENT,

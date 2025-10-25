@@ -32,17 +32,17 @@ Mongoori - Vehicle List
 
                 <tbody>
                     {% for v in vehicles %}
-                    <tr data-id="{{v[0]}}" style="cursor:pointer;">
-                        <td>{{v[1]}}</td>
-                        <td>{{v[2]}}</td>
-                        <td>{{v[3]}}</td>
-                        <td>{{v[4]}}</td>
-                        <td>{{v[5]}}</td>
-                        <td>{{v[6]}}</td>
-                        <td>{{v[7]}}</td>
-                        <td>{{v[8]}}</td>
-                        <td>{{v[9]}}</td>
-                        <td>{{v[10]}}</td>
+                    <tr data-id="{{v.vehicle_id}}" style="cursor:pointer;">
+                        <td>{{v.vin}}</td>
+                        <td>{{v.model}}</td>
+                        <td>{{v.model_year}}</td>
+                        <td>{{v.trim}}</td>
+                        <td>{{v.exterior}}</td>
+                        <td>{{v.interior}}</td>
+                        <td>{{v.plate_number}}</td>
+                        <td>{{v.mileage}}</td>
+                        <td>{{v.software}}</td>
+                        <td>{{v.vehicle_status}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -94,7 +94,7 @@ Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
                     </div>
                     <div class="col-3">
                         <label for="mileage" class="form-label">MILEAGE</label>
-                        <input id = "mileage" name = "mileage" type = "text" class="form-control" pattern="[0-9]+" value="{{ vehicle.odometer or '' }}"/>
+                        <input id = "mileage" name = "mileage" type = "text" class="form-control" pattern="[0-9]+" value="{{ vehicle.mileage or '' }}"/>
                     </div>
                     <div class="col-5">
                         <label for="software" class="form-label">Software Package</label>

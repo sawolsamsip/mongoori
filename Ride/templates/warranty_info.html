@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}
+Mongoori - Warranty List
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card card-primary card-outline mb-4">
+        <!-- Card header -->
+        <div class="card-header">
+            <div class="card-title">Warranty Information</div>
+        </div>
+        
+        <div class="card-body">
+        <!--div for Table-->
+            <table id = "WarrantyTable" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>VIN</th>
+                        <th>Model</th>
+                        <th>Year</th>
+                        <th>Plate</th>
+                        <th>Expire Date</th>
+                        <th>Expire Miles</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for w in warranties %}
+                    <tr data-id="{{w.vehicle_id}}" style="cursor:pointer;">
+                        <td>{{w.vin}}</td>
+                        <td>{{w.model}}</td>
+                        <td>{{w.model_year}}</td>
+                        <td>{{w.plate_number}}</td>
+                        <td>{{w.expire_date or '-'}}</td>
+                        <td>{{w.expire_miles or '-'}}</td>
+                        <td>{{w.status}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!--div for Table end-->
+
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        $.fn.dataTable.ext.order['warranty-type-order'] = function(sttings, col){
+            const orderMap = {
+                'Basic Vehicle' : 1,
+                'Battery' : 2,
+                'Drive Unit': 3
+            };
+
+            return this.api().column(col, { order: 'index'}).data().map(type => orderMap[type] || 99);
+        };
+
+        const table = $('#warrantyTable').DataTable({
+            responsive: false,
+            autoWidth: false,
+            scrollX: true,
+
+            order: [[3, 'asc'], [4, 'asc'], [5, 'asc']],
+
+            columnDefs: [
+                {targets: 3, orderDataType: 'warranty-type-order'},
+            ]
+            });
+        });
+</script>
+{% endblock %}

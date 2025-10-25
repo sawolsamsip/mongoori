@@ -90,9 +90,24 @@ def admin_input_vehicle():
         conn = sqlite3.connect(DB_PATH)
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO vehicle (vin, make, model, model_year, trim, exterior, interior, plate_number, odometer, software, vehicle_status, created_at)
+            INSERT INTO vehicle (vin, make, model, model_year, trim, exterior, interior, plate_number, mileage, software, vehicle_status, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Inactive', ?)
         """, (vin, make or None, model or None, year or None, trim or None, exterior or None, interior or None, plate_number or None, mileage or None, software or None, get_pacific_time()))
+        
+        vehicle_id = cur.lastrowid
+
+        warranty_types = request.form.getlist('warranty_type')
+        warranty_dates = request.form.getlist('warranty_expire_date')
+        warranty_miles = request.form.getlist('warranty_expire_miles')
+
+        for w_type, w_date, w_miles in zip(warranty_types, warranty_dates, warranty_miles):
+            if not w_type:
+                continue
+            cur.execute("""
+                INSERT INTO warranty (vehicle_id, warranty_type, expire_date, expire_miles)
+                VALUES (?, ?, ?, ?)
+            """, (vehicle_id, w_type.strip(), w_date.strip() if w_date else None, w_miles.strip() if w_miles else None))
+
         conn.commit()
         conn.close()
     except sqlite3.IntegrityError:
@@ -147,9 +162,10 @@ def admin_vehicle_list():
         return redirect(url_for("admin_login"))
     
     conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = make_dict
     cur = conn.cursor()
     cur.execute("""
-        SELECT vehicle_id, vin, model, model_year, trim, exterior, interior, plate_number, odometer, software, vehicle_status
+        SELECT vehicle_id, vin, model, model_year, trim, exterior, interior, plate_number, mileage, software, vehicle_status
         FROM vehicle
         ORDER BY created_at DESC
     """)
@@ -208,7 +224,7 @@ def admin_update_vehicle(vehicle_id):
         cur.execute("""
             UPDATE vehicle
             SET vin = ?, make = ?, model = ?, model_year = ?, trim = ?,
-                    exterior = ?, interior = ?, plate_number = ?, odometer = ?,
+                    exterior = ?, interior = ?, plate_number = ?, mileage = ?,
                     software = ?
             WHERE vehicle_id = ?
             
@@ -220,7 +236,23 @@ def admin_update_vehicle(vehicle_id):
     
     return jsonify(next_url=url_for("admin_dashboard")), 200
 
-
+## warranty
+@app.route("/admin/warranty_info", methods=["GET"])
+def admin_warrnty_list():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+    
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = make_dict
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT v.vehicle_id, v.vin, v.model, v.model_year, v.plate_number, w.warranty_type, w.expire_date, w.expire_miles
+        FROM warranty w
+        JOIN vehicle v ON v.vehicle_id = w.vehicle_id
+    """)
+    warranties = cur.fetchall()
+    conn.close()
+    return(render_template("warranty_info.html", warranties=warranties))
 
 
 
