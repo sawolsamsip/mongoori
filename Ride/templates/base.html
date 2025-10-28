@@ -21,6 +21,10 @@
 
         <!-- DataTables CSS-->
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+        <!-- DataTables RowGroup extension -->
+        <!-- DataTables RowGroup extension -->
+        <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.3.1/css/rowGroup.bootstrap5.min.css">
+
 
         <!-- Custom CSS-->
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -93,7 +97,9 @@
 
         <!-- JS for action -->
         <script src="{{ url_for('static', filename='adminlte/js/adminlte.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='upload.js') }}"></script>
+
+        <!-- DataTables RowGroup extension-->
+        <script src="https://cdn.datatables.net/rowgroup/1.3.1/js/dataTables.rowGroup.min.js"></script>
         {% block scripts %}{% endblock %}
     </body>
 </html>

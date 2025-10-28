@@ -16,9 +16,14 @@ DB_PATH = "app.db"
 def make_dict(cursor, row):
     return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
 
+## String type return
 def get_pacific_time():
     now = datetime.now(ZoneInfo("America/Los_Angeles"))
     return now.strftime("%Y-%m-%d %H:%M:%S")
+
+## Date type return
+def get_pacific_today():
+    return datetime.now(ZoneInfo("America/Los_Angeles")).date()
 
 def get_admin_user(username):
     conn = sqlite3.connect(DB_PATH)
@@ -27,6 +32,23 @@ def get_admin_user(username):
     row = cur.fetchone()
     conn.close()
     return row
+
+## warranty status
+def get_warranty_status(expire_date, expire_miles, current_miles):
+    today = get_pacific_today()
+
+    if expire_date:
+        try:
+            expire_date = datetime.strptime(expire_date, "%Y-%m-%d").date()
+        except ValueError:
+            expire_date = None
+
+    if expire_date and expire_date < today:
+        return "Expired"
+    if expire_miles and current_miles and int(current_miles) >= int(expire_miles):
+        return "Expired"
+    
+    return "Active"
 
 @app.route('/admin/login', methods = ['GET', 'POST'])
 def admin_login():
@@ -246,12 +268,20 @@ def admin_warrnty_list():
     conn.row_factory = make_dict
     cur = conn.cursor()
     cur.execute("""
-        SELECT v.vehicle_id, v.vin, v.model, v.model_year, v.plate_number, w.warranty_type, w.expire_date, w.expire_miles
+        SELECT v.vehicle_id, v.vin, v.model, v.model_year, v.mileage, v.plate_number, w.warranty_type, w.expire_date, w.expire_miles
         FROM warranty w
         JOIN vehicle v ON v.vehicle_id = w.vehicle_id
     """)
-    warranties = cur.fetchall()
+    rows = cur.fetchall()
     conn.close()
+
+    warranties = []
+    for row in rows:
+        row["status"] = get_warranty_status(
+            row["expire_date"], row["expire_miles"], row["mileage"]
+        )
+        warranties.append(row)
+    
     return(render_template("warranty_info.html", warranties=warranties))
 
 
