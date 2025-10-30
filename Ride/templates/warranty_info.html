@@ -30,14 +30,14 @@ Mongoori - Warranty List
 
                 <tbody>
                     {% for w in warranties %}
-                    <tr data-id="{{w.vehicle_id}}" data-type="{{w.warranty_type}}">
+                    <tr data-id="{{w.vehicle_id}}" data-warranty-id="{{w.warranty_id}}">
                         <td>{{w.vin}}</td>
                         <td>{{w.model}}</td>
                         <td>{{w.model_year}}</td>
                         <td>{{w.plate_number}}</td>
-                        <td class = "edit-type">{{w.warranty_type}}</td>
-                        <td class = "edit-date">{{w.expire_date or '-'}}</td>
-                        <td class = "edit-miles">{{w.expire_miles or '-'}}</td>
+                        <td class = "warranty_type">{{w.warranty_type}}</td>
+                        <td class = "expire_date">{{w.expire_date or '-'}}</td>
+                        <td class = "expire_miles">{{w.expire_miles or '-'}}</td>
                         <td>{{w.status}}</td>
                     </tr>
                     {% endfor %}
@@ -70,53 +70,6 @@ Mongoori - Warranty List
 {% endblock %}
 
 {% block scripts %}
-<script>
-    $(document).ready(function () {
-        $.fn.dataTable.ext.order['warranty-type-order'] = function(sttings, col){
-            const orderMap = {
-                'Basic Vehicle' : 1,
-                'Battery' : 2,
-                'Drive Unit': 3
-            };
-
-            return this.api().column(col, { order: 'index'}).data().map(type => orderMap[type] || 99);
-        };
-
-        const table = $('#warrantyTable').DataTable({
-            responsive: false,
-            autoWidth: false,
-            scrollX: true,
-
-            order: [[3, 'asc'], [4, 'asc'], [5, 'asc']],
-
-            columnDefs: [
-                {targets: 3, orderDataType: 'warranty-type-order'},
-                {targets: [0,1,2,3], visible: false}
-            ],
-
-            rowGroup: {
-                dataSrc: 0,
-                startRender: function (rows, group){
-                    const model = rows.data().pluck(1)[0];
-                    const year = rows.data().pluck(2)[0];
-                    const plate = rows.data().pluck(3)[0];
-                    const count = rows.count();
-
-                    return $('<tr/>').append(`
-                        <td colspan="7" class = "bg-light fw-bold">
-                            <div>VIN: ${group}</div>
-                            <div class = "text-muted small ms-3">
-                                ${model} (${year}) - Plate: ${plate}}
-                            </div>
-                        </td>    
-                    `);
-                }
-            }
-            });
-        });
-</script>
-
-
 <script src="{{ url_for('static', filename='warranty_edit.js') }}"></script>
 
 {% endblock %}

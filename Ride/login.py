@@ -268,7 +268,7 @@ def admin_warrnty_list():
     conn.row_factory = make_dict
     cur = conn.cursor()
     cur.execute("""
-        SELECT v.vehicle_id, v.vin, v.model, v.model_year, v.mileage, v.plate_number, w.warranty_type, w.expire_date, w.expire_miles
+        SELECT v.vehicle_id, v.vin, v.model, v.model_year, v.mileage, v.plate_number,w.warranty_id, w.warranty_type, w.expire_date, w.expire_miles
         FROM warranty w
         JOIN vehicle v ON v.vehicle_id = w.vehicle_id
     """)
@@ -285,6 +285,62 @@ def admin_warrnty_list():
     return(render_template("warranty_info.html", warranties=warranties))
 
 
+@app.route("/admin/update_warranty", methods = ["POST"])
+def admin_update_warranty():
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized")
+    
+    data = request.get_json()
+    warranty_id = data.get("warranty_id")
+    field = data.get("field")
+    value = data.get("value")
+
+    if not warranty_id or not field:
+        return jsonify(success=False, message="Invalid input"), 400
+    
+    ## update
+    allowed_fields = {"warranty_type", "expire_date", "expire_miles"}
+    if field not in allowed_fields:
+        return jsonify(success=False, message = "Invalid field")
+    
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = make_dict
+        cur = conn.cursor()
+
+        if field == "expire_miles":
+            value = int(value) if value else None
+        
+        query = f"UPDATE warranty SET {field} = ? WHERE warranty_id = ?"
+        cur.execute(query, (value, warranty_id))
+
+        cur.execute("""
+            SELECT w.expire_date, w.expire_miles, v.mileage as current_miles
+            FROM warranty w
+            JOIN vehicle v ON v.vehicle_id = w.vehicle_id
+            WHERE w.warranty_id = ?
+            """, (warranty_id,))
+        
+        w = cur.fetchone()
+
+        conn.commit()
+        conn.close()
+    
+        if w:
+            status = get_warranty_status(
+                expire_date=w["expire_date"],
+                expire_miles=w["expire_miles"],
+                current_miles= w["current_miles"]
+                )
+        else:
+            status = "-"
+        
+        return jsonify(success=True, new_status = status)
+    except Exception as e:
+        print("Update error: ", e)
+        return jsonify(success = False, message=str(e)), 500
+        
+        
 
 @app.route('/admin/debug_session')
 def debug_session():
