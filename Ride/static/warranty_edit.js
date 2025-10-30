@@ -19,7 +19,8 @@ $(document).ready(function () {
     
         columnDefs: [
             {targets: 3, orderDataType: 'warranty-type-order'},
-            {targets: [0,1,2,3], visible: false}
+            {targets: [0,1,2,3], visible: false},
+            { targets: 8, title: "", orderable: false, searchable: false }
         ],
     
         rowGroup: {
@@ -29,12 +30,18 @@ $(document).ready(function () {
                 const year = rows.data().pluck(2)[0];
                 const plate = rows.data().pluck(3)[0];
                 const count = rows.count();
+                
+                const vehicleId = rows.nodes().to$().first().data('vehicle-id');
     
                 return $('<tr/>').append(`
                     <td colspan="7" class = "bg-light fw-bold">
-                        <div>VIN: ${group}</div>
-                        <div class = "text-muted small ms-3">
-                            ${model} (${year}) - Plate: ${plate}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>VIN: ${group}<br>
+                            <small class="text-muted">${model} (${year}) Plate: ${plate}</small>
+                            </div>
+                            <button class = "btn btn-sm btn-success add-warranty-btn" data-vehicle-id="${vehicleId}">
+                                <i class="fa fa-plus-circle"></i> add
+                            </button>
                         </div>
                     </td>    
                 `);
