@@ -130,7 +130,7 @@ $(document).ready(function(){
         $('#modalBody').html(inputHTML);
         $('#editFieldInput').val(selectedCell.text().trim() === '-' ? '' : selectedCell.text().trim());
 
-        // save button //todo
+        // save button
         $('#saveFieldBtn').off('click').on('click', function(){
             const newValue = $('#editFieldInput').val();
             updateWarrantyField(warrantyId, selectedField, newValue, selectedCell);
@@ -138,4 +138,96 @@ $(document).ready(function(){
 
         modal.show();
     });
+});
+
+//add button
+
+$(document).ready(function(){
+    $('#warrantyTable').on('click', '.add-warranty-btn', function(){
+        const vehicleId = $(this).data('vehicle-id');
+
+        const modal = new bootstrap.Modal(document.getElementById("editFieldModal"));
+
+        $('#modalTitle').text('Add New Warranty');
+        $('#modalBody').html(`
+            <div class="mb-2">
+                <label class="form-label">Warranty Type</label>
+                <select id="newWarrantyType" class="form-select">
+                    <option>Basic Vehicle</option>
+                    <option>Battery</option>
+                    <option>Drive Unit</option>
+                </select>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Expire Date</label>
+                <input type="date" id="newExpireDate" class="form-control">
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Expire Miles</label>
+                <input type="number" id="newExpireMiles" class = "form-control">
+            </div>
+            `);
+        $('#saveFieldBtn').off('click').on('click', async function(){
+            const warrantyType = $('#newWarrantyType').val();
+            const expireDate = $('#newExpireDate').val();
+            const expireMiles = $('#newExpireMiles').val();
+
+            try {
+                const res = await fetch('/admin/add_warranty', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        vehicle_id: vehicleId,
+                        warranty_type: warrantyType,
+                        expire_date: expireDate,
+                        expire_miles: expireMiles
+                    }),
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    modal.hide();
+                    location.reload();
+                } else{
+                    alert(data.message || 'Failed to add warranty');
+                }
+
+            } catch (err) {
+                console.error('Error adding warranty:', err);
+                alert('Network error while adding warranty');
+            }
+        });
+
+        modal.show();
+    });  
+
+});
+
+// remove button
+$(document).ready(function(){
+    $('#warrantyTable').on('click', '.delete-warranty-btn', async function(){
+        if(!confirm('Delete this warranty?')) return;
+
+        const row = $(this).closest('tr');
+        const warrantyId = row.data('warranty-id');
+
+        try{
+            const res = await fetch('/admin/delete_warranty', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ warranty_id: warrantyId }),
+            });
+
+            const data = await res.json();
+            if (data.success){
+                row.fadeOut(300, function(){$(this).remove(); });
+            } else {
+                alert(data.message || 'Failed to delete warranty');
+            }
+        } catch (err) {
+            console.error('Error deleting warranty:', err);
+            alert('Network error while deleting warranty');
+        }
+    });
+
 });
