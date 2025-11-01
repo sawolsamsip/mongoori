@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!input) return;
         input.classList.add("is-invalid");
         const fb = document.createElement("div");
-        fb.className = "invalid-Feedback";
+        fb.className = "invalid-feedback";
         fb.textContent = msg;
         input.insertAdjacentElement("afterend", fb);
     }
@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (vin.length !== 17){
-            showFieldError("vin", "VIN is required.");
+            showFieldError("vin", "VIN must be 17 characters and numbers.");
             msgBox.textContent = "Incorrect VIN length";
             msgBox.className = "text-danger fw-bold mt-2";
             return;
@@ -174,7 +174,13 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await res.json().catch(() => ({}));
 
             if (res.ok && data.next_url){
-                window.location.href = data.next_url;
+                const toastEl = document.getElementById("successToast");
+                const toast = new bootstrap.Toast(toastEl);
+
+                msgBox.textContent = data.message || "Vehicle successfully added."
+                toast.show();
+
+                setTimeout(() => window.location.href = data.next_url, 1300);
                 return ;
             }
             

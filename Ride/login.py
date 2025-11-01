@@ -135,7 +135,7 @@ def admin_input_vehicle():
     except sqlite3.IntegrityError:
         return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
     
-    return jsonify(next_url=url_for("admin_dashboard")), 200
+    return jsonify(message="Vehicle successfully added.",next_url=url_for("admin_dashboard")), 200
 
 @app.route("/admin/get_trims")
 def get_trims():

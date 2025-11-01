@@ -32,7 +32,7 @@ Mongoori - Vehicle List
 
                 <tbody>
                     {% for v in vehicles %}
-                    <tr data-id="{{v.vehicle_id}}" style="cursor:pointer;">
+                    <tr data-id="{{v.vehicle_id}}" data-vin="{{v.vin}}" style="cursor:pointer;">
                         <td>{{v.vin}}</td>
                         <td>{{v.model}}</td>
                         <td>{{v.model_year}}</td>
@@ -54,26 +54,46 @@ Mongoori - Vehicle List
     </div>
 </div>
 
+<!-- success toast-->
+<div class="modal fade" id="vehicleActionModal" tabindex="-1" aria-labelledby="vehicleActionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-6" id="vehicleActionModalLabel">Vehicle Action</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2 text-secondary small">Vehicle VIN</div>
+                <div class="fw-bold" id="modalVehicleVin">—</div>
+                <input type="hidden" id="modalVehicleId" />
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary" id="btnEditVehicle">
+                        <i class="fa-regular fa-pen-to-square me-1"></i>Edit
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btnDeleteVehicle">
+                        <i class="fa-regular fa-trash-can me-1"></i>Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Del Toast-->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+    <div id="deleteToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="deleteToastMsg"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
-<script>
-    $(document).ready(function () {
-      $('#vehicleTable').DataTable({
-        responsive: false,
-        autoWidth: false,
-        scrollX: true,
-      });
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-    const rows = document.querySelectorAll("#vehicleTable tbody tr");
-    rows.forEach(row => {
-        row.addEventListener("click", () => {
-            const id = row.dataset.id;
-            window.location.href = `/admin/edit_vehicle/${id}`;
-            });
-        });
-    });
-</script>
+<script src="{{ url_for('static', filename='vehicle_edit.js') }}"></script>
 {% endblock %}
