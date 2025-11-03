@@ -1,5 +1,5 @@
-// view for warranty_info
 $(document).ready(function () {
+    // view for warranty_info
     $.fn.dataTable.ext.order['warranty-type-order'] = function(sttings, col){
         const orderMap = {
             'Basic Vehicle' : 1,
@@ -48,53 +48,7 @@ $(document).ready(function () {
             }
         }
     });
-});
-
-async function updateWarrantyField(warrantyId, field, newValue,  selectedCell){
-    try {
-        const res = await fetch('/admin/update_warranty', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                warranty_id: warrantyId,
-                field: field,
-                value: newValue
-            }),
-        });
-        console.log("HTTP status:", res.status)
-
-        const text = await res.text();
-        console.log("Raw response:", text);
-
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (err){
-            console.error("JSON parse error:", err);
-            alert("Invalid JSON returned from server");
-        }
-
-        if (data.success) {
-            selectedCell.text(newValue || "-");
-
-            const row = selectedCell.closest("tr");
-            row.find("td:last").text(data.new_status);
-
-            //close modal
-            const modalEl = document.getElementById("editFieldModal");
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) modalInstance.hide();
-        } else {
-            alert(data.message || "Update failed");
-        }
-    } catch (err) {
-        console.error("Network error while updating warranty:", err);
-        alert("Network error while updating warranty");
-    }
-}
-
-// edit warranty
-$(document).ready(function(){
+    // edit cell
     let selectedField = null;
     let selectedCell = null;
 
@@ -104,7 +58,10 @@ $(document).ready(function(){
         selectedCell = $(this);
         const row = $(this).closest('tr');
         const warrantyId = row.data('warranty-id');
-        selectedField = $(this).attr('class');
+        
+        selectedField = $(this).hasClass("warranty_type") ? "warranty_type"
+                        : $(this).hasClass("expire_date") ? "expire_date"
+                        : "expire_miles";
         
         let inputHTML = '';
         
@@ -138,11 +95,8 @@ $(document).ready(function(){
 
         modal.show();
     });
-});
 
-//add button
-
-$(document).ready(function(){
+    // add warranty
     $('#warrantyTable').on('click', '.add-warranty-btn', function(){
         const vehicleId = $(this).data('vehicle-id');
 
@@ -199,12 +153,9 @@ $(document).ready(function(){
         });
 
         modal.show();
-    });  
+    });
 
-});
-
-// remove button
-$(document).ready(function(){
+    //remove
     $('#warrantyTable').on('click', '.delete-warranty-btn', async function(){
         if(!confirm('Delete this warranty?')) return;
 
@@ -230,4 +181,47 @@ $(document).ready(function(){
         }
     });
 
+
 });
+
+async function updateWarrantyField(warrantyId, field, newValue,  selectedCell){
+    try {
+        const res = await fetch('/admin/update_warranty', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                warranty_id: warrantyId,
+                field: field,
+                value: newValue
+            }),
+        });
+        console.log("HTTP status:", res.status)
+
+        const text = await res.text();
+        console.log("Raw response:", text);
+
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (err){
+            console.error("JSON parse error:", err);
+            alert("Invalid JSON returned from server");
+        }
+
+        if (data.success) {
+            selectedCell.text(newValue || "-");
+
+            const row = selectedCell.closest("tr");
+            row.find("td.status").text(data.new_status);
+            //close modal
+            const modalEl = document.getElementById("editFieldModal");
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+        } else {
+            alert(data.message || "Update failed");
+        }
+    } catch (err) {
+        console.error("Network error while updating warranty:", err);
+        alert("Network error while updating warranty");
+    }
+};

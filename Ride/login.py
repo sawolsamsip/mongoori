@@ -135,7 +135,7 @@ def admin_input_vehicle():
     except sqlite3.IntegrityError:
         return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
     
-    return jsonify(message="Vehicle successfully added.",next_url=url_for("admin_dashboard")), 200
+    return jsonify(message="Vehicle successfully added.",next_url=url_for("admin_vehicle_list")), 200
 
 @app.route("/admin/get_trims")
 def get_trims():
@@ -256,7 +256,36 @@ def admin_update_vehicle(vehicle_id):
     except sqlite3.IntegrityError:
         return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
     
-    return jsonify(next_url=url_for("admin_dashboard")), 200
+    return jsonify(next_url=url_for("admin_vehicle_list")), 200
+
+## del vehicle
+@app.route("/admin/delete_vehicle", methods=['POST'])
+def admin_delete_vehicle():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+    
+    data = request.get_json()
+    vehicle_id = data.get("vehicle_id")
+
+    if not vehicle_id:
+        return jsonify(success=False, message = "Invalid request"), 400
+    
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        
+        cur.execute("DELETE FROM warranty WHERE vehicle_id = ?", (vehicle_id,))
+        cur.execute("DELETE FROM vehicle WHERE vehicle_id = ?", (vehicle_id,))
+
+        conn.commit()
+        conn.close()
+        return jsonify(success = True, message="Vehicle deleted successfully")
+    except Exception as e:
+        return jsonify(success=False, message=str(e)), 500
+    
+    
+
+####
 
 ## warranty
 @app.route("/admin/warranty_info", methods=["GET"])
