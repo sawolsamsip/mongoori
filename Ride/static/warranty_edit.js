@@ -1,15 +1,6 @@
 $(document).ready(function () {
     // view for warranty_info
-    $.fn.dataTable.ext.order['warranty-type-order'] = function(sttings, col){
-        const orderMap = {
-            'Basic Vehicle' : 1,
-            'Battery' : 2,
-            'Drive Unit': 3
-        };
-    
-        return this.api().column(col, { order: 'index'}).data().map(type => orderMap[type] || 99);
-    };
-    
+        
     const table = $('#warrantyTable').DataTable({
         responsive: false,
         autoWidth: false,

@@ -6,6 +6,7 @@ import os
 from db import init_db, close_conn
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import traceback
 
 app = Flask(__name__)
 
@@ -80,7 +81,22 @@ def admin_add_vehicle():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
     
-    return render_template("form_vehicle.html", mode='add', vehicle={})
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = make_dict
+    cur = conn.cursor()
+
+    ## purchase
+    cur.execute("""
+        SELECT warranty_type_id, type_name, display_name
+        FROM warranty_type
+        WHERE category = 'purchase' AND is_active = 1
+        ORDER BY sort_order
+    """)
+    purchase_types = cur.fetchall()
+
+    conn.close()
+
+    return render_template("form_vehicle.html", mode='add', vehicle={}, purchase_types=purchase_types)
 
 @app.route('/admin/add_vehicle', methods = ['POST'])
 def admin_input_vehicle():
@@ -108,9 +124,24 @@ def admin_input_vehicle():
     if errors:
         return jsonify(message = "check the input fields", errors=errors), 422
     
+    ## warranty list
+    warranty_types = request.form.getlist('warranty_type')
+    warranty_dates = request.form.getlist('warranty_expire_date')
+    warranty_miles = request.form.getlist('warranty_expire_miles')
+    
+    #length validation
+    if not (len(warranty_types) == len(warranty_dates) == len(warranty_miles)):
+        return jsonify(
+            message="Warranty field mismatch.",
+            errors={"warranty": "Inconsistent warranty input length."}
+        ), 422
+    
     try:
         conn = sqlite3.connect(DB_PATH)
+        conn.execute("PRAGMA foreign_keys = ON;")
         cur = conn.cursor()
+        
+        ## insert vehicle data
         cur.execute("""
             INSERT INTO vehicle (vin, make, model, model_year, trim, exterior, interior, plate_number, mileage, software, vehicle_status, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Inactive', ?)
@@ -118,23 +149,44 @@ def admin_input_vehicle():
         
         vehicle_id = cur.lastrowid
 
-        warranty_types = request.form.getlist('warranty_type')
-        warranty_dates = request.form.getlist('warranty_expire_date')
-        warranty_miles = request.form.getlist('warranty_expire_miles')
-
-        for w_type, w_date, w_miles in zip(warranty_types, warranty_dates, warranty_miles):
-            if not w_type:
+        ## insert common warranty data
+        for i, wtype in enumerate(warranty_types):
+            if not wtype:
                 continue
+            
+            wtype_id = int(wtype)
+
+            exp_date = (warranty_dates[i] or "").strip() or None
+            raw_miles = (warranty_miles[i] or "").strip()
+            exp_miles = int(raw_miles) if raw_miles.isdigit() else None
+
             cur.execute("""
-                INSERT INTO warranty (vehicle_id, warranty_type, expire_date, expire_miles)
-                VALUES (?, ?, ?, ?)
-            """, (vehicle_id, w_type.strip(), w_date.strip() if w_date else None, w_miles.strip() if w_miles else None))
+                INSERT INTO vehicle_warranty (vehicle_id, warranty_type_id, category)
+                SELECT ?, warranty_type_id, category
+                FROM warranty_type WHERE warranty_type_id = ?
+            """, (vehicle_id, wtype_id))
+
+            vw_id = cur.lastrowid
+
+            cur.execute("""
+                INSERT INTO warranty_purchase (vehicle_warranty_id, expire_date, expire_miles)
+                VALUES (?, ?, ?)
+            """, (vw_id, exp_date, exp_miles))
 
         conn.commit()
         conn.close()
     except sqlite3.IntegrityError:
+        traceback.print_exc()
+        conn.rollback()
+        conn.close()
         return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
     
+    except Exception as e:
+        traceback.print_exc()
+        conn.rollback()
+        conn.close()
+        return jsonify(message="Insert failed", error=str(e)), 500
+
     return jsonify(message="Vehicle successfully added.",next_url=url_for("admin_vehicle_list")), 200
 
 @app.route("/admin/get_trims")
@@ -283,9 +335,6 @@ def admin_delete_vehicle():
     except Exception as e:
         return jsonify(success=False, message=str(e)), 500
     
-    
-
-####
 
 ## warranty
 @app.route("/admin/warranty_info", methods=["GET"])

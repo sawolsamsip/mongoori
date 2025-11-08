@@ -152,6 +152,14 @@ Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
 
 
 {% block scripts %}
+{% if mode != 'edit' %}
+<script>
+    const PURCHASE_WARRANTIES = JSON.parse(`{{ purchase_types | tojson | safe }}`);
+</script>
+{% endif %}
+
+<script src="{{ url_for('static', filename='warranty_common.js') }}"></script>
+
 <script src="{{ url_for('static', filename='vehicle_form.js') }}"></script>
 <script src="{{ url_for('static', filename='warranty_form.js') }}"></script>
 {% endblock %}

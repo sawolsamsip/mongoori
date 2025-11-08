@@ -20,7 +20,7 @@ def init_db():
     with open("schema.sql", "r", encoding="utf-8") as f:
         conn.executescript(f.read())
     
-    # with open("db/seed.sql", "r", encoding="utf-8") as f:
-    #     conn.executescript(f.read())
+    with open("db/seed.sql", "r", encoding="utf-8") as f:
+        conn.executescript(f.read())
 
     conn.close()

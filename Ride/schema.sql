@@ -15,15 +15,40 @@ CREATE TABLE IF NOT EXISTS vehicle (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS warranty (
-    warranty_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    vehicle_id INTEGER NOT NULL,
-    warranty_type TEXT NOT NULL,
-    expire_date DATETIME,
-    expire_miles INTEGER,
-    FOREIGN KEY(vehicle_id) REFERENCES vehicle(vehicle_id)
-
+CREATE TABLE IF NOT EXISTS warranty_type (
+    warranty_type_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type_name TEXT NOT NULL UNIQUE,
+    display_name TEXT NOT NULL,
+    category TEXT NOT NULL CHECK(category IN ('purchase', 'subscription')),
+    sort_order INTEGER NOT NULL DEFAULT 100,
+    is_active INTEGER NOT NULL DEFAULT 1
 );
+
+CREATE TABLE IF NOT EXISTS vehicle_warranty (
+    vehicle_warranty_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    vehicle_id INTEGER NOT NULL,
+    warranty_type_id INTEGER NOT NULL,
+    category TEXT NOT NULL CHECK(category IN ('purchase', 'subscription')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(vehicle_id) REFERENCES vehicle(vehicle_id) ON DELETE CASCADE,
+    FOREIGN KEY(warranty_type_id) REFERENCES warranty_type(warranty_type_id)
+);
+
+CREATE TABLE IF NOT EXISTS warranty_purchase (
+    vehicle_warranty_id INTEGER PRIMARY KEY,
+    expire_date DATE,
+    expire_miles INTEGER,
+    FOREIGN KEY(vehicle_warranty_id) REFERENCES vehicle_warranty(vehicle_warranty_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS warranty_subscription (
+    vehicle_warranty_id INTEGER PRIMARY KEY,
+    start_date DATE,
+    end_date DATE,
+    monthly_cost REAL,
+    FOREIGN KEY(vehicle_warranty_id) REFERENCES vehicle_warranty(vehicle_warranty_id) ON DELETE CASCADE
+);
+
 
 -- CREATE TABLE IF NOT EXISTS purchase (
 --     purchase_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,10 +64,6 @@ CREATE TABLE IF NOT EXISTS warranty (
 --     FOREIGN KEY(vehicle_id) REFERENCES vehicle(vehicle_id)
 -- );
 
--- CREATE TABLE IF NOT EXISTS vendor (
---     vendor_id INTEGER PRIMARY KEY AUTOINCREMENT,
---     vendor_name TEXT
--- );
 
 CREATE TABLE IF NOT EXISTS admin_user (
     admin_id INTEGER PRIMARY KEY AUTOINCREMENT,

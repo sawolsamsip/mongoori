@@ -45,6 +45,16 @@ INSERT INTO model_year_trim_exterior (model_name, "year", trim_name, color_group
 ('Model Y', 2026, 'Premium', 2, 2),
 ('Model Y', 2026, 'Performance', 2, 3);
 
-
-
-
+-- WARRANTY TYPES for loading in web-page
+INSERT INTO warranty_type (type_name, display_name, category, sort_order) VALUES
+('Basic Vehicle Limited Warranty', 'Basic Vehicle', 'purchase', 1),
+('Supplemental Restraint System Warranty', 'SRS Warranty', 'purchase', 2),
+('Battery and Drive Unit Limited Warranty', 'Battery & Drive Unit', 'purchase', 3),
+('Body Rust Limited Warranty', 'Rust Warranty', 'purchase', 4),
+('ZEV Defect Warranty', 'ZEV Defect', 'purchase', 5),
+('ZEV Performance Warranty', 'ZEV Performance.', 'purchase', 6),
+('ZEV Long-Term Emission Parts Warranty', 'ZEV Emission', 'purchase', 7),
+('High-Priced Propulsion-Related Parts ZEV Warranty', 'PRP ZEV', 'purchase', 8),
+('Pre-Owned Vehicle Limited Warranty', 'CPO Warranty', 'purchase', 9),
+('Parts, Body and Paint Repair Warranty', 'Parts & Paint', 'purchase', 10),
+('Extended Service Agreement', 'Extended Service', 'subscription', 11);
