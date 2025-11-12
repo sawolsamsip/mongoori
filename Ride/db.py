@@ -3,10 +3,14 @@ from flask import g
 
 DB_PATH = "app.db"
 
+def make_dict(cursor, row):
+    return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
+
 def get_conn():
     if "db" not in g:
         conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-        conn.row_factory = sqlite3.Row
+        conn.row_factory = make_dict
+        conn.execute("PRAGMA foreign_keys = ON;")
         g.db = conn
     return g.db
 

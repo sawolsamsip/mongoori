@@ -22,7 +22,7 @@ Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
 
         <!-- Form Begin -->
         <form id = "vehicleForm" method="post"
-            action = "{% if mode == 'edit' %}{{ url_for('admin_update_vehicle', vehicle_id=vehicle.vehicle_id) }}{% else %}{{ url_for('admin_input_vehicle') }}{% endif %}">
+            action = "{% if mode == 'edit' %}{{ url_for('vehicle.admin_update_vehicle', vehicle_id=vehicle.vehicle_id) }}{% else %}{{ url_for('vehicle.admin_input_vehicle') }}{% endif %}">
             <!-- Card body -->
             <div class="card-body">
                 <div class="mb-3">

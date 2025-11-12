@@ -1,47 +1,39 @@
-import os, uuid
-from werkzeug.utils import secure_filename
-from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from dotenv import load_dotenv
+import os
+from db import init_db, close_conn
+from routes.auth import auth_bp
+from routes.vehicle import vehicle_bp
+from routes.warranty import warranty_bp
 
-from flask import Flask, render_template, request, jsonify, send_from_directory, abort
-from db import init_db, insert_company, list_companies, close_conn
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "dev"
+app.secret_key = os.getenv("SECRET_KEY")
 
-## make folder to save uploaded image files
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+##
+app.teardown_appcontext(close_conn)
+##
+app.register_blueprint(auth_bp)
+app.register_blueprint(vehicle_bp, url_prefix="/admin")
+app.register_blueprint(warranty_bp, url_prefix="/admin")
 
-@app.route("/", methods = ["GET"])
-def form_page():
-    return render_template('test.html')
+@app.route('/admin/dashboard', methods=['GET', 'POST'])
+def admin_dashboard():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+    
+    return render_template("base.html")
+    
 
-@app.route("/api/upload", methods=["POST"])
-def api_upload():
-    cname = request.form.get("Cname", "").strip()
-    oname = request.form.get("Oname", "").strip()
-    image = request.files.get("Image")
 
-    if not cname or not oname:
-        return jsonify({"ok": False, "message": "Missing required fields"})
-    insert_company(cname, oname)
+        
+        
 
-    if image and image.filename:
-        ext = image.filename.rsplit(".", 1)[-1].lower() if "." in image.filename else "bin"
-        stored_name = f"{uuid.uuid4().hex}.{ext}"
-        safe_name = secure_filename(stored_name)
-        image.save(os.path.join(UPLOAD_DIR, safe_name))
-
-    return jsonify({"ok": True, "message": "Submission successful"})
-
-# Route: Serve uploaded image
-@app.route("/file/<path:filename>")
-def serve_file(filename):
-    safe = secure_filename(filename)
-    if safe != filename:
-        abort(400)
-    return send_from_directory(UPLOAD_DIR, safe)
+@app.route('/admin/debug_session')
+def debug_session():
+    return jsonify(dict(session))
+    
 
 if __name__ == "__main__":
     init_db()

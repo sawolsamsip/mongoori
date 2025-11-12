@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}
+Mongoori - Warranty List
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card card-primary card-outline mb-4">
+        <!-- Card header -->
+        <div class="card-header">
+            <div class="card-title">Warranty Information</div>
+        </div>
+        
+        <div class="card-body">
+        <!--div for Table-->
+            <table id = "warrantyTable" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>VIN</th>
+                        <th>Model</th>
+                        <th>Year</th>
+                        <th>Plate</th>
+                        <th>Type</th>
+                        <th>Expire Date</th>
+                        <th>Expire Miles</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for w in warranties %}
+                    <tr data-id="{{w.vehicle_id}}" data-warranty-id="{{w.vehicle_warranty_id}}">
+                        <td>{{w.vin}}</td>
+                        <td>{{w.model}}</td>
+                        <td>{{w.model_year}}</td>
+                        <td>{{w.plate_number}}</td>
+                        <td class = "warranty_type">{{w.warranty_type}}</td>
+                        <td class = "expire_date">{{w.expire_date or '-'}}</td>
+                        <td class = "expire_miles">{{w.expire_miles or '-'}}</td>
+                        <td class = "status">{{w.status}}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger delete-warranty-btn">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!--div for Table end-->
+
+    </div>
+</div>
+
+<!-- Modal -->
+<div class = "modal fade" id="editFieldModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Edit Field</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="saveFieldBtn" class="btn btn-primary btn-sm">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='warranty_edit.js') }}"></script>
+
+{% endblock %}

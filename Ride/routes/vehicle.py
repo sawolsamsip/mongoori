@@ -1,88 +1,33 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, abort
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session, abort
+from db import get_conn
+from utils.time_utils import get_pacific_time
 import sqlite3
-from werkzeug.security import check_password_hash
-from dotenv import load_dotenv
-import os
-from db import init_db, close_conn
-from datetime import datetime
-from zoneinfo import ZoneInfo
-import traceback
 
-app = Flask(__name__)
+vehicle_bp = Blueprint("vehicle", __name__)
 
-load_dotenv()
-app.secret_key = os.getenv("SECRET_KEY")
-DB_PATH = "app.db"
-
-def make_dict(cursor, row):
-    return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
-
-## String type return
-def get_pacific_time():
-    now = datetime.now(ZoneInfo("America/Los_Angeles"))
-    return now.strftime("%Y-%m-%d %H:%M:%S")
-
-## Date type return
-def get_pacific_today():
-    return datetime.now(ZoneInfo("America/Los_Angeles")).date()
-
-def get_admin_user(username):
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute("SELECT admin_id, username, password_hash FROM admin_user WHERE username = ?", (username,))
-    row = cur.fetchone()
-    conn.close()
-    return row
-
-## warranty status
-def get_warranty_status(expire_date, expire_miles, current_miles):
-    today = get_pacific_today()
-
-    if expire_date:
-        try:
-            expire_date = datetime.strptime(expire_date, "%Y-%m-%d").date()
-        except ValueError:
-            expire_date = None
-
-    if expire_date and expire_date < today:
-        return "Expired"
-    if expire_miles and current_miles and int(current_miles) >= int(expire_miles):
-        return "Expired"
-    
-    return "Active"
-
-@app.route('/admin/login', methods = ['GET', 'POST'])
-def admin_login():
-    if request.method == 'POST':
-        username = request.form['username'].strip()
-        password = request.form['password']
-
-        user = get_admin_user(username)
-        if user and check_password_hash(user[2], password):
-            session["admin_logged_in"] = True
-            session["admin_username"] = user[1]
-            return redirect(url_for("admin_dashboard"))
-        
-        else:
-            flash("Invalid username or password")
-            return redirect(url_for("admin_login"))
-    
-    return render_template("login-session.html")
-
-@app.route('/admin/dashboard', methods=['GET', 'POST'])
-def admin_dashboard():
+@vehicle_bp.route("/vehicle_info", methods=["GET"])
+def admin_vehicle_list():
     if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("auth.admin_login"))
     
-    return render_template("base.html")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT vehicle_id, vin, model, model_year, trim, exterior, interior, plate_number, mileage, software, vehicle_status
+        FROM vehicle
+        ORDER BY created_at DESC
+    """)
+    vehicles = cur.fetchall()
+    conn.close()
+    return(render_template("vehicle_info.html", vehicles=vehicles))
 
-@app.route('/admin/add_vehicle', methods = ['GET'])
+## add vehicle to load 'purchase' warranty options for dropdown list
+@vehicle_bp.route('/add_vehicle', methods = ['GET'])
 def admin_add_vehicle():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
     
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = make_dict
+    conn = get_conn()
     cur = conn.cursor()
 
     ## purchase
@@ -98,7 +43,8 @@ def admin_add_vehicle():
 
     return render_template("form_vehicle.html", mode='add', vehicle={}, purchase_types=purchase_types)
 
-@app.route('/admin/add_vehicle', methods = ['POST'])
+
+@vehicle_bp.route('/add_vehicle', methods = ['POST'])
 def admin_input_vehicle():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
@@ -137,8 +83,7 @@ def admin_input_vehicle():
         ), 422
     
     try:
-        conn = sqlite3.connect(DB_PATH)
-        conn.execute("PRAGMA foreign_keys = ON;")
+        conn = get_conn()
         cur = conn.cursor()
         
         ## insert vehicle data
@@ -176,25 +121,23 @@ def admin_input_vehicle():
         conn.commit()
         conn.close()
     except sqlite3.IntegrityError:
-        traceback.print_exc()
         conn.rollback()
         conn.close()
         return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
     
     except Exception as e:
-        traceback.print_exc()
         conn.rollback()
         conn.close()
         return jsonify(message="Insert failed", error=str(e)), 500
 
-    return jsonify(message="Vehicle successfully added.",next_url=url_for("admin_vehicle_list")), 200
+    return jsonify(message="Vehicle successfully added.",next_url=url_for("vehicle.admin_vehicle_list")), 200
 
-@app.route("/admin/get_trims")
+@vehicle_bp.route("/get_trims")
 def get_trims():
     model_name = request.args.get("model_name")
     year = request.args.get("year")
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         SELECT trim_name
@@ -202,18 +145,18 @@ def get_trims():
         WHERE model_name=? AND "year"=?
         ORDER BY sort_order;
     """, (model_name, year))
-    trims = [r[0] for r in cur.fetchall()]
+    trims = [r["trim_name"] for r in cur.fetchall()]
     conn.close()
     return jsonify(trims)
 
 
-@app.route("/admin/get_exteriors")
+@vehicle_bp.route("/get_exteriors")
 def get_exteriors():
     model_name = request.args.get("model_name")
     year = request.args.get("year")
     trim = request.args.get("trim")
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_conn()
     cur = conn.cursor()
 
     cur.execute("""
@@ -225,35 +168,18 @@ def get_exteriors():
         ORDER BY sort_order;
     """, (model_name, year, trim))
 
-    exteriors = [r[0] for r in cur.fetchall()]
+    exteriors = [r["color_name"] for r in cur.fetchall()]
     conn.close()
     return jsonify(exteriors)
 
 
-@app.route("/admin/vehicle_info", methods=["GET"])
-def admin_vehicle_list():
-    if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
-    
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = make_dict
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT vehicle_id, vin, model, model_year, trim, exterior, interior, plate_number, mileage, software, vehicle_status
-        FROM vehicle
-        ORDER BY created_at DESC
-    """)
-    vehicles = cur.fetchall()
-    conn.close()
-    return(render_template("vehicle_info.html", vehicles=vehicles))
 
-@app.route("/admin/edit_vehicle/<int:vehicle_id>", methods=['GET'])
+@vehicle_bp.route("/edit_vehicle/<int:vehicle_id>", methods=['GET'])
 def edit_vehicle(vehicle_id):
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
     
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = make_dict
+    conn = get_conn()
     cur = conn.cursor()
     cur.execute(
         "SELECT * FROM vehicle WHERE vehicle_id = ?", (vehicle_id,)
@@ -266,7 +192,7 @@ def edit_vehicle(vehicle_id):
 
     return render_template("form_vehicle.html", mode="edit", vehicle = vehicle)
 
-@app.route("/admin/update_vehicle/<int:vehicle_id>", methods=['POST'])
+@vehicle_bp.route("/update_vehicle/<int:vehicle_id>", methods=['POST'])
 def admin_update_vehicle(vehicle_id):
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
@@ -293,7 +219,7 @@ def admin_update_vehicle(vehicle_id):
         return jsonify(message = "check the input fields", errors=errors), 422
     
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_conn()
         cur = conn.cursor()
         cur.execute("""
             UPDATE vehicle
@@ -308,10 +234,10 @@ def admin_update_vehicle(vehicle_id):
     except sqlite3.IntegrityError:
         return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
     
-    return jsonify(next_url=url_for("admin_vehicle_list")), 200
+    return jsonify(next_url=url_for("vehicle.admin_vehicle_list")), 200
 
 ## del vehicle
-@app.route("/admin/delete_vehicle", methods=['POST'])
+@vehicle_bp.route("/delete_vehicle", methods=['POST'])
 def admin_delete_vehicle():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
@@ -323,7 +249,7 @@ def admin_delete_vehicle():
         return jsonify(success=False, message = "Invalid request"), 400
     
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_conn()
         cur = conn.cursor()
         
         cur.execute("DELETE FROM warranty WHERE vehicle_id = ?", (vehicle_id,))
@@ -334,97 +260,3 @@ def admin_delete_vehicle():
         return jsonify(success = True, message="Vehicle deleted successfully")
     except Exception as e:
         return jsonify(success=False, message=str(e)), 500
-    
-
-## warranty
-@app.route("/admin/warranty_info", methods=["GET"])
-def admin_warrnty_list():
-    if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
-    
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = make_dict
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT v.vehicle_id, v.vin, v.model, v.model_year, v.mileage, v.plate_number,w.warranty_id, w.warranty_type, w.expire_date, w.expire_miles
-        FROM warranty w
-        JOIN vehicle v ON v.vehicle_id = w.vehicle_id
-    """)
-    rows = cur.fetchall()
-    conn.close()
-
-    warranties = []
-    for row in rows:
-        row["status"] = get_warranty_status(
-            row["expire_date"], row["expire_miles"], row["mileage"]
-        )
-        warranties.append(row)
-    
-    return(render_template("warranty_info.html", warranties=warranties))
-
-
-@app.route("/admin/update_warranty", methods = ["POST"])
-def admin_update_warranty():
-    if not session.get("admin_logged_in"):
-        return jsonify(success=False, message="Unauthorized")
-    
-    data = request.get_json()
-    warranty_id = data.get("warranty_id")
-    field = data.get("field")
-    value = data.get("value")
-
-    if not warranty_id or not field:
-        return jsonify(success=False, message="Invalid input"), 400
-    
-    ## update
-    allowed_fields = {"warranty_type", "expire_date", "expire_miles"}
-    if field not in allowed_fields:
-        return jsonify(success=False, message = "Invalid field")
-    
-    try:
-        conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = make_dict
-        cur = conn.cursor()
-
-        if field == "expire_miles":
-            value = int(value) if value else None
-        
-        query = f"UPDATE warranty SET {field} = ? WHERE warranty_id = ?"
-        cur.execute(query, (value, warranty_id))
-
-        cur.execute("""
-            SELECT w.expire_date, w.expire_miles, v.mileage as current_miles
-            FROM warranty w
-            JOIN vehicle v ON v.vehicle_id = w.vehicle_id
-            WHERE w.warranty_id = ?
-            """, (warranty_id,))
-        
-        w = cur.fetchone()
-
-        conn.commit()
-        conn.close()
-    
-        if w:
-            status = get_warranty_status(
-                expire_date=w["expire_date"],
-                expire_miles=w["expire_miles"],
-                current_miles= w["current_miles"]
-                )
-        else:
-            status = "-"
-        
-        return jsonify(success=True, new_status = status)
-    except Exception as e:
-        print("Update error: ", e)
-        return jsonify(success = False, message=str(e)), 500
-        
-        
-
-@app.route('/admin/debug_session')
-def debug_session():
-    return jsonify(dict(session))
-    
-
-if __name__ == "__main__":
-    init_db()
-    app.run(debug=True)
