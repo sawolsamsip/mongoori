@@ -22,8 +22,8 @@ Mongoori - Warranty List
                         <th>Year</th>
                         <th>Plate</th>
                         <th>Type</th>
-                        <th>Expire Date</th>
-                        <th>Expire Miles</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -37,8 +37,8 @@ Mongoori - Warranty List
                         <td>{{w.model_year}}</td>
                         <td>{{w.plate_number}}</td>
                         <td class = "warranty_type">{{w.warranty_type}}</td>
-                        <td class = "expire_date">{{w.expire_date or '-'}}</td>
-                        <td class = "expire_miles">{{w.expire_miles or '-'}}</td>
+                        <td class = "start_date">{{w.start_date or '-'}}</td>
+                        <td class = "end_date">{{w.end_date or '-'}}</td>
                         <td class = "status">{{w.status}}</td>
                         <td>
                             <button class="btn btn-sm btn-outline-danger delete-warranty-btn">
@@ -76,6 +76,6 @@ Mongoori - Warranty List
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='warranty_edit.js') }}"></script>
+<script src="{{ url_for('static', filename='warranty_edit_subscription.js') }}"></script>
 
 {% endblock %}

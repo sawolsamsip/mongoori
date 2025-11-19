@@ -14,6 +14,7 @@ app.secret_key = os.getenv("SECRET_KEY")
 ##
 app.teardown_appcontext(close_conn)
 ##
+
 app.register_blueprint(auth_bp)
 app.register_blueprint(vehicle_bp, url_prefix="/admin")
 app.register_blueprint(warranty_bp, url_prefix="/admin")
@@ -24,11 +25,6 @@ def admin_dashboard():
         return redirect(url_for("admin_login"))
     
     return render_template("base.html")
-    
-
-
-        
-        
 
 @app.route('/admin/debug_session')
 def debug_session():

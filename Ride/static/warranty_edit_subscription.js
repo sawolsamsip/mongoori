@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    // view for warranty_info
+    // view for warranty_info ## need to change from purchase feature
         
     const table = $('#warrantyTable').DataTable({
         responsive: false,
@@ -45,40 +45,43 @@ $(document).ready(function () {
 
     const modal = new bootstrap.Modal(document.getElementById("editFieldModal"));
 
-    $('#warrantyTable').on('click', '.warranty_type, .expire_date, .expire_miles', function(){
+    $('#warrantyTable').on('click', '.warranty_type, .start_date, .end_date', function(){
         selectedCell = $(this);
         const row = $(this).closest('tr');
         const warrantyId = row.data('warranty-id');
         
         selectedField = $(this).hasClass("warranty_type") ? "warranty_type"
-                        : $(this).hasClass("expire_date") ? "expire_date"
-                        : "expire_miles";
+                        : $(this).hasClass("start_date") ? "start_date"
+                        : "end_date";
         
         let inputHTML = '';
         
+        // load possible warranties
         if(selectedField === 'warranty_type'){
             $('#modalTitle').text('Edit Warranty Type');
-            inputHTML = `
-                <select id = "editFieldInput" class="form-select">
-                    <option>Basic Vehicle</option>
-                    <option>Battery</option>
-                    <option>Drive Unit</option>
-                </select>
-            `;
+            const select = document.createElement("select");
+            select.id = "editFieldInput";
+            select.className = "form-select";
+            
+            //call function to load options
+            loadWarrantyTypes(select, SUBSCRIPTION_WARRANTIES);
+
+            inputHTML = select.outerHTML;
+
         }
-        else if (selectedField === 'expire_date'){
-            $('#modalTitle').text('Edit Expire Date');
+        else if (selectedField === 'start_date'){
+            $('#modalTitle').text('Edit Start Date');
             inputHTML = `<input type="date" id="editFieldInput" class="form-control">`;
         }
-        else if (selectedField === 'expire_miles') {
-            $('#modalTitle').text('Edit Expire Miles');
-            inputHTML = `<input type="number" id="editFieldInput" class="form-control" placeholder="Enter miles">`;
+        else if (selectedField === 'end_date') {
+            $('#modalTitle').text('Edit End Date');
+            inputHTML = `<input type="date" id="editFieldInput" class="form-control">`;
         }
 
         $('#modalBody').html(inputHTML);
         $('#editFieldInput').val(selectedCell.text().trim() === '-' ? '' : selectedCell.text().trim());
 
-        // save button
+        // save button //todo
         $('#saveFieldBtn').off('click').on('click', function(){
             const newValue = $('#editFieldInput').val();
             updateWarrantyField(warrantyId, selectedField, newValue, selectedCell);
@@ -92,16 +95,18 @@ $(document).ready(function () {
         const vehicleId = $(this).data('vehicle-id');
 
         const modal = new bootstrap.Modal(document.getElementById("editFieldModal"));
-
         $('#modalTitle').text('Add New Warranty');
-        $('#modalBody').html(`
+
+        // create elements for warranty list
+        const typeSelect = document.createElement("select");
+        typeSelect.id = "newWarrantyType";
+        typeSelect.className = "form-select";
+        loadWarrantyTypes(select, SUBSCRIPTION_WARRANTIES);
+
+        const modalBodyHTML = `
             <div class="mb-2">
                 <label class="form-label">Warranty Type</label>
-                <select id="newWarrantyType" class="form-select">
-                    <option>Basic Vehicle</option>
-                    <option>Battery</option>
-                    <option>Drive Unit</option>
-                </select>
+                ${typeSelect.outerHTML}
             </div>
             <div class="mb-2">
                 <label class="form-label">Expire Date</label>
@@ -109,9 +114,12 @@ $(document).ready(function () {
             </div>
             <div class="mb-2">
                 <label class="form-label">Expire Miles</label>
-                <input type="number" id="newExpireMiles" class = "form-control">
+                <input type="number" id="newExpireMiles" class="form-control">
             </div>
-            `);
+        `;
+
+        $('#modalBody').html(modalBodyHTML);
+        
         $('#saveFieldBtn').off('click').on('click', async function(){
             const warrantyType = $('#newWarrantyType').val();
             const expireDate = $('#newExpireDate').val();

@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session
 from db import get_conn
-from utils.warranty_utils import get_warranty_status
+from utils.warranty_utils import get_warranty_status, get_warranty_status_subscritpion, get_subscription_warranty_types, get_purchase_warranty_types
 
 warranty_bp = Blueprint("warranty", __name__)
 
 
-## warranty
+## warranty - purchase
 @warranty_bp.route("/warranty_info_purchase", methods=["GET"])
 def admin_warranty_list():
     if not session.get("admin_logged_in"):
@@ -33,11 +33,11 @@ def admin_warranty_list():
             ON vw.warranty_type_id = wt.warranty_type_id
         LEFT JOIN warranty_purchase wp
             ON vw.vehicle_warranty_id = wp.vehicle_warranty_id
+        WHERE wt.category = 'purchase'
         ORDER BY v.vin ASC, wt.sort_order ASC
     """)
 
     rows = cur.fetchall()
-    conn.close()
 
     warranties = []
 
@@ -47,7 +47,52 @@ def admin_warranty_list():
         )
         warranties.append(row)
     
-    return(render_template("warranty_info_purchase.html", warranties=warranties))
+    return render_template("warranty_info_purchase.html", warranties=warranties, purchase_types = get_purchase_warranty_types())
+
+## warranty - subscription
+@warranty_bp.route("/warranty_info_subscription", methods=["GET"])
+def admin_warranty_sub_list():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+    
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT
+            v.vehicle_id,
+            v.vin,
+            v.model,
+            v.model_year,
+            v.plate_number,
+            vw.vehicle_warranty_id,
+            wt.display_name AS warranty_type,
+            wt.category,
+            ws.start_date,
+            ws.end_date
+        FROM vehicle v
+        JOIN vehicle_warranty vw
+            ON v.vehicle_id = vw.vehicle_id
+        JOIN warranty_type wt
+            ON vw.warranty_type_id = wt.warranty_type_id
+        LEFT JOIN warranty_subscription ws
+            ON vw.vehicle_warranty_id = ws.vehicle_warranty_id
+        WHERE wt.category = 'subscription'
+        ORDER BY v.vin ASC, wt.sort_order ASC
+    """)
+
+    rows = cur.fetchall()
+
+    warranties = []
+
+    for row in rows:
+        row["status"] = get_warranty_status_subscritpion(
+            row.get("end_date")
+        )
+        warranties.append(row)
+    
+    return render_template("warranty_info_subscription.html", warranties=warranties, purchase_types = get_subscription_warranty_types())
+
+##
 
 
 @warranty_bp.route("/update_warranty", methods = ["POST"])
@@ -88,7 +133,7 @@ def admin_update_warranty():
         w = cur.fetchone()
 
         conn.commit()
-        conn.close()
+        
     
         if w:
             status = get_warranty_status(

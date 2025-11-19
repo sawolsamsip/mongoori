@@ -15,7 +15,7 @@ function addWarranty(){
 
     colType.appendChild(warrantySelect);    
 
-    loadPurchaseWarrantyTypes(warrantySelect);
+    loadWarrantyTypes(warrantySelect, PURCHASE_WARRANTIES);
 
     // Warranty expire date
     const colDate = document.createElement("div");

@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session, abort
 from db import get_conn
 from utils.time_utils import get_pacific_time
+from utils.warranty_utils import get_purchase_warranty_types, get_subscription_warranty_types
 import sqlite3
 
 vehicle_bp = Blueprint("vehicle", __name__)
@@ -18,8 +19,11 @@ def admin_vehicle_list():
         ORDER BY created_at DESC
     """)
     vehicles = cur.fetchall()
-    conn.close()
-    return(render_template("vehicle_info.html", vehicles=vehicles))
+
+    purchase_types = get_purchase_warranty_types()
+    subscription_types = get_subscription_warranty_types()
+    
+    return(render_template("vehicle_info.html", vehicles=vehicles, purchase_types=purchase_types, subscription_types=subscription_types))
 
 ## add vehicle to load 'purchase' warranty options for dropdown list
 @vehicle_bp.route('/add_vehicle', methods = ['GET'])
@@ -27,19 +31,8 @@ def admin_add_vehicle():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
     
-    conn = get_conn()
-    cur = conn.cursor()
-
-    ## purchase
-    cur.execute("""
-        SELECT warranty_type_id, type_name, display_name
-        FROM warranty_type
-        WHERE category = 'purchase' AND is_active = 1
-        ORDER BY sort_order
-    """)
-    purchase_types = cur.fetchall()
-
-    conn.close()
+    
+    purchase_types = get_purchase_warranty_types()
 
     return render_template("form_vehicle.html", mode='add', vehicle={}, purchase_types=purchase_types)
 
@@ -119,15 +112,15 @@ def admin_input_vehicle():
             """, (vw_id, exp_date, exp_miles))
 
         conn.commit()
-        conn.close()
+        
     except sqlite3.IntegrityError:
         conn.rollback()
-        conn.close()
+        
         return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
     
     except Exception as e:
         conn.rollback()
-        conn.close()
+        
         return jsonify(message="Insert failed", error=str(e)), 500
 
     return jsonify(message="Vehicle successfully added.",next_url=url_for("vehicle.admin_vehicle_list")), 200
@@ -146,7 +139,7 @@ def get_trims():
         ORDER BY sort_order;
     """, (model_name, year))
     trims = [r["trim_name"] for r in cur.fetchall()]
-    conn.close()
+    
     return jsonify(trims)
 
 
@@ -169,7 +162,7 @@ def get_exteriors():
     """, (model_name, year, trim))
 
     exteriors = [r["color_name"] for r in cur.fetchall()]
-    conn.close()
+    
     return jsonify(exteriors)
 
 
@@ -185,7 +178,7 @@ def edit_vehicle(vehicle_id):
         "SELECT * FROM vehicle WHERE vehicle_id = ?", (vehicle_id,)
     )
     vehicle = cur.fetchone()
-    conn.close()
+    
 
     if not vehicle:
         abort(404)
@@ -230,7 +223,7 @@ def admin_update_vehicle(vehicle_id):
             
         """, (vin, make or None, model or None, year or None, trim or None, exterior or None, interior or None, plate_number or None, mileage or None, software or None, vehicle_id))
         conn.commit()
-        conn.close()
+        
     except sqlite3.IntegrityError:
         return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
     
@@ -252,11 +245,10 @@ def admin_delete_vehicle():
         conn = get_conn()
         cur = conn.cursor()
         
-        cur.execute("DELETE FROM warranty WHERE vehicle_id = ?", (vehicle_id,))
         cur.execute("DELETE FROM vehicle WHERE vehicle_id = ?", (vehicle_id,))
 
         conn.commit()
-        conn.close()
+        
         return jsonify(success = True, message="Vehicle deleted successfully")
     except Exception as e:
         return jsonify(success=False, message=str(e)), 500

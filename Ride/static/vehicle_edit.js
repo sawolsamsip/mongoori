@@ -1,4 +1,3 @@
-
 function showToast(msg){
     const toastEl = document.getElementById("successToast");
     const msgBox = document.getElementById("toastMsg");
@@ -16,55 +15,111 @@ $(document).ready(function () {
     scrollX: true,
     });
 
-    const modal = new bootstrap.Modal(document.getElementById("vehicleActionModal"));
+    let openedActionRow = null;
 
     $('#vehicleTable tbody').on('click', 'tr', function(){
-        const id = $(this).data('id');
-        const vin = $(this).data('vin');
+        const vehicleId = $(this).data('id');
+        if (!vehicleId) return;
 
-        if (!id) return;
+        if(openedActionRow){
+            openedActionRow.child.hide();
+            openedActionRow = null;
+        }
+        
+        // add action row
+        
+        const actionHtml = `
+            <div class="d-flex gap-3 py-2">
 
-        $('#modalVehicleId').val(id);
-        $('#modalVehicleVin').text(vin || '-');
+            <button class="btn btn-sm btn-outline-primary actAddPurchase" data-id="${vehicleId}">
+                + Purchase Warranty
+            </button>
 
-        modal.show();
+            <button class="btn btn-sm btn-outline-primary actAddSubscription" data-id="${vehicleId}">
+                + Subscription Warranty
+            </button>
+
+            <button class="btn btn-sm btn-outline-secondary actEditVehicle" data-id="${vehicleId}">
+                Edit
+            </button>
+
+            <button class="btn btn-sm btn-outline-danger actDeleteVehicle" data-id="${vehicleId}">
+                Delete
+            </button>
+
+        </div>
+        `;
+        
+        const row = table.row(this);
+        row.child(actionHtml).show();
+
+        openedActionRow = row;
+
     });
 
-    $('#btnEditVehicle').on('click', async function(){
-        const id = $('#modalVehicleId').val();
+    $(document).on('click', '.actEditVehicle', function(){
+        const id = $(this).data('id');
         if (!id) return;
         window.location.href = `/admin/edit_vehicle/${id}`;
     });
 
-    $('#btnDeleteVehicle').on('click', async function(){
-        const id = $('#modalVehicleId').val();
+    // Delete
+    $(document).on('click', '.actDeleteVehicle', async function(){
+        const id = $(this).data('id');
         if (!id) return;
 
         if (!confirm("Are you sure you want to delete this vehicle?")) return;
-        
+
         try {
-            const res = await fetch('/admin/delete_vehicle',{
+            const res = await fetch('/admin/delete_vehicle', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ vehicle_id: id })
             });
-            
             const data = await res.json();
 
             if (data.success) {
-                modal.hide();
-
+                if (openedActionRow){
+                    openedActionRow.child.hide();
+                    openedActionRow = null;
+                }
                 const row = $(`#vehicleTable tr[data-id="${id}"]`);
                 row.fadeOut(300, function(){ $(this).remove(); });
-
                 showToast(data.message);
             } else {
                 alert(data.message || "Delete failed");
             }
         } catch (err) {
-            console.error("Delete error:", err);
+            console.error(err);
             alert("Network error while deleting vehicle");
         }
+    });
 
-    })
+
+    // add warranty
+    // Purchase warranty modal open
+    $(document).on('click', '.actAddPurchase', function(){
+        const id = $(this).data('id');
+        if (!id) return;
+
+        currentVehicleId = id;
+
+        renderPurchaseForm();
+
+        const modalEl = document.getElementById('purchaseWarrantyModal');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    });
+
+    // subscription warranty modal open
+    $(document).on('click', '.actAddSubscription', function(){
+        const id = $(this).data('id');
+        currentVehicleId = id;
+
+        renderSubscriptionForm();
+        
+        const modalEl = document.getElementById('subscriptionWarrantyModal');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    });
 });

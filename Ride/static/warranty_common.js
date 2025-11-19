@@ -1,30 +1,47 @@
-// load warraty types for selected category
-function loadWarrantyTypes(categorySelect, typeSelect){
-    const selected = categorySelect.value;
-    const list = selected === "purchase" ? PURCHASE_WARRANTIES : SUBSCRIPTION_WARRANTIES;
 
-    typeSelect.innerHTML = '<option disabled selected value="">Select...</option>';
-    typeSelect.disabled = false;
+function loadWarrantyTypes(selectElem, warrantyList){
+    selectElem.innerHTML = '<option disabled selected value="">Select...</option>';
+    selectElem.disabled = false;
 
-    list.forEach(w => {
+    warrantyList.forEach(w => {
         const opt = document.createElement("option");
         opt.value = w.warranty_type_id;
         opt.textContent = w.display_name;
-        opt.title = w.type_name;
-
-        typeSelect.appendChild(opt);
+        selectElem.appendChild(opt);
     });
-
 }
 
-function loadPurchaseWarrantyTypes(typeSelect){
-    typeSelect.innerHTML = '<option disabled selected value="">Select...</option>';
-    typeSelect.disabled = false;
+// modal rendering
 
-    PURCHASE_WARRANTIES.forEach(w => {
-        const opt = document.createElement("option");
-        opt.value = w.warranty_type_id;
-        opt.textContent = w.display_name;
-        typeSelect.appendChild(opt);
-    });
+function renderPurchaseForm() {
+    document.getElementById("purchaseFormBody").innerHTML = `
+        <label>Warranty Type</label>
+        <select id="purchaseType" class="form-select mb-2"></select>
+
+        <label>Expiration Date</label>
+        <input type="date" id="purchaseExpireDate" class="form-control mb-2">
+
+        <label>Expiration Mileage</label>
+        <input type="number" id="purchaseExpireMiles" class="form-control">
+    `;
+
+    loadWarrantyTypes(document.getElementById("purchaseType"),PURCHASE_WARRANTIES);
+}
+
+function renderSubscriptionForm() {
+    document.getElementById("subscriptionFormBody").innerHTML = `
+        <label>Subscription Type</label>
+        <select id="subscriptionType" class="form-select mb-2"></select>
+
+        <label>Start Date</label>
+        <input type="date" id="subStart" class="form-control mb-2">
+
+        <label>End Date</label>
+        <input type="date" id="subEnd" class="form-control mb-2">
+
+        <label>Monthly Cost</label>
+        <input type="number" step="0.01" id="subCost" class="form-control">
+    `;
+
+    loadWarrantyTypes(document.getElementById("subscriptionType"),SUBSCRIPTION_WARRANTIES);
 }

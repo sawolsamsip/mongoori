@@ -76,6 +76,11 @@ Mongoori - Warranty List
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='warranty_edit.js') }}"></script>
+<script>
+    const PURCHASE_WARRANTIES = JSON.parse(`{{ purchase_types | tojson | safe }}`);
+</script>
+
+<script src="{{ url_for('static', filename='warranty_common.js') }}"></script>
+<script src="{{ url_for('static', filename='warranty_edit_purchase.js') }}"></script>
 
 {% endblock %}
