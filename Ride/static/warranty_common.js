@@ -7,6 +7,7 @@ function loadWarrantyTypes(selectElem, warrantyList){
         const opt = document.createElement("option");
         opt.value = w.warranty_type_id;
         opt.textContent = w.display_name;
+        opt.title = w.type_name;
         selectElem.appendChild(opt);
     });
 }

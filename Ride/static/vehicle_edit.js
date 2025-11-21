@@ -122,4 +122,62 @@ $(document).ready(function () {
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
     });
+    
+    // purchase Save with modal
+    $('#purchaseWarrantyModal').on('click', '#btnSavePurchase', async function () {    
+        const type = $('#purchaseType').val();
+        const expireDate = $('#purchaseExpireDate').val();
+        const expireMiles = $('#purchaseExpireMiles').val();
+        
+        // ---
+        console.log("---- Purchase Warranty Input ----");
+        console.log("vehicle_id:", currentVehicleId);
+        console.log("type:", type);
+        console.log("expireDate:", expireDate);
+        console.log("expireMiles:", expireMiles);
+        console.log("--------------------------------");
+        // ---
+
+        if (!currentVehicleId) {
+            alert("Vehicle ID missing.");
+            return;
+        }
+    
+        if (!type) {
+            alert("Please select warranty type.");
+            return;
+        }
+    
+        try {
+            const res = await fetch('/admin/add_warranty_purchase', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    vehicle_id: currentVehicleId,
+                    warranty_type: type,
+                    expire_date: expireDate || null,
+                    expire_miles: expireMiles || null,
+                    category: "purchase"
+                })
+            });
+    
+            const data = await res.json();
+    
+            if (data.success) {
+                const modalEl = document.getElementById('purchaseWarrantyModal');
+                bootstrap.Modal.getInstance(modalEl).hide();
+                showToast("Purchase warranty added");
+                location.reload();
+            } else {
+                alert(data.message || "Add warranty failed");
+            }
+    
+        } catch (err) {
+            console.error(err);
+            alert("Network error while adding warranty");
+        }
+    });
+
+
 });
+

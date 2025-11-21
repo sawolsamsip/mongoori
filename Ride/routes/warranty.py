@@ -148,3 +148,43 @@ def admin_update_warranty():
     except Exception as e:
         print("Update error: ", e)
         return jsonify(success = False, message=str(e)), 500
+    
+
+@warranty_bp.route('/add_warranty_purchase', methods=['POST'])
+def add_warranty_purchase():
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized")
+    
+    data = request.get_json()
+
+    vehicle_id = data['vehicle_id']
+    warranty_type_id = data['warranty_type']
+    expire_date = data['expire_date']
+    expire_miles = data['expire_miles']
+
+    if not vehicle_id or not warranty_type_id:
+        return jsonify({"success": False, "message": "Invalid data"}), 400
+    
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+
+        ## insert vehicle_warranty : common information
+        cur.execute("""
+            INSERT INTO vehicle_warranty (vehicle_id, warranty_type_id, category)
+            VALUES (?, ?, 'purchase')
+        """, (vehicle_id, warranty_type_id))
+
+        vw_id = cur.lastrowid
+
+        ## insert purchase warranty information
+        cur.execute("""
+            INSERT INTO warranty_purchase (vehicle_warranty_id, expire_date, expire_miles)
+            VALUES (?, ?, ?)
+        """, (vw_id, expire_date, expire_miles))
+
+        conn.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
