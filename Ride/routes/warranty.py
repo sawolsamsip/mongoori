@@ -94,7 +94,7 @@ def admin_warranty_sub_list():
 
 ##
 
-
+## update
 @warranty_bp.route("/update_warranty", methods = ["POST"])
 def admin_update_warranty():
     if not session.get("admin_logged_in"):
@@ -149,7 +149,7 @@ def admin_update_warranty():
         print("Update error: ", e)
         return jsonify(success = False, message=str(e)), 500
     
-
+## add warranty - purchase
 @warranty_bp.route('/add_warranty_purchase', methods=['POST'])
 def add_warranty_purchase():
     if not session.get("admin_logged_in"):
@@ -182,6 +182,46 @@ def add_warranty_purchase():
             INSERT INTO warranty_purchase (vehicle_warranty_id, expire_date, expire_miles)
             VALUES (?, ?, ?)
         """, (vw_id, expire_date, expire_miles))
+
+        conn.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    
+## add warranty - subscription
+@warranty_bp.route('/add_warranty_subscription', methods=['POST'])
+def add_warranty_subscription():
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized")
+    
+    data = request.get_json()
+
+    vehicle_id = data.get('vehicle_id')
+    warranty_type_id = data.get('warranty_type')
+    start_date = data.get('start_date')
+    monthly_cost = data.get('monthly_cost')
+
+    if not vehicle_id or not warranty_type_id:
+        return jsonify({"success": False, "message": "Invalid data"}), 400
+    
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+
+        ## insert vehicle_warranty : common information
+        cur.execute("""
+            INSERT INTO vehicle_warranty (vehicle_id, warranty_type_id, category)
+            VALUES (?, ?, 'subscription')
+        """, (vehicle_id, warranty_type_id))
+
+        vw_id = cur.lastrowid
+
+        ## insert purchase warranty information
+        cur.execute("""
+            INSERT INTO warranty_subscription (vehicle_warranty_id, start_date, monthly_cost)
+            VALUES (?, ?, ?)
+        """, (vw_id, start_date, monthly_cost))
 
         conn.commit()
         return jsonify({"success": True})

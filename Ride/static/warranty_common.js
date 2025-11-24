@@ -37,9 +37,6 @@ function renderSubscriptionForm() {
         <label>Start Date</label>
         <input type="date" id="subStart" class="form-control mb-2">
 
-        <label>End Date</label>
-        <input type="date" id="subEnd" class="form-control mb-2">
-
         <label>Monthly Cost</label>
         <input type="number" step="0.01" id="subCost" class="form-control">
     `;
