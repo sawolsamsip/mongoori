@@ -20,7 +20,7 @@ def get_warranty_status(expire_date, expire_miles, current_miles):
     return "Active"
 
 ## warranty status for subscription
-def get_warranty_status_subscritpion(end_date):
+def get_warranty_status_subscription(end_date):
     today = get_pacific_today()
 
     if end_date:

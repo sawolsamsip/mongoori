@@ -24,6 +24,7 @@ Mongoori - Warranty List
                         <th>Type</th>
                         <th>Start Date</th>
                         <th>End Date</th>
+                        <th>Monthly Cost</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -39,6 +40,7 @@ Mongoori - Warranty List
                         <td class = "warranty_type">{{w.warranty_type}}</td>
                         <td class = "start_date">{{w.start_date or '-'}}</td>
                         <td class = "end_date">{{w.end_date or '-'}}</td>
+                        <td class = "monthly_cost">{{w.monthly_cost or '-'}}</td>
                         <td class = "status">{{w.status}}</td>
                         <td>
                             <button class="btn btn-sm btn-outline-danger delete-warranty-btn">

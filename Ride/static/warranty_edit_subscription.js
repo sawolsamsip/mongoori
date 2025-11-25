@@ -11,7 +11,7 @@ $(document).ready(function () {
         columnDefs: [
             {targets: 3, orderDataType: 'warranty-type-order'},
             {targets: [0,1,2,3], visible: false},
-            { targets: 8, title: "", orderable: false, searchable: false }
+            { targets: 9, title: "", orderable: false, searchable: false }
         ],
     
         rowGroup: {

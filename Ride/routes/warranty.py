@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session
 from db import get_conn
-from utils.warranty_utils import get_warranty_status, get_warranty_status_subscritpion, get_subscription_warranty_types, get_purchase_warranty_types
+from utils.warranty_utils import get_warranty_status, get_warranty_status_subscription, get_subscription_warranty_types, get_purchase_warranty_types
 
 warranty_bp = Blueprint("warranty", __name__)
 
@@ -68,7 +68,8 @@ def admin_warranty_sub_list():
             wt.display_name AS warranty_type,
             wt.category,
             ws.start_date,
-            ws.end_date
+            ws.end_date,
+            ws.monthly_cost
         FROM vehicle v
         JOIN vehicle_warranty vw
             ON v.vehicle_id = vw.vehicle_id
@@ -85,7 +86,7 @@ def admin_warranty_sub_list():
     warranties = []
 
     for row in rows:
-        row["status"] = get_warranty_status_subscritpion(
+        row["status"] = get_warranty_status_subscription(
             row.get("end_date")
         )
         warranties.append(row)
