@@ -90,93 +90,47 @@ $(document).ready(function () {
         modal.show();
     });
 
-    // add warranty
+    // open madal to add warranty
     $('#warrantyTable').on('click', '.add-warranty-btn', function(){
         const vehicleId = $(this).data('vehicle-id');
+        const modalEl = document.getElementById("purchaseWarrantyModal");
+        modalEl.dataset.vehicleId = vehicleId;
 
-        const modal = new bootstrap.Modal(document.getElementById("editFieldModal"));
-        $('#modalTitle').text('Add New Warranty');
-
-        // create elements for warranty list
-        const typeSelect = document.createElement("select");
-        typeSelect.id = "newWarrantyType";
-        typeSelect.className = "form-select";
-        loadWarrantyTypes(typeSelect, PURCHASE_WARRANTIES)
-
-        const modalBodyHTML = `
-            <div class="mb-2">
-                <label class="form-label">Warranty Type</label>
-                ${typeSelect.outerHTML}
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Expire Date</label>
-                <input type="date" id="newExpireDate" class="form-control">
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Expire Miles</label>
-                <input type="number" id="newExpireMiles" class="form-control">
-            </div>
-        `;
-
-        $('#modalBody').html(modalBodyHTML);
+        renderPurchaseForm();
         
-        $('#saveFieldBtn').off('click').on('click', async function(){
-            const warrantyType = $('#newWarrantyType').val();
-            const expireDate = $('#newExpireDate').val();
-            const expireMiles = $('#newExpireMiles').val();
-
-            try {
-                const res = await fetch('/admin/add_warranty', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        vehicle_id: vehicleId,
-                        warranty_type: warrantyType,
-                        expire_date: expireDate,
-                        expire_miles: expireMiles
-                    }),
-                });
-                
-                const data = await res.json();
-                if (data.success) {
-                    modal.hide();
-                    location.reload();
-                } else{
-                    alert(data.message || 'Failed to add warranty');
-                }
-
-            } catch (err) {
-                console.error('Error adding warranty:', err);
-                alert('Network error while adding warranty');
-            }
-        });
-
+        const modal = new bootstrap.Modal(modalEl);
         modal.show();
     });
 
     //remove
     $('#warrantyTable').on('click', '.delete-warranty-btn', async function(){
-        if(!confirm('Delete this warranty?')) return;
+        const warrantyId = $(this).closest('tr').data('warranty-id');
+        if (!warrantyId) {
+            console.error("Warranty ID not found in <tr>");
+            return;
+        }
 
-        const row = $(this).closest('tr');
-        const warrantyId = row.data('warranty-id');
+        if (!confirm("Delete this warranty?")) return;
 
-        try{
+        try {
             const res = await fetch('/admin/delete_warranty', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ warranty_id: warrantyId }),
+                body: JSON.stringify({ vehicle_warranty_id: warrantyId })
             });
-
+    
             const data = await res.json();
-            if (data.success){
-                row.fadeOut(300, function(){$(this).remove(); });
+    
+            if (data.success) {
+                const row = $(this).closest('tr');
+                row.fadeOut(300, () => row.remove());
+                showToast("Warranty deleted");
             } else {
-                alert(data.message || 'Failed to delete warranty');
+                alert(data.message || "Delete failed");
             }
         } catch (err) {
-            console.error('Error deleting warranty:', err);
-            alert('Network error while deleting warranty');
+            console.error(err);
+            alert("Network error");
         }
     });
 

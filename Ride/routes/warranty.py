@@ -229,3 +229,31 @@ def add_warranty_subscription():
     except Exception as e:
         conn.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
+        
+        
+## delete warranty - purchase, subscription
+@warranty_bp.route('/delete_warranty', methods=['POST'])
+def delete_warranty():
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized")
+
+    data = request.get_json()
+    vehicle_warranty_id = data.get("vehicle_warranty_id")
+
+    if not vehicle_warranty_id:
+        return jsonify(success=False, message="Invalid data"), 400
+
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+
+        cur.execute("""
+            DELETE FROM vehicle_warranty
+            WHERE vehicle_warranty_id = ?
+        """, (vehicle_warranty_id,))
+
+        conn.commit()
+        return jsonify(success=True)
+    except Exception as e:
+        conn.rollback()
+        return jsonify(success=False, message=str(e)), 500

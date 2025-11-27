@@ -31,7 +31,7 @@ Mongoori - Warranty List
 
                 <tbody>
                     {% for w in warranties %}
-                    <tr data-id="{{w.vehicle_id}}" data-warranty-id="{{w.vehicle_warranty_id}}">
+                    <tr data-vehicle-id="{{w.vehicle_id}}" data-warranty-id="{{w.vehicle_warranty_id}}">
                         <td>{{w.vin}}</td>
                         <td>{{w.model}}</td>
                         <td>{{w.model_year}}</td>
@@ -54,8 +54,9 @@ Mongoori - Warranty List
 
     </div>
 </div>
-
-<!-- Modal -->
+<!-- add Modal -->
+{% include "warranty_modal/purchase_modal.html" %}
+<!-- edit Modal -->
 <div class = "modal fade" id="editFieldModal" tabindex="-1">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">

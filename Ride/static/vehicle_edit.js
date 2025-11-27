@@ -1,13 +1,3 @@
-function showToast(msg){
-    const toastEl = document.getElementById("successToast");
-    const msgBox = document.getElementById("toastMsg");
-    
-    msgBox.textContent = msg;
-
-    const toast = new bootstrap.Toast(toastEl);
-    toast.show();
-}
-
 $(document).ready(function () {
     const table = $('#vehicleTable').DataTable({
     responsive: false,
@@ -101,12 +91,12 @@ $(document).ready(function () {
     $(document).on('click', '.actAddPurchase', function(){
         const id = $(this).data('id');
         if (!id) return;
-
-        currentVehicleId = id;
+        
+        const modalEl = document.getElementById('purchaseWarrantyModal');
+        modalEl.dataset.vehicleId = id;
 
         renderPurchaseForm();
-
-        const modalEl = document.getElementById('purchaseWarrantyModal');
+        
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
     });
@@ -114,107 +104,15 @@ $(document).ready(function () {
     // subscription warranty modal open
     $(document).on('click', '.actAddSubscription', function(){
         const id = $(this).data('id');
-        currentVehicleId = id;
+        if (!id) return;
+
+        const modalEl = document.getElementById('subscriptionWarrantyModal');
+        modalEl.dataset.vehicleId = id;
 
         renderSubscriptionForm();
         
-        const modalEl = document.getElementById('subscriptionWarrantyModal');
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
-    });
-    
-
-
-    // purchase subscription Save with modal
-    $('#purchaseWarrantyModal').on('click', '#btnSavePurchase', async function () {    
-        const type = $('#purchaseType').val();
-        const expireDate = $('#purchaseExpireDate').val();
-        const expireMiles = $('#purchaseExpireMiles').val();
-
-        if (!currentVehicleId) {
-            alert("Vehicle ID missing.");
-            return;
-        }
-    
-        if (!type) {
-            alert("Please select warranty type.");
-            return;
-        }
-    
-        try {
-            const res = await fetch('/admin/add_warranty_purchase', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    vehicle_id: currentVehicleId,
-                    warranty_type: type,
-                    expire_date: expireDate || null,
-                    expire_miles: expireMiles || null,
-                    category: "purchase"
-                })
-            });
-    
-            const data = await res.json();
-    
-            if (data.success) {
-                const modalEl = document.getElementById('purchaseWarrantyModal');
-                bootstrap.Modal.getInstance(modalEl).hide();
-                showToast("Purchase warranty added");
-                location.reload();
-            } else {
-                alert(data.message || "Add warranty failed");
-            }
-    
-        } catch (err) {
-            console.error(err);
-            alert("Network error while adding warranty");
-        }
-    });
-
-    // subscription Warranty Save with modal
-    $('#subscriptionWarrantyModal').on('click', '#btnSaveSubscription', async function () {    
-        const type = $('#subscriptionType').val();
-        const startDate = $('#subStart').val();
-        const cost = $('#subCost').val();
-
-        if (!currentVehicleId) {
-            alert("Vehicle ID missing.");
-            return;
-        }
-    
-        if (!type) {
-            alert("Please select warranty type.");
-            return;
-        }
-    
-        try {
-            const res = await fetch('/admin/add_warranty_subscription', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    vehicle_id: currentVehicleId,
-                    warranty_type: type,
-                    start_date: startDate,
-                    monthly_cost: cost || null,
-                    category: "subscription"
-                })
-            });
-    
-            const data = await res.json();
-    
-            if (data.success) {
-                const modalEl = document.getElementById('subscriptionWarrantyModal');
-                bootstrap.Modal.getInstance(modalEl).hide();
-                showToast("Subscription warranty added");
-                location.reload();
-            } else {
-                alert(data.message || "Add warranty failed");
-            }
-    
-        } catch (err) {
-            console.error(err);
-            alert("Network error while adding warranty");
-        }
     });
 
 
