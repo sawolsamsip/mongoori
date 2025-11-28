@@ -45,14 +45,12 @@ $(document).ready(function () {
 
     const modal = new bootstrap.Modal(document.getElementById("editFieldModal"));
 
-    $('#warrantyTable').on('click', '.warranty_type, .start_date, .end_date, .monthly_cost', function(){
+    $('#warrantyTable').on('click', '.start_date, .end_date, .monthly_cost', function(){
         selectedCell = $(this);
         const row = $(this).closest('tr');
         const warrantyId = row.data('warranty-id');
         
-        if ($(this).hasClass("warranty_type")) {
-            selectedField = "warranty_type";
-        } else if ($(this).hasClass("start_date")) {
+        if ($(this).hasClass("start_date")) {
             selectedField = "start_date";
         } else if ($(this).hasClass("end_date")) {
             selectedField = "end_date";
@@ -62,20 +60,7 @@ $(document).ready(function () {
         
         let inputHTML = '';
         
-        // load possible warranties
-        if(selectedField === 'warranty_type'){
-            $('#modalTitle').text('Edit Warranty Type');
-            const select = document.createElement("select");
-            select.id = "editFieldInput";
-            select.className = "form-select";
-            
-            //call function to load options
-            loadWarrantyTypes(select, SUBSCRIPTION_WARRANTIES);
-
-            inputHTML = select.outerHTML;
-
-        }
-        else if (selectedField === 'start_date'){
+        if (selectedField === 'start_date'){
             $('#modalTitle').text('Edit Start Date');
             inputHTML = `<input type="date" id="editFieldInput" class="form-control">`;
         }
@@ -194,7 +179,7 @@ $(document).ready(function () {
 
 async function updateWarrantyField(warrantyId, field, newValue,  selectedCell){
     try {
-        const res = await fetch('/admin/update_warranty', {
+        const res = await fetch('/admin/update_warranty_subscription', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({

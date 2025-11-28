@@ -95,22 +95,22 @@ def admin_warranty_sub_list():
 
 ##
 
-## update
-@warranty_bp.route("/update_warranty", methods = ["POST"])
-def admin_update_warranty():
+## update function for purchase
+@warranty_bp.route("/update_warranty_purchase", methods = ["POST"])
+def update_warranty_purchase():
     if not session.get("admin_logged_in"):
         return jsonify(success=False, message="Unauthorized")
     
     data = request.get_json()
-    warranty_id = data.get("warranty_id")
+    vw_id = data.get("warranty_id")
     field = data.get("field")
     value = data.get("value")
 
-    if not warranty_id or not field:
+    if not vw_id or not field:
         return jsonify(success=False, message="Invalid input"), 400
     
-    ## update
-    allowed_fields = {"warranty_type", "expire_date", "expire_miles"}
+    ## update process
+    allowed_fields = {"expire_date", "expire_miles"}
     if field not in allowed_fields:
         return jsonify(success=False, message = "Invalid field")
     
@@ -121,31 +121,34 @@ def admin_update_warranty():
         if field == "expire_miles":
             value = int(value) if value else None
         
-        query = f"UPDATE warranty SET {field} = ? WHERE warranty_id = ?"
-        cur.execute(query, (value, warranty_id))
-
-        cur.execute("""
-            SELECT w.expire_date, w.expire_miles, v.mileage as current_miles
-            FROM warranty w
-            JOIN vehicle v ON v.vehicle_id = w.vehicle_id
-            WHERE w.warranty_id = ?
-            """, (warranty_id,))
+        ## update value
+        cur.execute(f"""
+            UPDATE warranty_purchase
+            SET {field} = ?
+            WHERE vehicle_warranty_id = ?
+        """, (value, vw_id))
         
-        w = cur.fetchone()
-
         conn.commit()
         
-    
-        if w:
-            status = get_warranty_status(
-                expire_date=w["expire_date"],
-                expire_miles=w["expire_miles"],
-                current_miles= w["current_miles"]
-                )
-        else:
-            status = "-"
+        ## update status
+        cur.execute("""
+            SELECT wp.expire_date, wp.expire_miles, v.mileage AS current_miles
+            FROM warranty_purchase wp
+            JOIN vehicle_warranty vw ON vw.vehicle_warranty_id = wp.vehicle_warranty_id
+            JOIN vehicle v ON v.vehicle_id = vw.vehicle_id
+            WHERE wp.vehicle_warranty_id = ?
+        """, (vw_id,))
         
-        return jsonify(success=True, new_status = status)
+        row = cur.fetchone()
+
+        new_status = get_warranty_status(
+            row["expire_date"],
+            row["expire_miles"],
+            row["current_miles"]
+        )
+    
+        return jsonify(success=True, new_status=new_status)
+        
     except Exception as e:
         print("Update error: ", e)
         return jsonify(success = False, message=str(e)), 500
@@ -230,7 +233,7 @@ def add_warranty_subscription():
         conn.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
         
-        
+
 ## delete warranty - purchase, subscription
 @warranty_bp.route('/delete_warranty', methods=['POST'])
 def delete_warranty():

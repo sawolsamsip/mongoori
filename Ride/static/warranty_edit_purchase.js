@@ -45,34 +45,21 @@ $(document).ready(function () {
 
     const modal = new bootstrap.Modal(document.getElementById("editFieldModal"));
 
-    $('#warrantyTable').on('click', '.warranty_type, .expire_date, .expire_miles', function(){
+    $('#warrantyTable').on('click', '.expire_date, .expire_miles', function(){
         selectedCell = $(this);
         const row = $(this).closest('tr');
         const warrantyId = row.data('warranty-id');
         
-        selectedField = $(this).hasClass("warranty_type") ? "warranty_type"
-                        : $(this).hasClass("expire_date") ? "expire_date"
-                        : "expire_miles";
+        selectedField = $(this).hasClass("expire_date")
+        ? "expire_date"
+        : "expire_miles";
         
         let inputHTML = '';
         
-        // load possible warranties
-        if(selectedField === 'warranty_type'){
-            $('#modalTitle').text('Edit Warranty Type');
-            const select = document.createElement("select");
-            select.id = "editFieldInput";
-            select.className = "form-select";
-            
-            //call function to load options
-            loadWarrantyTypes(select, PURCHASE_WARRANTIES);
-
-            inputHTML = select.outerHTML;
-
-        }
-        else if (selectedField === 'expire_date'){
+        if (selectedField === 'expire_date') {
             $('#modalTitle').text('Edit Expire Date');
             inputHTML = `<input type="date" id="editFieldInput" class="form-control">`;
-        }
+        } 
         else if (selectedField === 'expire_miles') {
             $('#modalTitle').text('Edit Expire Miles');
             inputHTML = `<input type="number" id="editFieldInput" class="form-control" placeholder="Enter miles">`;
@@ -139,7 +126,7 @@ $(document).ready(function () {
 
 async function updateWarrantyField(warrantyId, field, newValue,  selectedCell){
     try {
-        const res = await fetch('/admin/update_warranty', {
+        const res = await fetch('/admin/update_warranty_purchase', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
