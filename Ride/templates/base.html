@@ -41,21 +41,23 @@
                         <a href="/admin/dashboard" class="nav-link">Dashboard</a>
                     </li>
 
-                    <li class="nav-item">
-                        <a href="/admin/add_vehicle" class="nav-link">Add Vehicle</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-car"></i> Vehicle
+                        </a>
+                        
+                        <ul class="dropdown-menu">
+
+                            <li><a class="dropdown-item" href="/admin/vehicle/list">Vehicle List</a></li>
+                            <li><a class="dropdown-item" href="/admin/vehicle/add">Add Vehicle</a></li>
+                    
+                            <li><hr class="dropdown-divider"></li>
+                    
+                            <li><a class="dropdown-item" href="/admin/warranty/purchase">Purchase Warranty</a></li>
+                            <li><a class="dropdown-item" href="/admin/warranty/subscription">Subscription Warranty</a></li>
+                        </ul>
                     </li>
                     
-                    <li class="nav-item">
-                        <a href="/admin/vehicle_info" class="nav-link">Vehicle Information</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="/admin/warranty_info_purchase" class="nav-link">Purchase Warranty Information</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/admin/warranty_info_subscription" class="nav-link">Subscription Warranty Information</a>
-                    </li>
-
                 </ul>
                 <!-- End Navbar links -->
 

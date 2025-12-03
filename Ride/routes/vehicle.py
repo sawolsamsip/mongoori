@@ -6,7 +6,7 @@ import sqlite3
 
 vehicle_bp = Blueprint("vehicle", __name__)
 
-@vehicle_bp.route("/vehicle_info", methods=["GET"])
+@vehicle_bp.route("/vehicle/list", methods=["GET"])
 def admin_vehicle_list():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
@@ -26,7 +26,7 @@ def admin_vehicle_list():
     return(render_template("vehicle_info.html", vehicles=vehicles, purchase_types=purchase_types, subscription_types=subscription_types))
 
 ## add vehicle to load 'purchase' warranty options for dropdown list
-@vehicle_bp.route('/add_vehicle', methods = ['GET'])
+@vehicle_bp.route('/vehicle/add', methods = ['GET'])
 def admin_add_vehicle():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
@@ -37,7 +37,7 @@ def admin_add_vehicle():
     return render_template("form_vehicle.html", mode='add', vehicle={}, purchase_types=purchase_types)
 
 
-@vehicle_bp.route('/add_vehicle', methods = ['POST'])
+@vehicle_bp.route('/vehicle/add', methods = ['POST'])
 def admin_input_vehicle():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
@@ -167,7 +167,7 @@ def get_exteriors():
 
 
 
-@vehicle_bp.route("/edit_vehicle/<int:vehicle_id>", methods=['GET'])
+@vehicle_bp.route("/vehicle/<int:vehicle_id>/edit", methods=['GET'])
 def edit_vehicle(vehicle_id):
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))

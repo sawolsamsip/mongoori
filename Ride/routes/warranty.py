@@ -6,7 +6,7 @@ warranty_bp = Blueprint("warranty", __name__)
 
 
 ## warranty - purchase
-@warranty_bp.route("/warranty_info_purchase", methods=["GET"])
+@warranty_bp.route("/warranty/purchase", methods=["GET"])
 def admin_warranty_list():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
@@ -50,7 +50,7 @@ def admin_warranty_list():
     return render_template("warranty_info_purchase.html", warranties=warranties, purchase_types = get_purchase_warranty_types())
 
 ## warranty - subscription
-@warranty_bp.route("/warranty_info_subscription", methods=["GET"])
+@warranty_bp.route("/warranty/subscription", methods=["GET"])
 def admin_warranty_sub_list():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
