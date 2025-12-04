@@ -63,8 +63,8 @@ async function savePurchaseWarranty() {
     const expireDate = $('#purchaseExpireDate').val();
     const expireMiles = $('#purchaseExpireMiles').val();
 
-    console.log("🔍 savePurchaseWarranty() called");
-    console.log("🚗 vehicleId from modal.dataset.vehicleId =", currentVehicleId);
+    console.log("savePurchaseWarranty() called");
+    console.log("vehicleId from modal.dataset.vehicleId =", currentVehicleId);
 
     if (!currentVehicleId) {
         alert("Vehicle ID missing.");
