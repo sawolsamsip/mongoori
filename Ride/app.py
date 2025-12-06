@@ -15,14 +15,14 @@ app.secret_key = os.getenv("SECRET_KEY")
 app.teardown_appcontext(close_conn)
 ##
 
-app.register_blueprint(auth_bp)
+app.register_blueprint(auth_bp, url_prefix="/")
 app.register_blueprint(vehicle_bp, url_prefix="/admin")
 app.register_blueprint(warranty_bp, url_prefix="/admin")
 
 @app.route('/admin/dashboard', methods=['GET', 'POST'])
 def admin_dashboard():
     if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("auth.admin_login"))
     
     return render_template("base.html")
 

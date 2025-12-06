@@ -23,7 +23,8 @@ def admin_login():
             return redirect(url_for("admin_dashboard"))
         
         else:
+            print('invalid')
             flash("Invalid username or password")
-            return redirect(url_for("admin_login"))
+            return redirect(url_for("auth.admin_login"))
     
     return render_template("login-session.html")

@@ -29,7 +29,7 @@ def admin_vehicle_list():
 @vehicle_bp.route('/vehicle/add', methods = ['GET'])
 def admin_add_vehicle():
     if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("auth.admin_login"))
     
     
     purchase_types = get_purchase_warranty_types()
@@ -40,7 +40,7 @@ def admin_add_vehicle():
 @vehicle_bp.route('/vehicle/add', methods = ['POST'])
 def admin_input_vehicle():
     if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("auth.admin_login"))
     
     vin = (request.form.get("vin") or "").strip().upper()
     make = (request.form.get("make") or "").strip()
@@ -170,7 +170,7 @@ def get_exteriors():
 @vehicle_bp.route("/vehicle/<int:vehicle_id>/edit", methods=['GET'])
 def edit_vehicle(vehicle_id):
     if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("auth.admin_login"))
     
     conn = get_conn()
     cur = conn.cursor()
@@ -185,10 +185,10 @@ def edit_vehicle(vehicle_id):
 
     return render_template("form_vehicle.html", mode="edit", vehicle = vehicle)
 
-@vehicle_bp.route("/update_vehicle/<int:vehicle_id>", methods=['POST'])
+@vehicle_bp.route("/vehicle/<int:vehicle_id>/update", methods=['POST'])
 def admin_update_vehicle(vehicle_id):
     if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("auth.admin_login"))
     
     vin = (request.form.get("vin") or "").strip().upper()
     make = (request.form.get("make") or "").strip()
@@ -230,10 +230,10 @@ def admin_update_vehicle(vehicle_id):
     return jsonify(next_url=url_for("vehicle.admin_vehicle_list")), 200
 
 ## del vehicle
-@vehicle_bp.route("/delete_vehicle", methods=['POST'])
+@vehicle_bp.route("/vehicle/delete", methods=['POST'])
 def admin_delete_vehicle():
     if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("auth.admin_login"))
     
     data = request.get_json()
     vehicle_id = data.get("vehicle_id")

@@ -9,7 +9,7 @@ warranty_bp = Blueprint("warranty", __name__)
 @warranty_bp.route("/warranty/purchase", methods=["GET"])
 def admin_warranty_list():
     if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("auth.admin_login"))
     
     conn = get_conn()
     cur = conn.cursor()
@@ -53,7 +53,7 @@ def admin_warranty_list():
 @warranty_bp.route("/warranty/subscription", methods=["GET"])
 def admin_warranty_sub_list():
     if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("auth.admin_login"))
     
     conn = get_conn()
     cur = conn.cursor()

@@ -14,7 +14,7 @@
         <div class="card-body">
             <h3 class="text-center mb-4">Admin Login</h3>
 
-            <form action="/admin/login" method="post">
+            <form action="{{ url_for('auth.admin_login') }}" method="post">
                 <div class="mb-3">
                     <label for="username" class="form-label">ID</label>
                     <input id="username" name="username" type="text" class="form-control" required>
