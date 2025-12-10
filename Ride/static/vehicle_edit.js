@@ -61,11 +61,10 @@ $(document).ready(function () {
         if (!confirm("Are you sure you want to delete this vehicle?")) return;
 
         try {
-            const res = await fetch('/admin/delete_vehicle', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ vehicle_id: id })
+            const res = await fetch(`/api/vehicles/${id}`, {
+                method: 'DELETE',
             });
+
             const data = await res.json();
 
             if (data.success) {

@@ -1,5 +1,6 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session, redirect, url_for
 from db import get_conn
+import sqlite3
 
 api_bp = Blueprint(
     "vehicle_api",
@@ -72,3 +73,54 @@ def admin_delete_vehicle():
     except Exception as e:
         return jsonify(success=False, message=str(e)), 500
 
+## update
+@api_bp.route("/vehicle/<int:vehicle_id>", methods=['PUT'])
+def admin_update_vehicle(vehicle_id):
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("auth.admin_login"))
+    
+    data = request.get_json()
+
+    vin = (data.get("vin") or "").strip().upper()
+    make = (data.get("make") or "").strip()
+    model = (data.get("model") or "").strip()
+    year = (data.get("year") or "").strip()
+    trim = (data.get("trim") or "").strip()
+    exterior = (data.get("exterior") or "").strip()
+    interior = (data.get("interior") or "").strip()
+    plate_number = (data.get("plate_number") or "").strip().upper()
+    mileage = (data.get("mileage") or "").strip()
+    software = (data.get("software") or "").strip()
+
+    errors = {}
+
+    if not vin:
+        errors["vin"] = "VIN is required."
+    elif len(vin) != 17:
+        errors["vin"] = "Incorrect VIN length"
+    
+    if errors:
+        return jsonify(message = "check the input fields", errors=errors), 422
+    
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+
+        cur.execute("""
+            UPDATE vehicle
+            SET vin = ?, make = ?, model = ?, model_year = ?, trim = ?,
+                    exterior = ?, interior = ?, plate_number = ?, mileage = ?,
+                    software = ?
+            WHERE vehicle_id = ?
+            
+        """, (vin, make or None, model or None, year or None, trim or None, exterior or None, interior or None, plate_number or None, mileage or None, software or None, vehicle_id))
+        conn.commit()
+        
+    except sqlite3.IntegrityError:
+        return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
+    
+    return jsonify(
+        success = True,
+        message="Vehicle updated successfully",
+        next_url="/admin/vehicles"
+        ), 200
