@@ -3,7 +3,9 @@ from dotenv import load_dotenv
 import os
 from db import init_db, close_conn
 from routes.auth import auth_bp
-from routes.vehicle import vehicle_bp
+from routes.admin.vehicle_pages import vehicle_pages_bp
+from routes.api.vehicle_api import vehicle_api_bp
+## from routes.vehicle import vehicle_bp
 from routes.warranty import warranty_bp
 
 load_dotenv()
@@ -16,7 +18,9 @@ app.teardown_appcontext(close_conn)
 ##
 
 app.register_blueprint(auth_bp, url_prefix="/")
-app.register_blueprint(vehicle_bp, url_prefix="/admin")
+app.register_blueprint(vehicle_pages_bp)
+app.register_blueprint(vehicle_api_bp) 
+##app.register_blueprint(vehicle_bp, url_prefix="/admin")
 app.register_blueprint(warranty_bp, url_prefix="/admin")
 
 @app.route('/admin/dashboard', methods=['GET', 'POST'])

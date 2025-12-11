@@ -152,36 +152,65 @@ document.addEventListener("DOMContentLoaded", function () {
         e.preventDefault();
         clearErrors();
 
-        const formData = new FormData(form);
+        const mode = form.dataset.mode;
+        let url, method;
+        if (mode === "edit"){
+            url = form.dataset.updateUrl;
+            method = "PUT"
+        }else {
+            url = form.dataset.createUrl;
+            method = "POST"
+        }
+
         const msgBox = document.getElementById("toastMsg");
 
-        const vin = (formData.get("vin") || "").trim().toUpperCase();
-        if(!vin) {
+        // JSON payload
+        const payload = {
+            vin: form.vin.value.trim().toUpperCase(),
+            make: form.make.value.trim(),
+            model: form.model.value.trim(),
+            year: form.year.value,
+            trim: form.trim.value,
+            exterior: form.exterior.value,
+            interior: form.interior.value,
+            plate_number: form.plate_number.value.trim().toUpperCase(),
+            mileage: form.mileage.value,
+            software: form.software.value
+        };        
+
+        
+        if(!payload.vin) {
             showFieldError("vin", "VIN is required.");
             msgBox.textContent = "input VIN";
             msgBox.className = "text-danger fw-bold mt-2";
             return;
         }
 
-        if (vin.length !== 17){
+        if (payload.vin.length !== 17){
             showFieldError("vin", "VIN must be 17 characters and numbers.");
             msgBox.textContent = "Incorrect VIN length";
             msgBox.className = "text-danger fw-bold mt-2";
             return;
         }
         try{
-            const res = await fetch(form.action, {method: "POST", body: formData});
+            const res = await fetch(url, {method, headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
+
             const data = await res.json().catch(() => ({}));
 
-            if (res.ok && data.next_url){
+            if (res.ok && data.success){
                 const toastEl = document.getElementById("successToast");
                 const toast = new bootstrap.Toast(toastEl);
 
                 msgBox.textContent = data.message || "Vehicle successfully added."
                 toast.show();
-
-                setTimeout(() => window.location.href = data.next_url, 1300);
-                return ;
+                
+                
+                setTimeout(() => {
+                    window.location.href = "/admin/vehicles";
+                }, 1200);
+            
             }
             
             if (data.errors){

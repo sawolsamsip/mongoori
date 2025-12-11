@@ -21,8 +21,14 @@ Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
         <!-- Card header End-->
 
         <!-- Form Begin -->
-        <form id = "vehicleForm" method="post"
-            action = "{% if mode == 'edit' %}{{ url_for('vehicle.update_vehicle', vehicle_id=vehicle.vehicle_id) }}{% else %}{{ url_for('vehicle.create_vehicle') }}{% endif %}">
+        <form id="vehicleForm"
+            data-mode="{{ mode }}"
+            {% if mode == 'edit' %}
+                data-update-url="{{ url_for('api.admin_update_vehicle', vehicle_id=vehicle.vehicle_id) }}"
+            {% else %}
+                data-create-url="{{ url_for('api.admin_create_vehicle') }}"
+            {% endif %}>
+            
             <!-- Card body -->
             <div class="card-body">
                 <div class="mb-3">

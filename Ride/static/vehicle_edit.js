@@ -10,6 +10,15 @@ $(document).ready(function () {
     $('#vehicleTable tbody').on('click', 'tr', function(){
         const vehicleId = $(this).data('id');
         if (!vehicleId) return;
+        
+        const row = table.row(this);
+
+        //toggle
+        if (openedActionRow && openedActionRow.index() === row.index()){
+            row.child.hide();
+            openedActionRow = null;
+            return;
+        }
 
         if(openedActionRow){
             openedActionRow.child.hide();
@@ -40,7 +49,6 @@ $(document).ready(function () {
         </div>
         `;
         
-        const row = table.row(this);
         row.child(actionHtml).show();
 
         openedActionRow = row;

@@ -2,13 +2,13 @@ from flask import Blueprint, request, jsonify, session, redirect, url_for
 from db import get_conn
 import sqlite3
 
-api_bp = Blueprint(
+vehicle_api_bp = Blueprint(
     "vehicle_api",
     __name__,
     url_prefix="/api/vehicles"
 )
 
-@api_bp.route("/trims", methods=["GET"])
+@vehicle_api_bp.route("/trims", methods=["GET"])
 def get_trims():
     model_name = request.args.get("model_name")
     year = request.args.get("year")
@@ -26,7 +26,7 @@ def get_trims():
     return jsonify({"trims": trims})
 
 
-@api_bp.route("/exteriors", methods=["GET"])
+@vehicle_api_bp.route("/exteriors", methods=["GET"])
 def get_exteriors():
     model_name = request.args.get("model_name")
     year = request.args.get("year")
@@ -50,13 +50,10 @@ def get_exteriors():
 
 
 ## del vehicle
-@api_bp.route("/<int:vehicle_id>", methods=['DELETE'])
-def admin_delete_vehicle():
+@vehicle_api_bp.route("/<int:vehicle_id>", methods=['DELETE'])
+def admin_delete_vehicle(vehicle_id):
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
-    
-    data = request.get_json()
-    vehicle_id = data.get("vehicle_id")
 
     if not vehicle_id:
         return jsonify(success=False, message = "Invalid request"), 400
@@ -74,7 +71,7 @@ def admin_delete_vehicle():
         return jsonify(success=False, message=str(e)), 500
 
 ## update
-@api_bp.route("/vehicle/<int:vehicle_id>", methods=['PUT'])
+@vehicle_api_bp.route("/<int:vehicle_id>", methods=['PUT'])
 def admin_update_vehicle(vehicle_id):
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
@@ -122,5 +119,4 @@ def admin_update_vehicle(vehicle_id):
     return jsonify(
         success = True,
         message="Vehicle updated successfully",
-        next_url="/admin/vehicles"
         ), 200
