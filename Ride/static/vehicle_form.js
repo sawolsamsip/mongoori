@@ -54,8 +54,9 @@ document.addEventListener("DOMContentLoaded", function () {
         //
         if (model && year){
             try{
-                const res = await fetch(`/admin/get_trims?model_name=${encodeURIComponent(model)}&year=${year}`);
-                const trims = await res.json();
+                const res = await fetch(`/api/vehicles/trims?model_name=${encodeURIComponent(model)}&year=${year}`);
+                const data = await res.json();
+                const trims = data.trims;
 
                 if (trims.length > 0){
                     trims.forEach(t => {
@@ -94,8 +95,9 @@ document.addEventListener("DOMContentLoaded", function () {
         //
         if (model && year && trim){
             try{
-                const res = await fetch(`/admin/get_exteriors?model_name=${encodeURIComponent(model)}&year=${year}&trim=${trim}`);
-                const exteriors = await res.json();
+                const res = await fetch(`/api/vehicles/exteriors?model_name=${encodeURIComponent(model)}&year=${year}&trim=${trim}`);
+                const data = await res.json();
+                const exteriors = data.exteriors;
 
                 if (exteriors.length > 0){
                     exteriors.forEach(t => {
@@ -128,7 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // Form submit with AJAX
+    // Form submit
 
     const form = document.getElementById("vehicleForm");
     if (!form) return;

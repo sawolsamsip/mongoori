@@ -199,11 +199,12 @@ def admin_create_vehicle():
     except sqlite3.IntegrityError:
         conn.rollback()
         
-        return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
+        return jsonify(success=False, message="VIN already exists", errors={"vin": "VIN is already registered."}
+                       ), 422
     
     except Exception as e:
         conn.rollback()
         
-        return jsonify(message="Insert failed", error=str(e)), 500
+        return jsonify(success=False, message="Insert failed", error=str(e)), 500
 
-    return jsonify(message="Vehicle successfully added.",next_url=url_for("vehicle.admin_vehicle_list")), 200
+    return jsonify(success=True, message="Vehicle successfully added."), 200
