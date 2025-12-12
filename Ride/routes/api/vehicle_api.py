@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session, redirect, url_for
 from db import get_conn
 import sqlite3
+from utils.time_utils import get_pacific_time
 
 vehicle_api_bp = Blueprint(
     "vehicle_api",
@@ -120,3 +121,89 @@ def admin_update_vehicle(vehicle_id):
         success = True,
         message="Vehicle updated successfully",
         ), 200
+
+
+@vehicle_api_bp.route('/', methods = ['POST'])
+def admin_create_vehicle():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("auth.admin_login"))
+    
+    data = request.get_json()
+
+    vin = (data.get("vin") or "").strip().upper()
+    make = (data.get("make") or "").strip()
+    model = (data.get("model") or "").strip()
+    year = (data.get("year") or "").strip()
+    trim = (data.get("trim") or "").strip()
+    exterior = (data.get("exterior") or "").strip()
+    interior = (data.get("interior") or "").strip()
+    plate_number = (data.get("plate_number") or "").strip().upper()
+    mileage = (data.get("mileage") or "").strip()
+    software = (data.get("software") or "").strip()
+
+    errors = {}
+
+    if not vin:
+        errors["vin"] = "VIN is required."
+    elif len(vin) != 17:
+        errors["vin"] = "Incorrect VIN length"
+    
+    if errors:
+        return jsonify(success=False, message="VIN Validation failed", errors=errors), 422
+    
+    ## warranty list
+    warranties = data.get("warranties", [])
+    if not isinstance(warranties, list):
+        return jsonify(success=False, message="Invalid warranties format"), 422
+    
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        
+        ## insert vehicle data
+        cur.execute("""
+            INSERT INTO vehicle (vin, make, model, model_year, trim, exterior, interior, plate_number, mileage, software, vehicle_status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Inactive', ?)
+        """, (vin, make or None, model or None, year or None, trim or None, exterior or None, interior or None, plate_number or None, mileage or None, software or None, get_pacific_time()))
+        
+        vehicle_id = cur.lastrowid
+
+        ## insert common warranty data
+        # insert warranties
+        for w in warranties:
+            wtype = w.get("type")
+            if not wtype:
+                continue
+
+            exp_date = (w.get("expire_date") or "").strip() or None
+            raw_miles = (w.get("expire_miles") or "").strip()
+            exp_miles = int(raw_miles) if raw_miles.isdigit() else None
+
+            # insert into vehicle_warranty
+            cur.execute("""
+                INSERT INTO vehicle_warranty (vehicle_id, warranty_type_id, category)
+                SELECT ?, warranty_type_id, category
+                FROM warranty_type WHERE warranty_type_id = ?
+            """, (vehicle_id, wtype))
+            
+            vw_id = cur.lastrowid
+
+            # insert into warranty_purchase
+            cur.execute("""
+                INSERT INTO warranty_purchase (vehicle_warranty_id, expire_date, expire_miles)
+                VALUES (?, ?, ?)
+            """, (vw_id, exp_date, exp_miles))
+
+        conn.commit()
+        
+    except sqlite3.IntegrityError:
+        conn.rollback()
+        
+        return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
+    
+    except Exception as e:
+        conn.rollback()
+        
+        return jsonify(message="Insert failed", error=str(e)), 500
+
+    return jsonify(message="Vehicle successfully added.",next_url=url_for("vehicle.admin_vehicle_list")), 200

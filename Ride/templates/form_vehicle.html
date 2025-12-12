@@ -24,9 +24,9 @@ Mongoori - {% if mode == 'edit' %}Edit Vehicle{% else %} Add Vehicle{% endif %}
         <form id="vehicleForm"
             data-mode="{{ mode }}"
             {% if mode == 'edit' %}
-                data-update-url="{{ url_for('api.admin_update_vehicle', vehicle_id=vehicle.vehicle_id) }}"
+                data-update-url="{{ url_for('vehicle_api.admin_update_vehicle', vehicle_id=vehicle.vehicle_id) }}"
             {% else %}
-                data-create-url="{{ url_for('api.admin_create_vehicle') }}"
+                data-create-url="{{ url_for('vehicle_api.admin_create_vehicle') }}"
             {% endif %}>
             
             <!-- Card body -->

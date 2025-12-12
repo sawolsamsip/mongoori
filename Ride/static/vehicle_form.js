@@ -177,8 +177,30 @@ document.addEventListener("DOMContentLoaded", function () {
             mileage: form.mileage.value,
             software: form.software.value
         };        
-
         
+        // warranty info
+        if (mode === "add") {
+            const warrantyRows = document.querySelectorAll("#warranty-container .row");
+            const warranties = [];
+        
+            warrantyRows.forEach(row => {
+                const type = row.querySelector('[name="warranty_type"]').value;
+                const expireDate = row.querySelector('[name="warranty_expire_date"]').value;
+                const expireMiles = row.querySelector('[name="warranty_expire_miles"]').value;
+        
+                if (type) {
+                    warranties.push({
+                        type: type,
+                        expire_date: expireDate,
+                        expire_miles: expireMiles
+                    });
+                }
+            });
+        
+            payload.warranties = warranties;
+        }
+        
+        //
         if(!payload.vin) {
             showFieldError("vin", "VIN is required.");
             msgBox.textContent = "input VIN";
