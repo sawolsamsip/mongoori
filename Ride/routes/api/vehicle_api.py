@@ -98,7 +98,7 @@ def admin_update_vehicle(vehicle_id):
         errors["vin"] = "Incorrect VIN length"
     
     if errors:
-        return jsonify(message = "check the input fields", errors=errors), 422
+        return jsonify(success=False, message = "check the input fields", errors=errors), 422
     
     try:
         conn = get_conn()
@@ -115,7 +115,7 @@ def admin_update_vehicle(vehicle_id):
         conn.commit()
         
     except sqlite3.IntegrityError:
-        return jsonify(message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
+        return jsonify(success=False, message="VIN already exists", errors={"vin": "VIN is already registered."}), 422
     
     return jsonify(
         success = True,
