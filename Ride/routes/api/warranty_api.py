@@ -1,35 +1,49 @@
+from flask import Blueprint, request, jsonify, session, redirect, url_for
+from db import get_conn
+from utils.warranty_utils import get_warranty_status, get_warranty_status_subscription
+
+warranty_api_bp = Blueprint(
+    "warranty_api",
+    __name__,
+    url_prefix="/api/warranties"
+)
+
 ## update function for purchase
-@warranty_bp.route("/update_warranty_purchase", methods = ["POST"])
-def update_warranty_purchase():
+@warranty_api_bp.route("/purchase/<int: v_w_id>", methods = ["PATCH"])
+def update_warranty_purchase(v_w_id):
     if not session.get("admin_logged_in"):
         return jsonify(success=False, message="Unauthorized")
-    
-    data = request.get_json()
-    vw_id = data.get("warranty_id")
-    field = data.get("field")
-    value = data.get("value")
 
-    if not vw_id or not field:
-        return jsonify(success=False, message="Invalid input"), 400
+    data = request.get_json()
     
     ## update process
     allowed_fields = {"expire_date", "expire_miles"}
-    if field not in allowed_fields:
-        return jsonify(success=False, message = "Invalid field")
+    update_fields = {}
+
+    for key in allowed_fields:
+        if key in data:
+            val = data[key]
+            
+            if key == "expire_miles" and val is not None:
+                val = int(val)
+            update_fields[key] = val
     
+    if not update_fields:
+        return jsonify(success=False, message="No valid fields to update"), 400
+
+         
     try:
         conn = get_conn()
         cur = conn.cursor()
 
-        if field == "expire_miles":
-            value = int(value) if value else None
-        
+        set_clause = ", ".join(f"{k} = ?" for k in update_fields.keys()) ## which fields should be updated?
+        values = list(update_fields.values()) + [v_w_id] ## new values for each field
         ## update value
         cur.execute(f"""
             UPDATE warranty_purchase
-            SET {field} = ?
+            SET {set_clause} = ?
             WHERE vehicle_warranty_id = ?
-        """, (value, vw_id))
+        """, values)
         
         conn.commit()
         
@@ -40,7 +54,7 @@ def update_warranty_purchase():
             JOIN vehicle_warranty vw ON vw.vehicle_warranty_id = wp.vehicle_warranty_id
             JOIN vehicle v ON v.vehicle_id = vw.vehicle_id
             WHERE wp.vehicle_warranty_id = ?
-        """, (vw_id,))
+        """, (v_w_id,))
         
         row = cur.fetchone()
 
@@ -50,15 +64,15 @@ def update_warranty_purchase():
             row["current_miles"]
         )
     
-        return jsonify(success=True, new_status=new_status)
+        return jsonify(success=True, message="Purchase warranty updated", new_status=new_status)
         
     except Exception as e:
         print("Update error: ", e)
         return jsonify(success = False, message=str(e)), 500
     
 ## add warranty - purchase
-@warranty_bp.route('/add_warranty_purchase', methods=['POST'])
-def add_warranty_purchase():
+@warranty_api_bp.route('/purchase', methods=['POST'])
+def create_purchase_warranty():
     if not session.get("admin_logged_in"):
         return jsonify(success=False, message="Unauthorized")
     
@@ -91,14 +105,15 @@ def add_warranty_purchase():
         """, (vw_id, expire_date, expire_miles))
 
         conn.commit()
-        return jsonify({"success": True})
+        return jsonify({"success": True,
+                        "message": "Purchase warranty added"})
     except Exception as e:
         conn.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
     
 ## add warranty - subscription
-@warranty_bp.route('/add_warranty_subscription', methods=['POST'])
-def add_warranty_subscription():
+@warranty_api_bp.route('/subscription', methods=['POST'])
+def create_subscription_warranty():
     if not session.get("admin_logged_in"):
         return jsonify(success=False, message="Unauthorized")
     
@@ -131,20 +146,20 @@ def add_warranty_subscription():
         """, (vw_id, start_date, monthly_cost))
 
         conn.commit()
-        return jsonify({"success": True})
+        return jsonify({"success": True
+                        , "message": "Subscription warranty added"})
     except Exception as e:
         conn.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
         
 
 ## delete warranty - purchase, subscription
-@warranty_bp.route('/delete_warranty', methods=['POST'])
-def delete_warranty():
+@warranty_api_bp.route('/<int:v_w_id>', methods=['DELETE'])
+def delete_warranty(v_w_id):
     if not session.get("admin_logged_in"):
         return jsonify(success=False, message="Unauthorized")
 
-    data = request.get_json()
-    vehicle_warranty_id = data.get("vehicle_warranty_id")
+    vehicle_warranty_id = v_w_id
 
     if not vehicle_warranty_id:
         return jsonify(success=False, message="Invalid data"), 400

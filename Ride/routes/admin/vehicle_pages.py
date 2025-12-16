@@ -9,7 +9,7 @@ vehicle_pages_bp = Blueprint(
 )
 
 ## vehicle listing
-@vehicle_pages_bp.route("",methods=["GET"])
+@vehicle_pages_bp.route("/",methods=["GET"])
 def vehicle_list_page():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))

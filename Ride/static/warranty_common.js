@@ -77,7 +77,7 @@ async function savePurchaseWarranty() {
     }
 
     try {
-        const res = await fetch('/admin/add_warranty_purchase', {
+        const res = await fetch('/api/warranties/purchase', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -94,7 +94,7 @@ async function savePurchaseWarranty() {
         if (data.success) {
             const modalEl = document.getElementById('purchaseWarrantyModal');
             bootstrap.Modal.getInstance(modalEl).hide();
-            showToast("Purchase warranty added");
+            showToast(data.message);
             location.reload();
         } else {
             alert(data.message || "Add warranty failed");
@@ -129,7 +129,7 @@ async function saveSubscriptionWarranty() {
     }
 
     try {
-        const res = await fetch('/admin/add_warranty_subscription', {
+        const res = await fetch('/api/warranties/subscription', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -146,7 +146,7 @@ async function saveSubscriptionWarranty() {
         if (data.success) {
             const modalEl = document.getElementById('subscriptionWarrantyModal');
             bootstrap.Modal.getInstance(modalEl).hide();
-            showToast("Subscription warranty added");
+            showToast(data.message);
             location.reload();
         } else {
             alert(data.message || "Add warranty failed");
