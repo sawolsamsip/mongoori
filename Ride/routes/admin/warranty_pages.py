@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session
 from db import get_conn
-from utils.warranty_utils import get_warranty_status, get_warranty_status_subscription
+from utils.warranty_utils import get_warranty_status, get_warranty_status_subscription, get_subscription_warranty_types, get_purchase_warranty_types
 
 warranty_pages_bp = Blueprint(
     "warranty_pages",
@@ -10,7 +10,7 @@ warranty_pages_bp = Blueprint(
 
 ## warranty - purchase
 @warranty_pages_bp.route("/purchase", methods=["GET"])
-def admin_warranty_list():
+def purchase_warranty_list_page():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
     
@@ -50,11 +50,11 @@ def admin_warranty_list():
         )
         warranties.append(row)
     
-    return render_template("warranty_info_purchase.html", warranties=warranties)
+    return render_template("warranty_info_purchase.html", warranties=warranties, purchase_types = get_purchase_warranty_types())
 
 ## warranty - subscription
 @warranty_pages_bp.route("/subscription", methods=["GET"])
-def admin_warranty_sub_list():
+def subscription_warranty_list_page():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
     

@@ -150,27 +150,34 @@ $(document).ready(function () {
 
     //remove
     $('#warrantyTable').on('click', '.delete-warranty-btn', async function(){
-        if(!confirm('Delete this warranty?')) return;
-
         const row = $(this).closest('tr');
         const warrantyId = row.data('warranty-id');
+        
+        if (!warrantyId) {
+            console.error("Warranty ID not found in <tr>");
+            return;
+        }
 
-        try{
-            const res = await fetch('/admin/delete_warranty', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ warranty_id: warrantyId }),
+        if (!confirm("Delete this warranty?")) return;
+
+        try {
+            const res = await fetch(`/api/warranties/${warrantyId}`, {
+                method: 'DELETE'
             });
-
+    
             const data = await res.json();
-            if (data.success){
-                row.fadeOut(300, function(){$(this).remove(); });
-            } else {
-                alert(data.message || 'Failed to delete warranty');
+
+            if (!res.ok || !data.success) {
+                alert(data.message || "Delete failed");
+                return;
             }
+
+            table.row(row).remove().draw(false);
+            showToast(data.message);
+            
         } catch (err) {
-            console.error('Error deleting warranty:', err);
-            alert('Network error while deleting warranty');
+            console.error(err);
+            alert("Network error");
         }
     });
 

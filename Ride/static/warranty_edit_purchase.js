@@ -91,7 +91,9 @@ $(document).ready(function () {
 
     //remove
     $('#warrantyTable').on('click', '.delete-warranty-btn', async function(){
-        const warrantyId = $(this).closest('tr').data('warranty-id');
+        const row = $(this).closest('tr');
+        const warrantyId = row.data('warranty-id');
+        
         if (!warrantyId) {
             console.error("Warranty ID not found in <tr>");
             return;
@@ -100,21 +102,20 @@ $(document).ready(function () {
         if (!confirm("Delete this warranty?")) return;
 
         try {
-            const res = await fetch('/admin/delete_warranty', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ vehicle_warranty_id: warrantyId })
+            const res = await fetch(`/api/warranties/${warrantyId}`, {
+                method: 'DELETE'
             });
     
             const data = await res.json();
-    
-            if (data.success) {
-                const row = $(this).closest('tr');
-                row.fadeOut(300, () => row.remove());
-                showToast("Warranty deleted");
-            } else {
+
+            if (!res.ok || !data.success) {
                 alert(data.message || "Delete failed");
+                return;
             }
+
+            table.row(row).remove().draw(false);
+            showToast(data.message);
+            
         } catch (err) {
             console.error(err);
             alert("Network error");
@@ -126,40 +127,33 @@ $(document).ready(function () {
 
 async function updateWarrantyField(warrantyId, field, newValue,  selectedCell){
     try {
-        const res = await fetch('/admin/update_warranty_purchase', {
-            method: 'POST',
+        const payload = {};
+        payload[field] = newValue === ""? null: newValue;
+        
+        const res = await fetch(`/api/warranties/purchase/${warrantyId}`, {
+            method: 'PATCH',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                warranty_id: warrantyId,
-                field: field,
-                value: newValue
-            }),
+            body: JSON.stringify(payload),
         });
-        console.log("HTTP status:", res.status)
 
-        const text = await res.text();
-        console.log("Raw response:", text);
-
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (err){
-            console.error("JSON parse error:", err);
-            alert("Invalid JSON returned from server");
-        }
-
-        if (data.success) {
-            selectedCell.text(newValue || "-");
-
-            const row = selectedCell.closest("tr");
-            row.find("td.status").text(data.new_status);
-            //close modal
-            const modalEl = document.getElementById("editFieldModal");
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) modalInstance.hide();
-        } else {
+        const data = await res.json();
+        
+        if(!res.ok || !data.success){
             alert(data.message || "Update failed");
+            return;
         }
+        
+        // update UI
+        selectedCell.text(newValue || "-");
+        const row = selectedCell.closest("tr");
+        row.find("td.status").text(data.new_status);
+
+        showToast(data.message);
+        
+        //close modal
+        const modalEl = document.getElementById("editFieldModal");
+        bootstrap.Modal.getInstance(modalEl)?.hide();
+
     } catch (err) {
         console.error("Network error while updating warranty:", err);
         alert("Network error while updating warranty");
