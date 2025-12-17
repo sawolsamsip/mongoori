@@ -5,15 +5,27 @@ $(document).ready(function () {
         responsive: false,
         autoWidth: false,
         scrollX: true,
-        
+        // 0: VIN 1: Model 2: Year 3: Plate
+        // 4: Type 5: Expire Date 6: Expire Miles
+        // 7: Status 8: Action
+
         orderFixed: {
             pre: [[0, 'asc']]
         },
 
-        order: [[6, 'asc'],[3, 'asc'], [4, 'asc'], [5, 'asc']],
+        order: [[7, 'asc'],[5, 'asc'], [6, 'asc'], [4, 'asc']],
     
         columnDefs: [
-            {targets: 3, orderDataType: 'warranty-type-order'},
+            {
+                targets: 7,
+                render: function (data, type, row) {
+                    if (type === 'sort' || type === 'type') {
+                        return data === 'Active' ? 0 : 1;
+                    }
+                    return data;
+                }
+            },    
+            {targets: 4, orderDataType: 'warranty-type-order'},
             {targets: [0,1,2,3], visible: false},
             { targets: 8, title: "", orderable: false, searchable: false }
         ],

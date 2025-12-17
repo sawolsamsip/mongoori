@@ -58,7 +58,7 @@ $(document).ready(function () {
     $(document).on('click', '.actEditVehicle', function(){
         const id = $(this).data('id');
         if (!id) return;
-        window.location.href = `/admin/edit_vehicle/${id}`;
+        window.location.href = `/admin/vehicles/${id}/edit`;
     });
 
     // Delete
