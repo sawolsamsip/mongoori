@@ -186,40 +186,33 @@ $(document).ready(function () {
 
 async function updateWarrantyField(warrantyId, field, newValue,  selectedCell){
     try {
-        const res = await fetch('/admin/update_warranty_subscription', {
-            method: 'POST',
+        const payload = {};
+        payload[field] = newValue === ""? null: newValue;
+
+        const res = await fetch(`/api/warranties/subscription/${warrantyId}`, {
+            method: 'PATCH',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                warranty_id: warrantyId,
-                field: field,
-                value: newValue
-            }),
+            body: JSON.stringify(payload),
         });
-        console.log("HTTP status:", res.status)
 
-        const text = await res.text();
-        console.log("Raw response:", text);
-
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (err){
-            console.error("JSON parse error:", err);
-            alert("Invalid JSON returned from server");
-        }
-
-        if (data.success) {
-            selectedCell.text(newValue || "-");
-
-            const row = selectedCell.closest("tr");
-            row.find("td.status").text(data.new_status);
-            //close modal
-            const modalEl = document.getElementById("editFieldModal");
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) modalInstance.hide();
-        } else {
+        const data = await res.json();
+        
+        if(!res.ok || !data.success){
             alert(data.message || "Update failed");
+            return;
         }
+
+        // update UI
+        selectedCell.text(newValue || "-");
+        const row = selectedCell.closest("tr");
+        row.find("td.status").text(data.new_status);
+
+        showToast(data.message);
+
+        //close modal
+        const modalEl = document.getElementById("editFieldModal");
+        bootstrap.Modal.getInstance(modalEl)?.hide();
+
     } catch (err) {
         console.error("Network error while updating warranty:", err);
         alert("Network error while updating warranty");

@@ -113,22 +113,21 @@ def update_warranty_subscription(v_w_id):
         
         ## update status
         cur.execute("""
-            SELECT wp.expire_date, wp.expire_miles, v.mileage AS current_miles
-            FROM warranty_purchase wp
-            JOIN vehicle_warranty vw ON vw.vehicle_warranty_id = wp.vehicle_warranty_id
-            JOIN vehicle v ON v.vehicle_id = vw.vehicle_id
-            WHERE wp.vehicle_warranty_id = ?
+            SELECT
+                ws.start_date,
+                ws.end_date
+            FROM warranty_subscription ws
+            WHERE ws.vehicle_warranty_id = ?
         """, (v_w_id,))
         
         row = cur.fetchone()
         
-        new_status = get_warranty_status(
-            row["expire_date"],
-            row["expire_miles"],
-            row["current_miles"]
+        new_status = get_warranty_status_subscription(
+            row["start_date"],
+            row["end_date"]
         )
     
-        return jsonify(success=True, message="Purchase warranty updated", new_status=new_status)
+        return jsonify(success=True, message="Subscription warranty updated", new_status=new_status)
         
     except Exception as e:
         print("Update error: ", e)

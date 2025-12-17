@@ -5,8 +5,12 @@ $(document).ready(function () {
         responsive: false,
         autoWidth: false,
         scrollX: true,
-    
-        order: [[3, 'asc'], [4, 'asc'], [5, 'asc']],
+        
+        orderFixed: {
+            pre: [[0, 'asc']]
+        },
+
+        order: [[6, 'asc'],[3, 'asc'], [4, 'asc'], [5, 'asc']],
     
         columnDefs: [
             {targets: 3, orderDataType: 'warranty-type-order'},
