@@ -182,10 +182,12 @@ def create_subscription_warranty():
     
     data = request.get_json()
 
-    vehicle_id = data.get('vehicle_id')
-    warranty_type_id = data.get('warranty_type')
-    start_date = data.get('start_date')
-    monthly_cost = data.get('monthly_cost')
+    vehicle_id = data['vehicle_id']
+    warranty_type_id = data['warranty_type']
+    start_date = data['start_date']
+    monthly_cost = data['monthly_cost']
+
+    print(f'vehicle id: {vehicle_id}')
 
     if not vehicle_id or not warranty_type_id:
         return jsonify({"success": False, "message": "Invalid data"}), 400

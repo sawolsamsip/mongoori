@@ -95,6 +95,6 @@ def subscription_warranty_list_page():
         )
         warranties.append(row)
     
-    return render_template("warranty_info_subscription.html", warranties=warranties)
+    return render_template("warranty_info_subscription.html", warranties=warranties, subscription_types = get_subscription_warranty_types())
 
 ##

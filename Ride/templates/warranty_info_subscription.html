@@ -32,7 +32,7 @@ Mongoori - Warranty List
 
                 <tbody>
                     {% for w in warranties %}
-                    <tr data-id="{{w.vehicle_id}}" data-warranty-id="{{w.vehicle_warranty_id}}">
+                    <tr data-vehicle-id="{{w.vehicle_id}}" data-warranty-id="{{w.vehicle_warranty_id}}">
                         <td>{{w.vin}}</td>
                         <td>{{w.model}}</td>
                         <td>{{w.model_year}}</td>
@@ -56,8 +56,9 @@ Mongoori - Warranty List
 
     </div>
 </div>
-
-<!-- Modal -->
+<!-- Add Modal-->
+{% include "warranty_modal/subscription_modal.html" %}
+<!-- Edit Modal -->
 <div class = "modal fade" id="editFieldModal" tabindex="-1">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -78,6 +79,10 @@ Mongoori - Warranty List
 {% endblock %}
 
 {% block scripts %}
+<script>
+    const SUBSCRIPTION_WARRANTIES = JSON.parse(`{{ subscription_types | tojson | safe }}`);
+</script>
+
 <script src="{{ url_for('static', filename='warranty_common.js') }}"></script>
 <script src="{{ url_for('static', filename='warranty_edit_subscription.js') }}"></script>
 

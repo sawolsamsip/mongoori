@@ -84,72 +84,21 @@ $(document).ready(function () {
         modal.show();
     });
 
-    // add warranty
+    // open madal to add warranty
     $('#warrantyTable').on('click', '.add-warranty-btn', function(){
         const vehicleId = $(this).data('vehicle-id');
+        const modalEl = document.getElementById("subscriptionWarrantyModal");
+        modalEl.dataset.vehicleId = vehicleId;
 
-        const modal = new bootstrap.Modal(document.getElementById("subscriptionWarrantyModal"));
-        $('#modalTitle').text('Add New Warranty');
-
-        // create elements for warranty list
-        const typeSelect = document.createElement("select");
-        typeSelect.id = "newWarrantyType";
-        typeSelect.className = "form-select";
-        loadWarrantyTypes(typeSelect, SUBSCRIPTION_WARRANTIES);
-
-        const modalBodyHTML = `
-            <div class="mb-2">
-                <label class="form-label">Warranty Type</label>
-                ${typeSelect.outerHTML}
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Start Date</label>
-                <input type="date" id="newStartDate" class="form-control">
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Monthly Cost</label>
-                <input type="number" id="newMonthlyCost" class="form-control">
-            </div>
-        `;
-
-        $('#modalBody').html(modalBodyHTML);
+        renderSubscriptionForm();
         
-        $('#saveFieldBtn').off('click').on('click', async function(){
-            const warrantyType = $('#newWarrantyType').val();
-            const startDate = $('#newStartDate').val();
-            const monthlyCost = $('#newMonthlyCost').val();
-
-            try {
-                const res = await fetch('/admin/add_warranty_subscription', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        vehicle_id: vehicleId,
-                        warranty_type: warrantyType,
-                        start_date: startDate,
-                        monthly_cost: monthlyCost
-                    }),
-                });
-                
-                const data = await res.json();
-                if (data.success) {
-                    modal.hide();
-                    location.reload();
-                } else{
-                    alert(data.message || 'Failed to add warranty');
-                }
-
-            } catch (err) {
-                console.error('Error adding warranty:', err);
-                alert('Network error while adding warranty');
-            }
-        });
-
+        const modal = new bootstrap.Modal(modalEl);
         modal.show();
     });
 
     //remove
     $('#warrantyTable').on('click', '.delete-warranty-btn', async function(){
+        console.log('add-warranty-btn clicked');
         const row = $(this).closest('tr');
         const warrantyId = row.data('warranty-id');
         
