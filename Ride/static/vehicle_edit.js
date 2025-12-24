@@ -39,7 +39,7 @@ $(document).ready(function () {
             </button>
 
             <button class="btn btn-sm btn-outline-secondary actEditVehicle" data-id="${vehicleId}">
-                Edit
+                Detail
             </button>
 
             <button class="btn btn-sm btn-outline-danger actDeleteVehicle" data-id="${vehicleId}">
@@ -58,7 +58,7 @@ $(document).ready(function () {
     $(document).on('click', '.actEditVehicle', function(){
         const id = $(this).data('id');
         if (!id) return;
-        window.location.href = `/admin/vehicles/${id}/edit`;
+        window.location.href = `/admin/vehicles/${id}`;
     });
 
     // Delete

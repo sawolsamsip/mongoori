@@ -39,8 +39,8 @@ def vehicle_create_page():
 
     return render_template("form_vehicle.html", mode='add', vehicle={}, purchase_types=purchase_types)
 
-@vehicle_pages_bp.route("/<int:vehicle_id>/edit", methods=['GET'])
-def vehicle_edit_page(vehicle_id):
+@vehicle_pages_bp.route("/<int:vehicle_id>", methods=['GET'])
+def vehicle_detail_page(vehicle_id):
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
     
@@ -55,4 +55,4 @@ def vehicle_edit_page(vehicle_id):
     if not vehicle:
         abort(404)
 
-    return render_template("form_vehicle.html", mode="edit", vehicle = vehicle)
+    return render_template("form_vehicle.html", mode="detail", vehicle = vehicle)
