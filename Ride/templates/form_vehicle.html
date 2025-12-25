@@ -10,13 +10,31 @@ Mongoori - {% if mode == 'detail' %}Vehicle Detail{% else %} Add Vehicle{% endif
     <div class="card card-primary card-outline mb-4">
         <!-- Card header -->
         <div class="card-header">
-            <div class="card-title">
+            <h3 class="card-title mb-0">
                 {% if mode == 'detail' %}
                     Vehicle Detail
                 {% else %}
                     Add New Vehicle
                 {% endif %}
+            </h3>
+        
+            {% if mode == 'detail' %}
+            <div class="card-tools">
+                <div class="form-check form-switch d-flex align-items-center gap-2">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="modeToggle">
+            
+                    <label
+                        class="form-check-label"
+                        for="modeToggle"
+                        id="modeLabel">
+                        Edit
+                    </label>
+                </div>
             </div>
+            {% endif %}
         </div>
         <!-- Card header End-->
 

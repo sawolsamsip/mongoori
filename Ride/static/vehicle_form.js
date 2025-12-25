@@ -1,4 +1,55 @@
+let editMode = false;
+
+function applyMode(isEdit){
+    editMode = isEdit;
+    document.querySelectorAll(".editable").forEach(el => {
+        if (el.tagName === "SELECT"){
+            el.disabled = !isEdit;
+        } else {
+            el.readOnly = !isEdit;
+        }
+    });
+
+    const label = document.getElementById("modeLabel");
+    if (label) {
+        label.textContent = isEdit ? "View" : "Edit";
+    }
+}
+
+function updateFooterButtons(isEdit) {
+    const actions = document.getElementById("formActions");
+    if (!actions) return;
+
+    if(isEdit) {
+        actions.innerHTML = `
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" id="cancelEditBtn">
+                Cancel
+            </button>
+        `;
+
+        document.getElementById("cancelEditBtn")
+            ?.addEventListener("click", () => window.location.reload());
+    } else {
+        actions.innerHTML = `
+            <button type="button" class="btn btn-secondary" id="backBtn">
+                Back to List
+            </button>
+        `;
+
+        document.getElementById("backBtn")
+            ?.addEventListener("click", () => {
+                window.location.href = "/admin/vehicles";
+            });
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("vehicleForm");
+    const toggle = document.getElementById("modeToggle");
+
+    if (!form) return;
+
     const yearSelect = document.getElementById("year");
     const modelSelect = document.getElementById("model");
     const trimSelect = document.getElementById("trim");
@@ -121,9 +172,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     //
 
-    modelSelect.addEventListener("change", ()=> updateTrims(false));
-    yearSelect.addEventListener("change", ()=> updateTrims(false));
-    trimSelect.addEventListener("change", ()=>updateExterior(false));
+    modelSelect.addEventListener("change", () => {
+        if (form.dataset.mode === "detail" && !editMode) return;
+        updateTrims(false);
+    });
+    
+    yearSelect.addEventListener("change", () => {
+        if (form.dataset.mode === "detail" && !editMode) return;
+        updateTrims(false);
+    });
+    
+    trimSelect.addEventListener("change", () => {
+        if (form.dataset.mode === "detail" && !editMode) return;
+        updateExterior(false);
+    });
 
     if (selectedModel && selectedYear){
         updateTrims(true);
@@ -132,8 +194,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Form submit
 
-    const form = document.getElementById("vehicleForm");
-    if (!form) return;
+
+    if (form.dataset.mode === "detail" && toggle) {
+        toggle.checked = false;
+        applyMode(false);
+        updateFooterButtons(false);
+    }
+
+    toggle?.addEventListener("change", (e) => {
+        const isEdit = e.target.checked;
+    
+        if (!isEdit && editMode) {
+            window.location.reload();
+            return;
+        }
+    
+        applyMode(isEdit);
+        updateFooterButtons(isEdit);
+    });
+
 
     function clearErrors(){
         form.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
@@ -155,8 +234,13 @@ document.addEventListener("DOMContentLoaded", function () {
         clearErrors();
 
         const mode = form.dataset.mode;
+
+        if (mode === "detail" && !editMode) {
+            return;
+        }
+
         let url, method;
-        if (mode === "edit"){
+        if (mode === "detail"){
             url = form.dataset.updateUrl;
             method = "PUT"
         }else {
@@ -227,7 +311,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 const toastEl = document.getElementById("successToast");
                 const toast = new bootstrap.Toast(toastEl);
 
-                msgBox.textContent = data.message || "Vehicle successfully added."
+                msgBox.textContent = data.message || (mode === "detail"
+                    ? "Vehicle successfully updated."
+                    : "Vehicle successfully added.");
                 toast.show();
                 
                 
