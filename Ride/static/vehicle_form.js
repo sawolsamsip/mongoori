@@ -1,20 +1,4 @@
-let editMode = false;
-
-function applyMode(isEdit){
-    editMode = isEdit;
-    document.querySelectorAll(".editable").forEach(el => {
-        if (el.tagName === "SELECT"){
-            el.disabled = !isEdit;
-        } else {
-            el.readOnly = !isEdit;
-        }
-    });
-
-    const label = document.getElementById("modeLabel");
-    if (label) {
-        label.textContent = isEdit ? "View" : "Edit";
-    }
-}
+let isEditMode = false;
 
 function updateFooterButtons(isEdit) {
     const actions = document.getElementById("formActions");
@@ -29,7 +13,10 @@ function updateFooterButtons(isEdit) {
         `;
 
         document.getElementById("cancelEditBtn")
-            ?.addEventListener("click", () => window.location.reload());
+        ?.addEventListener("click", () => {
+            setEditMode(false);
+        });
+        
     } else {
         actions.innerHTML = `
             <button type="button" class="btn btn-secondary" id="backBtn">
@@ -43,6 +30,31 @@ function updateFooterButtons(isEdit) {
             });
     }
 }
+
+function setEditMode(next){
+    isEditMode = next;
+
+    const toggle = document.getElementById("modeToggle");
+    if (toggle) {
+        toggle.checked = isEditMode;
+    }
+
+    document.querySelectorAll(".editable").forEach(el => {
+        if (el.tagName === "SELECT") {
+            el.disabled = !isEditMode;
+        } else {
+            el.readOnly = !isEditMode;
+        }
+    });
+
+    const label = document.getElementById("modeLabel");
+    if (label) {
+        label.textContent = isEditMode ? "View" : "Edit";
+    }
+
+    updateFooterButtons(isEditMode);
+}
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("vehicleForm");
@@ -96,6 +108,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // get trim
     async function updateTrims(init = false) {
+        if (form.dataset.mode === "detail" && !isEditMode) return;
+
         const model = modelSelect.value;
         const year = yearSelect.value;
 
@@ -136,6 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // get exterior
     async function updateExterior(init = false) {
+        if (form.dataset.mode === "detail" && !isEditMode) return;
         const model = modelSelect.value;
         const year = yearSelect.value;
         const trim = trimSelect.value;
@@ -173,17 +188,17 @@ document.addEventListener("DOMContentLoaded", function () {
     //
 
     modelSelect.addEventListener("change", () => {
-        if (form.dataset.mode === "detail" && !editMode) return;
+        if (form.dataset.mode === "detail" && !isEditMode) return;
         updateTrims(false);
     });
     
     yearSelect.addEventListener("change", () => {
-        if (form.dataset.mode === "detail" && !editMode) return;
+        if (form.dataset.mode === "detail" && !isEditMode) return;
         updateTrims(false);
     });
     
     trimSelect.addEventListener("change", () => {
-        if (form.dataset.mode === "detail" && !editMode) return;
+        if (form.dataset.mode === "detail" && !isEditMode) return;
         updateExterior(false);
     });
 
@@ -195,22 +210,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // Form submit
 
 
-    if (form.dataset.mode === "detail" && toggle) {
-        toggle.checked = false;
-        applyMode(false);
-        updateFooterButtons(false);
+    if (form.dataset.mode === "detail") {
+        setEditMode(false);
     }
 
     toggle?.addEventListener("change", (e) => {
-        const isEdit = e.target.checked;
-    
-        if (!isEdit && editMode) {
-            window.location.reload();
-            return;
-        }
-    
-        applyMode(isEdit);
-        updateFooterButtons(isEdit);
+        setEditMode(e.target.checked);
     });
 
 
@@ -235,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const mode = form.dataset.mode;
 
-        if (mode === "detail" && !editMode) {
+        if (mode === "detail" && !isEditMode) {
             return;
         }
 

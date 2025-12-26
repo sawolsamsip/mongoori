@@ -51,7 +51,7 @@ Mongoori - {% if mode == 'detail' %}Vehicle Detail{% else %} Add Vehicle{% endif
             <div class="card-body">
                 <div class="mb-3">
                     <label for="VIN" class="form-label">VIN</label>
-                    <input id = "vin" name = "vin" type = "text" class="form-control" 
+                    <input id = "vin" name = "vin" type = "text" class="form-control editable" 
                         value =  "{% if mode == 'detail' %}{{ vehicle.vin }}{% endif %}" minlength="17" maxlength="17"
         pattern="[A-HJ-NPR-Z0-9]{17}" required/>
                 </div>
@@ -60,13 +60,13 @@ Mongoori - {% if mode == 'detail' %}Vehicle Detail{% else %} Add Vehicle{% endif
                 <div class = "row mb-3">
                     <div class = "col-4">
                         <label for = "make" class="form-label">MAKE</label>
-                        <input id = "make" name = "make" type="text" value = "TESLA" class="form-control">
+                        <input id = "make" name = "make" type="text" value = "TESLA" class="form-control editable">
                     </div>
 
 
                     <div class="col-4">
                         <label for="model" class="form-label">MODEL</label>
-                        <select class="form-select" id="model" name="model" data-selected="{{ vehicle.model or '' }}" required>
+                        <select class="form-select editable" id="model" name="model" data-selected="{{ vehicle.model or '' }}" required>
                             <option disabled selected value="">Choose...</option>
                             <option value="Model 3">Model 3</option>
                             <option value="Model Y">Model Y</option>
@@ -75,7 +75,7 @@ Mongoori - {% if mode == 'detail' %}Vehicle Detail{% else %} Add Vehicle{% endif
 
                     <div class = "col-4">
                         <label for = "year" class="form-label">YEAR</label>
-                        <select id="year" name='year' class="form-select" data-selected="{{ vehicle.model_year or '' }}">
+                        <select id="year" name='year' class="form-select editable" data-selected="{{ vehicle.model_year or '' }}">
                             <option selected disabled value="">Choose...</option>
                         </select>
                     </div>
@@ -86,21 +86,21 @@ Mongoori - {% if mode == 'detail' %}Vehicle Detail{% else %} Add Vehicle{% endif
                 <div class = "row mb-3">
                     <div class="col-4">
                         <label for="trim" class="form-label">TRIM</label>
-                        <select id="trim" name="trim" class="form-select" data-selected="{{ vehicle.trim or '' }}" disabled>
+                        <select id="trim" name="trim" class="form-select editable" data-selected="{{ vehicle.trim or '' }}" disabled>
                             <option selected disabled value="">Choose...</option>
                         </select>
                     </div>
                     
                     <div class="col-4">
                         <label for="exterior" class="form-label">EXTERIOR</label>
-                        <select id="exterior" name="exterior" class="form-select" data-selected="{{ vehicle.exterior or '' }}" disabled>
+                        <select id="exterior" name="exterior" class="form-select editable" data-selected="{{ vehicle.exterior or '' }}" disabled>
                             <option selected disabled value="">Choose...</option>
                         </select>
                     </div>
 
                     <div class="col-4">
                         <label for="interior" class="form-label">INTERIOR</label>
-                        <select id="interior" name="interior" class="form-select" data-selected="{{ vehicle.interior or '' }}">
+                        <select id="interior" name="interior" class="form-select editable" data-selected="{{ vehicle.interior or '' }}">
                             <option selected disabled value="">Choose...</option>
                             <option value="black">Black</option>
                             <option value="Black and White">Black and White</option>
@@ -114,15 +114,15 @@ Mongoori - {% if mode == 'detail' %}Vehicle Detail{% else %} Add Vehicle{% endif
                 <div class = "row mb-3">
                     <div class="col-4">
                         <label for="plate_number" class="form-label">PLATE NUMBER</label>
-                        <input id = "plate_number" name = "plate_number" type = "text" class="form-control" value="{{ vehicle.plate_number or '' }}"/>
+                        <input id = "plate_number" name = "plate_number" type = "text" class="form-control editable" value="{{ vehicle.plate_number or '' }}"/>
                     </div>
                     <div class="col-3">
                         <label for="mileage" class="form-label">MILEAGE</label>
-                        <input id = "mileage" name = "mileage" type = "text" class="form-control" pattern="[0-9]+" value="{{ vehicle.mileage or '' }}"/>
+                        <input id = "mileage" name = "mileage" type = "text" class="form-control editable" pattern="[0-9]+" value="{{ vehicle.mileage or '' }}"/>
                     </div>
                     <div class="col-5">
                         <label for="software" class="form-label">Software Package</label>
-                        <select id="software" name="software" class="form-select" data-selected="{{ vehicle.software or '' }}">
+                        <select id="software" name="software" class="form-select editable" data-selected="{{ vehicle.software or '' }}">
                             <option selected disabled value="">Choose...</option>
                             <option value="autopilot">Autopilot</option>
                             <option value="EAP">Enhanced Autopilot</option>
@@ -155,18 +155,13 @@ Mongoori - {% if mode == 'detail' %}Vehicle Detail{% else %} Add Vehicle{% endif
 
             <!-- Footer Begin-->
             <div class="card-footer">
-                <!-- <button type="submit" class = "btn btn-primary">Submit</button> -->
-                <div class="d-flex gap-2" id="formActions">
-                    {% if mode == 'detail' %}
-                        <button type="button" class="btn btn-outline-primary" id="editBtn">
-                            Edit
-                        </button>
-                    {% else %}
-                        <button type="submit" class="btn btn-primary">
-                            Create
-                        </button>
-                    {% endif %}
-                </div>
+                {% if mode == 'detail' %}
+                    <div class="d-flex gap-2" id="formActions"></div>
+                {% else %}
+                    <button type="submit" class="btn btn-primary">
+                        Create
+                    </button>
+                {% endif %}
             </div>
             <!-- Footer End-->
         </form>
