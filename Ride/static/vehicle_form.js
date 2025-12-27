@@ -14,9 +14,9 @@ function updateFooterButtons(isEdit) {
 
         document.getElementById("cancelEditBtn")
         ?.addEventListener("click", () => {
-            setEditMode(false);
+            window.location.reload();
         });
-        
+
     } else {
         actions.innerHTML = `
             <button type="button" class="btn btn-secondary" id="backBtn">
@@ -46,11 +46,6 @@ function setEditMode(next){
             el.readOnly = !isEditMode;
         }
     });
-
-    const label = document.getElementById("modeLabel");
-    if (label) {
-        label.textContent = isEditMode ? "View" : "Edit";
-    }
 
     updateFooterButtons(isEditMode);
 }
@@ -108,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // get trim
     async function updateTrims(init = false) {
-        if (form.dataset.mode === "detail" && !isEditMode) return;
+        if (form.dataset.mode === "detail" && !isEditMode && !init) return;
 
         const model = modelSelect.value;
         const year = yearSelect.value;
@@ -134,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         trimSelect.appendChild(opt);
                         
                     });
-                    trimSelect.disabled = false;
+                    trimSelect.disabled = !isEditMode;
                 }
 
                 if (init && selectedTrim) {
@@ -150,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // get exterior
     async function updateExterior(init = false) {
-        if (form.dataset.mode === "detail" && !isEditMode) return;
+        if (form.dataset.mode === "detail" && !isEditMode && !init) return;
         const model = modelSelect.value;
         const year = yearSelect.value;
         const trim = trimSelect.value;
@@ -176,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         exteriorSelect.appendChild(opt);
                         
                     });
-                    exteriorSelect.disabled = false;
+                    exteriorSelect.disabled = !isEditMode;
                 }
             } catch(err){
                 console.error("Error while loading exteriors: ", err);
@@ -323,8 +318,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 
                 
                 setTimeout(() => {
-                    window.location.href = "/admin/vehicles";
-                }, 1200);
+                    setEditMode(false);
+                }, 800);
             
             }
             
