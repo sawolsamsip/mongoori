@@ -3,11 +3,38 @@ $(document).ready(function () {
     responsive: false,
     autoWidth: false,
     scrollX: true,
+
+    columnDefs: [
+        { targets: 0, visible: false }
+    ],
+    
+    orderFixed: {
+        pre: [[0, 'asc']]
+      },
+
+    order: [[0, 'asc']],
+
+    rowGroup: {
+        dataSrc: 0,
+        startRender: function (rows, group) {
+          const name = group;
+          return $('<tr class="group-row"/>')
+            .append(
+              `<td colspan="6" class="bg-light fw-bold">
+                <strong>${name}</strong> (${rows.count()})
+              </td>`
+            );
+        }
+      }
+    
+
     });
 
     let openedActionRow = null;
 
     $('#vehicleTable tbody').on('click', 'tr', function(){
+        if ($(this).hasClass('group-row')) return;
+
         const vehicleId = $(this).data('id');
         if (!vehicleId) return;
         

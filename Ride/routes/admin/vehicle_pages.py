@@ -17,9 +17,13 @@ def vehicle_list_page():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT vehicle_id, vin, model, model_year, trim, exterior, interior, plate_number, mileage, software, vehicle_status
-        FROM vehicle
-        ORDER BY created_at DESC
+        SELECT v.vehicle_id, v.vin, v.plate_number, v.model, v.model_year, COALESCE(pl.name, 'Unassigned') AS parking_lot_name
+        FROM vehicle v
+        LEFT JOIN vehicle_parking vp
+        ON v.vehicle_id = vp.vehicle_id
+        LEFT JOIN parking_lot pl
+        ON vp.parking_lot_id = pl.parking_lot_id                                
+        ORDER BY pl.name IS NULL, pl.name, v.created_at DESC;
     """)
     vehicles = cur.fetchall()
 

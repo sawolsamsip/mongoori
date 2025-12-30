@@ -14,4 +14,7 @@ INSERT INTO parking_lot (name) VALUES
   ('Lot A'),
   ('Lot B');
 
-
+INSERT INTO vehicle_parking (vehicle_id, parking_lot_id) VALUES
+(1, 1),
+(3, 1),
+(4, 2);
