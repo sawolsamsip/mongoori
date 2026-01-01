@@ -207,4 +207,4 @@ def admin_create_vehicle():
         
         return jsonify(success=False, message="Insert failed", error=str(e)), 500
 
-    return jsonify(success=True, message="Vehicle successfully added."), 200
+    return jsonify(success=True, message="Vehicle successfully added."), 201

@@ -99,6 +99,47 @@ CREATE TABLE IF NOT EXISTS interior (
     interior_name TEXT UNIQUE NOT NULL
 );
 
+-- Parking lots
+CREATE TABLE IF NOT EXISTS parking_lot (
+  parking_lot_id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  name TEXT NOT NULL,
+
+  address_line1 TEXT NOT NULL,
+  city TEXT NOT NULL,
+  state TEXT NOT NULL,
+  zip_code TEXT,
+
+  status TEXT NOT NULL
+  CHECK (status IN ('active', 'inactive'))
+  DEFAULT 'active',
+
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT,
+
+  UNIQUE (address_line1, city, state)
+);
+
+
+CREATE TABLE IF NOT EXISTS vehicle_parking (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    vehicle_id INTEGER NOT NULL,
+    parking_lot_id INTEGER NOT NULL,
+
+    assigned_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    unassigned_at TEXT,
+
+    FOREIGN KEY (vehicle_id)
+        REFERENCES vehicle(id),
+
+    FOREIGN KEY (parking_lot_id)
+        REFERENCES parking_lot(id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_vehicle_active_parking
+ON vehicle_parking(vehicle_id)
+WHERE unassigned_at IS NULL;
 
 
 
