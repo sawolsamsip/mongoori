@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS parking_lot (
 
 
 CREATE TABLE IF NOT EXISTS vehicle_parking (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    vehicle_parking_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     vehicle_id INTEGER NOT NULL,
     parking_lot_id INTEGER NOT NULL,
@@ -131,11 +131,11 @@ CREATE TABLE IF NOT EXISTS vehicle_parking (
     unassigned_at TEXT,
 
     FOREIGN KEY (vehicle_id)
-        REFERENCES vehicle(id)
+        REFERENCES vehicle(vehicle_id)
         ON DELETE CASCADE,
 
     FOREIGN KEY (parking_lot_id)
-        REFERENCES parking_lot(id)
+        REFERENCES parking_lot(parking_lot_id)
         ON DELETE CASCADE
 );
 
