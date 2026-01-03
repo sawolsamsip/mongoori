@@ -149,6 +149,9 @@ $(document).ready(function () {
         modal.show();
     });
 
+    $(window).on('resize', function () {
+        table.columns.adjust();
+    });
 
 });
 

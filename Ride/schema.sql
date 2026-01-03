@@ -131,10 +131,12 @@ CREATE TABLE IF NOT EXISTS vehicle_parking (
     unassigned_at TEXT,
 
     FOREIGN KEY (vehicle_id)
-        REFERENCES vehicle(id),
+        REFERENCES vehicle(id)
+        ON DELETE CASCADE,
 
     FOREIGN KEY (parking_lot_id)
         REFERENCES parking_lot(id)
+        ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uniq_vehicle_active_parking
