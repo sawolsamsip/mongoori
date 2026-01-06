@@ -13,8 +13,7 @@ parking_lot_api_bp = Blueprint(
 def admin_create_parking_lot():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
-    
-    print('here')
+
     errors = {}
     data = request.get_json() or {}
 

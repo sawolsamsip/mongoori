@@ -73,6 +73,10 @@ $(document).ready(function () {
                 Delete
             </button>
 
+            <button class="btn btn-sm btn-outline-info actSetParking" data-id="${vehicleId}">
+                Set Parking
+            </button>
+
         </div>
         `;
         
@@ -145,6 +149,20 @@ $(document).ready(function () {
 
         renderSubscriptionForm();
         
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    });
+
+    // set parking modal open
+    $(document).on('click', '.actSetParking', function(){
+        const id = $(this).data('id');
+        if (!id) return;
+
+        const modalEl = document.getElementById('setParkingModal');
+        modalEl.dataset.vehicleId = id;
+
+        renderSetParkingForm(id);
+
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
     });

@@ -50,6 +50,7 @@ Mongoori - Vehicle List
 
 {% include "warranty_modal/purchase_modal.html" %}
 {% include "warranty_modal/subscription_modal.html" %}
+{% include "parking_modal/parking_modal.html" %}
 
 {% endblock %}
 
@@ -60,5 +61,6 @@ Mongoori - Vehicle List
 </script>
 
 <script src="{{ url_for('static', filename='warranty_common.js') }}"></script>
+<script src="{{ url_for('static', filename='parking_common.js') }}"></script>
 <script src="{{ url_for('static', filename='vehicle_edit.js') }}"></script>
 {% endblock %}
