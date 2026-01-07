@@ -8,7 +8,13 @@ $(document).ready(function () {
 
         ajax: {
             url: '/api/parking-lots',
-            dataSrc: ''
+            dataSrc: function (json) {
+                if (!json.success) {
+                    alert(json.message || 'Failed to load parking lots');
+                    return [];
+                }
+                return json.data;
+            }
         },
         columns: [
             { data: 'name' },

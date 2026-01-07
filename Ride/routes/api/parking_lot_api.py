@@ -87,9 +87,11 @@ def admin_create_parking_lot():
 ## get list
 @parking_lot_api_bp.route("", methods=["GET"])
 def list_parking_lots():
-    print('call API for parking lot list')
     if not session.get("admin_logged_in"):
-        return jsonify(success=False), 401
+        return jsonify({
+            "success": False,
+            "message": "Unauthorized"
+        }), 401
 
     conn = get_conn()
     rows = conn.execute("""
@@ -118,7 +120,10 @@ def list_parking_lots():
         for r in rows
     ]
 
-    return jsonify(data)
+    return jsonify({
+        "success": True,
+        "data": data
+        })
 
 ## update
 

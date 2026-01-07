@@ -57,3 +57,53 @@ async function renderSetParkingForm(vehicleId) {
         </div>
     `;
 }
+
+// Save - for modal to change parking lot
+
+async function saveVehicleParking() {
+    const modalEl = document.getElementById('setParkingModal');
+    const vehicleId = modalEl.dataset.vehicleId;
+
+    if (!vehicleId) {
+        alert('Vehicle ID missing.');
+        return;
+    }
+
+    const selectEl = document.getElementById('selectParkingLot');
+    if (!selectEl) {
+        alert('Parking selector not found.');
+        return;
+    }
+    const parkingLotId = selectEl.value || null;
+
+    try {
+        const res = await fetch(`/api/vehicles/${vehicleId}/parking`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                parking_lot_id: parkingLotId
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            alert(data.message || 'Failed to update parking.');
+            return;
+        }
+
+        bootstrap.Modal.getInstance(modalEl).hide();
+        showToast(data.message || 'Parking updated successfully.');
+
+        location.reload();
+
+    } catch (err) {
+        console.error(err);
+        alert('Network error while updating parking.');
+    }
+
+}
+
+
+
+$(document).on('click', '#btnSaveParking', saveVehicleParking);

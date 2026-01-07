@@ -208,3 +208,70 @@ def admin_create_vehicle():
         return jsonify(success=False, message="Insert failed", error=str(e)), 500
 
     return jsonify(success=True, message="Vehicle successfully added."), 201
+
+
+@vehicle_api_bp.route("/<int:vehicle_id>/parking", methods=["POST"])
+def set_vehicle_parking(vehicle_id):
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized"), 401
+
+    data = request.get_json() or {}
+    parking_lot_id = data.get("parking_lot_id")
+
+    now = get_pacific_time()
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    try:
+        # select active parking lot
+        cur.execute("""
+            SELECT vehicle_parking_id
+            FROM vehicle_parking
+            WHERE vehicle_id = ?
+              AND unassigned_at IS NULL
+        """, (vehicle_id,))
+        current = cur.fetchone()
+
+        # close the existing parking lot row
+        if current:
+            cur.execute("""
+                UPDATE vehicle_parking
+                SET unassigned_at = ?
+                WHERE vehicle_parking_id = ?
+            """, (now, current["vehicle_parking_id"]))
+
+        # assign new parking lot
+        if parking_lot_id is not None:
+            cur.execute("""
+                INSERT INTO vehicle_parking (vehicle_id, parking_lot_id, assigned_at)
+                VALUES (?, ?, ?)
+            """, (vehicle_id, parking_lot_id, now))
+
+        # return parking lot name (for return data)
+        parking_lot_name = None
+        if parking_lot_id is not None:
+            cur.execute("""
+                SELECT name
+                FROM parking_lot
+                WHERE parking_lot_id = ?
+            """, (parking_lot_id,))
+            row = cur.fetchone()
+            parking_lot_name = row["name"] if row else None
+
+        conn.commit()
+
+        return jsonify(
+            success=True,
+            message="Parking updated successfully",
+            parking_lot_id=parking_lot_id,
+            parking_lot_name=parking_lot_name or "Unassigned"
+        ), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify(
+            success=False,
+            message="Failed to update parking",
+            error=str(e)
+        ), 500
