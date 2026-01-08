@@ -20,7 +20,7 @@ def vehicle_list_page():
         SELECT v.vehicle_id, v.vin, v.plate_number, v.model, v.model_year, COALESCE(pl.name, 'Unassigned') AS parking_lot_name
         FROM vehicle v
         LEFT JOIN vehicle_parking vp
-        ON v.vehicle_id = vp.vehicle_id
+        ON v.vehicle_id = vp.vehicle_id AND vp.unassigned_at IS NULL
         LEFT JOIN parking_lot pl
         ON vp.parking_lot_id = pl.parking_lot_id                                
         ORDER BY pl.name IS NULL, pl.name, v.created_at DESC;
