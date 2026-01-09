@@ -224,22 +224,13 @@ def set_vehicle_parking(vehicle_id):
     cur = conn.cursor()
 
     try:
-        # select active parking lot
+        # cloase all active parking assignments for the given vehicle
         cur.execute("""
-            SELECT vehicle_parking_id
-            FROM vehicle_parking
+            UPDATE vehicle_parking
+            SET unassigned_at = ?
             WHERE vehicle_id = ?
               AND unassigned_at IS NULL
-        """, (vehicle_id,))
-        current = cur.fetchone()
-
-        # close the existing parking lot row
-        if current:
-            cur.execute("""
-                UPDATE vehicle_parking
-                SET unassigned_at = ?
-                WHERE vehicle_parking_id = ?
-            """, (now, current["vehicle_parking_id"]))
+        """, (now, vehicle_id))
 
         # assign new parking lot
         if parking_lot_id is not None:
