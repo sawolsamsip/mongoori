@@ -40,22 +40,60 @@ async function renderSetParkingForm(vehicleId) {
         optionsHtml += `<option value="${p.id}" ${selected}>${p.name}</option>`;
     });
 
+    // Default dates
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
     // Rendering
     body.innerHTML = `
-        <div class="mb-3">
-            <label class="form-label fw-bold">Current Parking</label>
-            <div class="text-muted">
-                ${currentParkingName}
-            </div>
-        </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">Current Parking</label>
+        <div class="text-muted">${currentParkingName}</div>
+    </div>
 
-        <div class="mb-3">
-            <label class="form-label fw-bold">New Parking</label>
-            <select class="form-select" id="selectParkingLot">
-                ${optionsHtml}
-            </select>
-        </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">New Parking</label>
+        <select class="form-select" id="selectParkingLot">
+            ${optionsHtml}
+        </select>
+    </div>
+
+    <hr/>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Start Date</label>
+        <input type="date" class="form-control" id="parkingStartDate" value="${todayStr}">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Monthly Fee</label>
+        <input type="number" class="form-control" id="parkingMonthlyFee" min="0" step="0.01">
+    </div>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="toggleEndDate">
+        <label class="form-check-label fw-bold" for="toggleEndDate">
+            Set end date (optional)
+        </label>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">End Date</label>
+        <input type="date" class="form-control" id="parkingEndDate" disabled>
+    </div>
     `;
+
+    // Toggle end date enable/disable
+    const toggle = document.getElementById('toggleEndDate');
+    const endDate = document.getElementById('parkingEndDate');
+    toggle.addEventListener('change', () => {
+        endDate.disabled = !toggle.checked;
+        if (!toggle.checked) endDate.value = '';
+    });
+
 }
 
 // Save - for modal to change parking lot

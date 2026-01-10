@@ -58,3 +58,14 @@ INSERT INTO warranty_type (type_name, display_name, category, sort_order) VALUES
 ('Pre-Owned Vehicle Limited Warranty', 'CPO Warranty', 'purchase', 9),
 ('Parts, Body and Paint Repair Warranty', 'Parts & Paint', 'purchase', 10),
 ('Extended Service Agreement', 'Extended Service', 'subscription', 11);
+
+-- Expense category
+INSERT OR IGNORE INTO expense_category (name) VALUES
+('insurance'),
+('maintenance'),
+('parking'),
+('platform_fee'),
+('cleaning');
+
+
+

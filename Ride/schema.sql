@@ -142,5 +142,71 @@ ON vehicle_parking(vehicle_id)
 WHERE unassigned_at IS NULL;
 
 
+-- Fleet
+CREATE TABLE IF NOT EXISTS vehicle_fleet (
+    vehicle_fleet_id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    vehicle_id INTEGER NOT NULL,
+
+    registered_from DATE NOT NULL,
+    registered_to DATE,
+
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (vehicle_id)
+        REFERENCES vehicle(vehicle_id),
+
+    CHECK (
+        registered_to IS NULL
+        OR registered_to >= registered_from
+    )
+);
+
+-- Expense
+
+CREATE TABLE IF NOT EXISTS expense_category (
+    expense_category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS vehicle_expense (
+    vehicle_expense_id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    vehicle_id INTEGER NOT NULL,
+    expense_category_id INTEGER NOT NULL,
+
+    amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0),
+
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+
+    is_recurring INTEGER NOT NULL DEFAULT 0 CHECK (is_recurring IN (0, 1)),
+    recurrence_unit TEXT,
+    recurrence_anchor DATE,
+
+    source TEXT NOT NULL DEFAULT 'manual',
+    note TEXT,
+
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (vehicle_id)
+        REFERENCES vehicle(vehicle_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (expense_category_id)
+        REFERENCES expense_category(expense_category_id),
+
+    CHECK (
+        period_end >= period_start
+    ),
+
+    CHECK (
+        (is_recurring = 0 AND recurrence_unit IS NULL AND recurrence_anchor IS NULL)
+        OR
+        (is_recurring = 1 AND recurrence_unit IS NOT NULL)
+    )
+);
+
 
 
