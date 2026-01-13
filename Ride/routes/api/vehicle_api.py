@@ -216,6 +216,12 @@ def set_vehicle_parking(vehicle_id):
         return jsonify(success=False, message="Unauthorized"), 401
 
     data = request.get_json() or {}
+
+    ## test ##
+    print("[set_vehicle_parking] payload =", data)
+    return jsonify(success="TEST")
+    ##########
+
     parking_lot_id = data.get("parking_lot_id")
 
     now = get_pacific_time()

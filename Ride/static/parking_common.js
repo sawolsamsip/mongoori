@@ -112,14 +112,44 @@ async function saveVehicleParking() {
         alert('Parking selector not found.');
         return;
     }
+
     const parkingLotId = selectEl.value || null;
+    const startDateEl = document.getElementById('parkingStartDate');
+    const feeEl = document.getElementById('parkingMonthlyFee');
+    const toggleEndEl = document.getElementById('toggleEndDate');
+    const endDateEl = document.getElementById('parkingEndDate');
+
+    const parkingFrom = startDateEl?.value || '';
+    const parkingTo = (toggleEndEl?.checked && endDateEl?.value) ? endDateEl.value : null;
+
+
+    // validation
+    if (parkingLotId && parkingTo && parkingFrom && parkingTo < parkingFrom) {
+        alert('End Date must be on or after Start Date.');
+        return;
+    }
+
+    let feeAmountCents = null;
+    const feeStr = (feeEl?.value || '').trim();
+    if (feeStr !== '') {
+        const feeNum = Number(feeStr);
+        if (Number.isNaN(feeNum) || feeNum < 0) {
+            alert('Monthly Fee must be a valid non-negative number.');
+        return;
+        }
+        feeAmountCents = Math.round(feeNum * 100);
+    }
 
     try {
         const res = await fetch(`/api/vehicles/${vehicleId}/parking`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                parking_lot_id: parkingLotId
+                parking_lot_id: parkingLotId,     
+                parking_from: parkingFrom || null,
+                parking_to: parkingTo,            
+                fee_unit: 'monthly',              
+                fee_amount_cents: feeAmountCents,
             })
         });
 

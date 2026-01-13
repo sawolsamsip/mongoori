@@ -127,26 +127,40 @@ CREATE TABLE IF NOT EXISTS vehicle_parking (
     vehicle_id INTEGER NOT NULL,
     parking_lot_id INTEGER NOT NULL,
 
-    assigned_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    unassigned_at TEXT,
+    parking_from DATE NOT NULL,
+    parking_to   DATE,
+
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (vehicle_id)
-        REFERENCES vehicle(vehicle_id),
+        REFERENCES vehicle(vehicle_id) ON DELETE RESTRICT,
 
     FOREIGN KEY (parking_lot_id)
-        REFERENCES parking_lot(parking_lot_id)
+        REFERENCES parking_lot(parking_lot_id) ON DELETE RESTRICT,
+
+    CHECK (
+        parking_to IS NULL
+        OR parking_to >= parking_from
+    )
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS uniq_vehicle_active_parking
+CREATE UNIQUE INDEX uniq_vehicle_active_parking
 ON vehicle_parking(vehicle_id)
-WHERE unassigned_at IS NULL;
+WHERE parking_to IS NULL;
 
 
 -- Fleet
-CREATE TABLE IF NOT EXISTS vehicle_fleet (
+-- Fleet Service
+CREATE TABLE fleet_service (
+    fleet_service_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE vehicle_fleet (
     vehicle_fleet_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     vehicle_id INTEGER NOT NULL,
+    fleet_service_id INTEGER NOT NULL,
 
     registered_from DATE NOT NULL,
     registered_to DATE,
@@ -155,6 +169,9 @@ CREATE TABLE IF NOT EXISTS vehicle_fleet (
 
     FOREIGN KEY (vehicle_id)
         REFERENCES vehicle(vehicle_id),
+
+    FOREIGN KEY (fleet_service_id)
+        REFERENCES fleet_service(fleet_service_id),
 
     CHECK (
         registered_to IS NULL
@@ -174,15 +191,18 @@ CREATE TABLE IF NOT EXISTS vehicle_expense (
     vehicle_expense_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     vehicle_id INTEGER NOT NULL,
+    parking_lot_id INTEGER,
+    
     expense_category_id INTEGER NOT NULL,
 
     amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0),
 
     period_start DATE NOT NULL,
-    period_end DATE NOT NULL,
+    period_end DATE,
 
     is_recurring INTEGER NOT NULL DEFAULT 0 CHECK (is_recurring IN (0, 1)),
-    recurrence_unit TEXT,
+    recurrence_unit TEXT
+    CHECK (recurrence_unit IN ('monthly')),
     recurrence_anchor DATE,
 
     source TEXT NOT NULL DEFAULT 'manual',
@@ -197,7 +217,12 @@ CREATE TABLE IF NOT EXISTS vehicle_expense (
     FOREIGN KEY (expense_category_id)
         REFERENCES expense_category(expense_category_id),
 
+    FOREIGN KEY (parking_lot_id)
+        REFERENCES parking_lot(parking_lot_id),
+
     CHECK (
+        period_end IS NULL
+        OR
         period_end >= period_start
     ),
 
