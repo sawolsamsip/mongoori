@@ -50,7 +50,7 @@ def purchase_warranty_list_page():
         )
         warranties.append(row)
     
-    return render_template("warranty_info_purchase.html", warranties=warranties, purchase_types = get_purchase_warranty_types())
+    return render_template("warranty_info_purchase.html", warranties=warranties, purchase_types = get_purchase_warranty_types(), active_tab="purchase")
 
 ## warranty - subscription
 @warranty_pages_bp.route("/subscription", methods=["GET"])
@@ -95,6 +95,6 @@ def subscription_warranty_list_page():
         )
         warranties.append(row)
     
-    return render_template("warranty_info_subscription.html", warranties=warranties, subscription_types = get_subscription_warranty_types())
+    return render_template("warranty_info_subscription.html", warranties=warranties, subscription_types = get_subscription_warranty_types(), active_tab="subscription")
 
 ##

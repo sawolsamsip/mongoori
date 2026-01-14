@@ -10,6 +10,11 @@ Mongoori - Vehicle List
     <!-- Card header -->
     <div class="card-header">
         <h3 class="card-title">Vehicle Information</h3>
+        <div class="card-tools">
+            <a href="{{ url_for('vehicle_pages.vehicle_create_page') }}" class="btn btn-primary btn-sm">
+                + Add Vehicle
+            </a>
+        </div>
     </div>
     
     <div class="card-body">
@@ -22,21 +27,21 @@ Mongoori - Vehicle List
                     <th>Model</th>
                     <th>Year</th>
                     <th>Trim</th>
-                    <th>Software</th>
-                    <th>Operation Status</th>
+                    <th>VIN</th>
+                    <th>Status</th>
                 </tr>
             </thead>
 
             <tbody>
                 {% for v in vehicles %}
                 <tr data-id="{{ v.vehicle_id }}" data-vin="{{ v.vin }}" style="cursor:pointer;">
-                    <td>{{ v.operation_location_name or 'Unassigned' }}</td>
-                    <td>{{ v.plate_number }}</td>
-                    <td>{{ v.model }}</td>
-                    <td>{{ v.model_year }}</td>
-                    <td>{{ v.trim }}</td>
-                    <td>{{ v.software_display }}</td>
-                    <td>{{ v.operation_status }}</td>
+                    <td>{{ v.operation_location_name }}</td> 
+                    <td>{{v.plate_number}}</td>
+                    <td>{{v.model}}</td>
+                    <td>{{v.model_year}}</td>
+                    <td>{{v.trim}}</td>
+                    <td>{{v.vin}}</td>
+                    <td>{{v.vehicle_status}}</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -100,24 +100,23 @@ CREATE TABLE IF NOT EXISTS interior (
 );
 
 -- Parking lots
-CREATE TABLE IF NOT EXISTS parking_lot (
-  parking_lot_id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE parking_lot (
+    parking_lot_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
 
-  name TEXT NOT NULL,
+    address_line1 TEXT NOT NULL,
+    city TEXT NOT NULL,
+    state TEXT NOT NULL,
+    zip_code TEXT,
 
-  address_line1 TEXT NOT NULL,
-  city TEXT NOT NULL,
-  state TEXT NOT NULL,
-  zip_code TEXT,
+    status TEXT NOT NULL
+        CHECK (status IN ('active', 'inactive'))
+        DEFAULT 'active',
 
-  status TEXT NOT NULL
-  CHECK (status IN ('active', 'inactive'))
-  DEFAULT 'active',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT,
 
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT,
-
-  UNIQUE (address_line1, city, state)
+    UNIQUE (address_line1, city, state)
 );
 
 
@@ -148,6 +147,26 @@ CREATE UNIQUE INDEX uniq_vehicle_active_parking
 ON vehicle_parking(vehicle_id)
 WHERE parking_to IS NULL;
 
+-- Operation location
+CREATE TABLE vehicle_operation_location (
+    vehicle_operation_location_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    vehicle_id INTEGER NOT NULL,
+    parking_lot_id INTEGER NOT NULL,
+    active_from DATE NOT NULL,
+    active_to DATE,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (vehicle_id) REFERENCES vehicle(vehicle_id),
+    FOREIGN KEY (parking_lot_id) REFERENCES parking_lot(parking_lot_id),
+
+    CHECK (active_to IS NULL OR active_to >= active_from)
+);
+
+CREATE UNIQUE INDEX uniq_vehicle_active_operation_location
+ON vehicle_operation_location(vehicle_id)
+WHERE active_to IS NULL;
+
+
 
 -- Fleet
 -- Fleet Service
@@ -156,7 +175,7 @@ CREATE TABLE fleet_service (
     name TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE vehicle_fleet (
+CREATE TABLE IF NOT EXISTS vehicle_fleet (
     vehicle_fleet_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     vehicle_id INTEGER NOT NULL,
@@ -168,16 +187,22 @@ CREATE TABLE vehicle_fleet (
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (vehicle_id)
-        REFERENCES vehicle(vehicle_id),
+        REFERENCES vehicle(vehicle_id)
+        ON DELETE CASCADE,
 
     FOREIGN KEY (fleet_service_id)
-        REFERENCES fleet_service(fleet_service_id),
+        REFERENCES fleet_service(fleet_service_id)
+        ON DELETE RESTRICT,
 
     CHECK (
         registered_to IS NULL
         OR registered_to >= registered_from
     )
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_vehicle_active_fleet
+ON vehicle_fleet(vehicle_id, fleet_service_id)
+WHERE registered_to IS NULL;
 
 -- Expense
 
