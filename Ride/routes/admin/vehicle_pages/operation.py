@@ -2,14 +2,14 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from db import get_conn
 from utils.warranty_utils import get_purchase_warranty_types, get_subscription_warranty_types
 
-vehicle_pages_bp = Blueprint(
-    "vehicle_pages",
+vehicle_operation_pages_bp = Blueprint(
+    "vehicle_operation_pages",
     __name__,
-    url_prefix = "/admin/vehicles"
+    url_prefix = "/admin/vehicles/operation"
 )
 
 ## vehicle listing
-@vehicle_pages_bp.route("/",methods=["GET"])
+@vehicle_operation_pages_bp.route("/",methods=["GET"])
 def vehicle_list_page():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
@@ -19,10 +19,11 @@ def vehicle_list_page():
     cur.execute("""
                 SELECT
                     v.vehicle_id,
-                    v.vin,
                     v.plate_number,
+                    v.vin,
                     v.model,
                     v.model_year,
+                    v.trim,
                     pl.name AS operation_location_name,
                     GROUP_CONCAT(fs.name) AS fleet_names
                 FROM vehicle v
@@ -44,10 +45,10 @@ def vehicle_list_page():
     purchase_types = get_purchase_warranty_types()
     subscription_types = get_subscription_warranty_types()
     
-    return render_template("vehicle_info.html", vehicles=vehicles, purchase_types=purchase_types, subscription_types=subscription_types)
+    return render_template("vehicle_info_operation.html", vehicles=vehicles, purchase_types=purchase_types, subscription_types=subscription_types)
 
 ## vehicle add page loading 'purchase' warranty options for dropdown list
-@vehicle_pages_bp.route("/new", methods = ['GET'])
+@vehicle_operation_pages_bp.route("/new", methods = ['GET'])
 def vehicle_create_page():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
@@ -57,7 +58,7 @@ def vehicle_create_page():
 
     return render_template("form_vehicle.html", mode='add', vehicle={}, purchase_types=purchase_types)
 
-@vehicle_pages_bp.route("/<int:vehicle_id>", methods=['GET'])
+@vehicle_operation_pages_bp.route("/<int:vehicle_id>", methods=['GET'])
 def vehicle_detail_page(vehicle_id):
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))

@@ -11,7 +11,7 @@ Mongoori - Vehicle List
     <div class="card-header">
         <h3 class="card-title">Vehicle Information</h3>
         <div class="card-tools">
-            <a href="{{ url_for('vehicle_pages.vehicle_create_page') }}" class="btn btn-primary btn-sm">
+            <a href="{{ url_for('vehicle_management_pages.vehicle_create_page') }}" class="btn btn-primary btn-sm">
                 + Add Vehicle
             </a>
         </div>
@@ -22,25 +22,23 @@ Mongoori - Vehicle List
         <table id = "vehicleTable" class="table table-bordered table-hover">
             <thead>
                 <tr>
-                    <th>Location</th>
                     <th>Plate</th>
+                    <th>VIN</th>
                     <th>Model</th>
                     <th>Year</th>
-                    <th>Trim</th>
-                    <th>VIN</th>
+                    <th>Trim</th>  
                     <th>Status</th>
                 </tr>
             </thead>
 
             <tbody>
                 {% for v in vehicles %}
-                <tr data-id="{{ v.vehicle_id }}" data-vin="{{ v.vin }}" style="cursor:pointer;">
-                    <td>{{ v.operation_location_name }}</td> 
+                <tr data-id="{{ v.vehicle_id }}" data-vin="{{ v.vin }}" style="cursor:pointer;"> 
                     <td>{{v.plate_number}}</td>
+                    <td>{{v.vin}}</td>
                     <td>{{v.model}}</td>
                     <td>{{v.model_year}}</td>
                     <td>{{v.trim}}</td>
-                    <td>{{v.vin}}</td>
                     <td>{{v.vehicle_status}}</td>
                 </tr>
                 {% endfor %}
@@ -52,20 +50,10 @@ Mongoori - Vehicle List
 
 </div>
 
-
-{% include "warranty_modal/purchase_modal.html" %}
-{% include "warranty_modal/subscription_modal.html" %}
-{% include "parking_modal/parking_modal.html" %}
-
 {% endblock %}
 
 {% block scripts %}
-<script>
-    const PURCHASE_WARRANTIES = JSON.parse(`{{ purchase_types | tojson | safe }}`);
-    const SUBSCRIPTION_WARRANTIES = JSON.parse(`{{ subscription_types | tojson | safe }}`);
-</script>
-
 <script src="{{ url_for('static', filename='warranty_common.js') }}"></script>
 <script src="{{ url_for('static', filename='parking_common.js') }}"></script>
-<script src="{{ url_for('static', filename='vehicle_edit.js') }}"></script>
+<script src="{{ url_for('static', filename='vehicle_management.js') }}"></script>
 {% endblock %}

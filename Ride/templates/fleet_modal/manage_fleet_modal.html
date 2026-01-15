@@ -1,0 +1,96 @@
+<div class="modal fade" id="manageFleetModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title mb-1">Manage Fleet</h5>
+          <small class="text-muted">
+            Plate: <span id="mfPlate"></span> · VIN: <span id="mfVin"></span>
+          </small>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+
+        <!-- Active Fleets -->
+        <h6 class="fw-bold mb-2">Active Fleets</h6>
+
+        <table class="table table-sm table-bordered align-middle mb-4">
+          <thead class="table-light">
+            <tr>
+              <th>Fleet</th>
+              <th>Registered From</th>
+              <th>Status</th>
+              <th style="width: 80px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="activeFleetTable">
+            <!-- filled by JS -->
+            <tr class="text-muted">
+              <td colspan="4" class="text-center">No active fleet</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Past Fleets -->
+        <div class="mb-4">
+          <a class="text-decoration-none" data-bs-toggle="collapse" href="#pastFleetSection">
+            ▶ Past Fleets
+          </a>
+
+          <div class="collapse mt-2" id="pastFleetSection">
+            <table class="table table-sm table-bordered align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Fleet</th>
+                  <th>From</th>
+                  <th>To</th>
+                </tr>
+              </thead>
+              <tbody id="pastFleetTable">
+                <!-- filled by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Register New Fleet -->
+        <h6 class="fw-bold mb-2">Register New Fleet</h6>
+
+        <div class="row g-2 align-items-end">
+          <div class="col-md-6">
+            <label class="form-label">Fleet Service</label>
+            <select class="form-select" id="newFleetService">
+              <option value="" selected disabled>Choose fleet...</option>
+              <!-- filled by JS -->
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Registered From</label>
+            <input type="date" class="form-control" id="newFleetFrom">
+          </div>
+
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100" id="registerFleetBtn">
+              Register
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

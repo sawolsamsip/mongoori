@@ -3,31 +3,35 @@ $(document).ready(function () {
     responsive: false,
     autoWidth: false,
     scrollX: true,
-
+    
     columnDefs: [
-        { targets: 0, visible: false }
+        // Plate column: show plate + small vin
+        {
+            targets: 0,
+            render: function (data, type, row) {
+                const vin = row[1]; // VIN column
+
+                if (type === 'display') {
+                    return `
+                        <div>
+                            <div class="fw-semibold">${data}</div>
+                            <div class="text-muted small">${vin}</div>
+                        </div>
+                    `;
+                }
+                // for search / sort → include both
+                return `${data} ${vin}`;
+            }
+        },
+        // Hide VIN column itself
+        {
+            targets: 1,
+            visible: false
+        }
     ],
     
-    orderFixed: {
-        pre: [[0, 'asc']]
-      },
-
-    order: [[0, 'asc']],
-
-    rowGroup: {
-        dataSrc: 0,
-        startRender: function (rows, group) {
-          const name = group;
-          return $('<tr class="group-row"/>')
-            .append(
-              `<td colspan="6" class="bg-light fw-bold">
-                <strong>${name}</strong> (${rows.count()})
-              </td>`
-            );
-        }
-      }
-    
-
+    // order by plate
+    order: [[0, 'asc']]
     });
 
     let openedActionRow = null;
@@ -40,13 +44,14 @@ $(document).ready(function () {
         
         const row = table.row(this);
 
-        //toggle
+        //toggle same row
         if (openedActionRow && openedActionRow.index() === row.index()){
             row.child.hide();
             openedActionRow = null;
             return;
         }
 
+        // close
         if(openedActionRow){
             openedActionRow.child.hide();
             openedActionRow = null;
@@ -56,13 +61,12 @@ $(document).ready(function () {
         
         const actionHtml = `
             <div class="d-flex gap-3 py-2">
-
-            <button class="btn btn-sm btn-outline-primary actAddPurchase" data-id="${vehicleId}">
-                + Purchase Warranty
+            <button class="btn btn-sm btn-outline-secondary actManageExpense" data-id="${vehicleId}">
+                Manage Expense
             </button>
 
-            <button class="btn btn-sm btn-outline-primary actAddSubscription" data-id="${vehicleId}">
-                + Subscription Warranty
+            <button class="btn btn-sm btn-outline-info actManageWarranty" data-id="${vehicleId}">
+                Manage Warranty
             </button>
 
             <button class="btn btn-sm btn-outline-secondary actEditVehicle" data-id="${vehicleId}">
@@ -71,10 +75,6 @@ $(document).ready(function () {
 
             <button class="btn btn-sm btn-outline-danger actDeleteVehicle" data-id="${vehicleId}">
                 Delete
-            </button>
-
-            <button class="btn btn-sm btn-outline-info actSetParking" data-id="${vehicleId}">
-                Set Parking
             </button>
 
         </div>

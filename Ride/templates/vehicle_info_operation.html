@@ -19,23 +19,23 @@ Mongoori - Vehicle List
                 <tr>
                     <th>Location</th>
                     <th>Plate</th>
+                    <th>VIN</th>
                     <th>Model</th>
                     <th>Year</th>
                     <th>Trim</th>
-                    <th>Software</th>
                     <th>Operation Status</th>
                 </tr>
             </thead>
 
             <tbody>
                 {% for v in vehicles %}
-                <tr data-id="{{ v.vehicle_id }}" data-vin="{{ v.vin }}" style="cursor:pointer;">
+                <tr data-id="{{ v.vehicle_id }}" data-vin="{{ v.vin }}" data-plate="{{ v.plate_number }}" style="cursor:pointer;">
                     <td>{{ v.operation_location_name or 'Unassigned' }}</td>
                     <td>{{ v.plate_number }}</td>
+                    <td>{{ v.vin }}</td>
                     <td>{{ v.model }}</td>
                     <td>{{ v.model_year }}</td>
                     <td>{{ v.trim }}</td>
-                    <td>{{ v.software_display }}</td>
                     <td>{{ v.operation_status }}</td>
                 </tr>
                 {% endfor %}
@@ -48,8 +48,7 @@ Mongoori - Vehicle List
 </div>
 
 
-{% include "warranty_modal/purchase_modal.html" %}
-{% include "warranty_modal/subscription_modal.html" %}
+{% include "fleet_modal/manage_fleet_modal.html" %}
 {% include "parking_modal/parking_modal.html" %}
 
 {% endblock %}
@@ -62,5 +61,5 @@ Mongoori - Vehicle List
 
 <script src="{{ url_for('static', filename='warranty_common.js') }}"></script>
 <script src="{{ url_for('static', filename='parking_common.js') }}"></script>
-<script src="{{ url_for('static', filename='vehicle_edit.js') }}"></script>
+<script src="{{ url_for('static', filename='vehicle_operation.js') }}"></script>
 {% endblock %}

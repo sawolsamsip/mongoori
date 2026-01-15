@@ -67,5 +67,7 @@ INSERT OR IGNORE INTO expense_category (name) VALUES
 ('platform_fee'),
 ('cleaning');
 
-
-
+-- Fleet Service
+INSERT OR IGNORE INTO fleet_service (name) VALUES
+('TURO'),
+('Fleet Example');

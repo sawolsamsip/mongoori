@@ -41,14 +41,21 @@
                         <a href="/admin/dashboard" class="nav-link">Dashboard</a>
                     </li>
 
+                    <li class="nav-item">                         
+                        <a href="{{ url_for('vehicle_operation_pages.vehicle_list_page') }}" class="nav-link">
+                            <i class="fa-solid fa-car"></i> Operation
+                        </a>
+                    </li>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                             <i class="fa-solid fa-car"></i> Vehicle
                         </a>
                         
                         <ul class="dropdown-menu">
-
-                            <li><a class="dropdown-item" href="{{ url_for('vehicle_pages.vehicle_list_page') }}">Vehicle List</a></li>
+                            
+                            <li><a class="dropdown-item" href="{{ url_for('vehicle_management_pages.vehicle_list_page') }}">Vehicle List</a></li>
+                            
                             <li><hr class="dropdown-divider"></li>
 
                             <li><a class="dropdown-item" href="{{ url_for('warranty_pages.purchase_warranty_list_page') }}">Warranty List</a></li>
