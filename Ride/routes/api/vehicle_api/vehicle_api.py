@@ -209,6 +209,97 @@ def admin_create_vehicle():
 
     return jsonify(success=True, message="Vehicle successfully added."), 201
 
+## fleet ##
+@vehicle_api_bp.route("/<int:vehicle_id>/fleets", methods=["POST"])
+def register_vehicle_fleet(vehicle_id):
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized"), 401
+
+    data = request.get_json() or {}
+
+    fleet_service_id = data.get("fleet_service_id")
+    registered_from = data.get("registered_from")
+
+    if not fleet_service_id or not registered_from:
+        return jsonify(
+            success=False,
+            message="fleet_service_id and registered_from are required."
+        ), 400
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            INSERT INTO vehicle_fleet (
+                vehicle_id,
+                fleet_service_id,
+                registered_from
+            )
+            VALUES (?, ?, ?)
+        """, (
+            vehicle_id,
+            fleet_service_id,
+            registered_from
+        ))
+
+        conn.commit()
+
+        return jsonify(
+            success=True,
+            message="Fleet registered successfully."
+        ), 201
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify(
+            success=False,
+            message=str(e)
+        ), 500
+
+## load list for a given vehicle    
+@vehicle_api_bp.route("/<int:vehicle_id>/fleets", methods=["GET"])
+def get_vehicle_fleets(vehicle_id):
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized"), 401
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            vf.vehicle_fleet_id,
+            vf.vehicle_id,
+            vf.fleet_service_id,
+            fs.name AS fleet_name,
+            vf.registered_from,
+            vf.registered_to
+        FROM vehicle_fleet vf
+        JOIN fleet_service fs
+            ON vf.fleet_service_id = fs.fleet_service_id
+        WHERE vf.vehicle_id = ?
+        ORDER BY vf.registered_from DESC
+    """, (vehicle_id,))
+
+    rows = cur.fetchall()
+
+    fleets = []
+    for row in rows:
+        fleets.append({
+            "vehicle_fleet_id": row["vehicle_fleet_id"],
+            "fleet_service_id": row["fleet_service_id"],
+            "fleet_name": row["fleet_name"],
+            "registered_from": row["registered_from"],
+            "registered_to": row["registered_to"],
+            "status": "active" if row["registered_to"] is None else "inactive"
+        })
+
+    return jsonify(
+        success=True,
+        fleets=fleets
+    ), 200
+
+####
 
 @vehicle_api_bp.route("/<int:vehicle_id>/parking", methods=["POST"])
 def set_vehicle_parking(vehicle_id):

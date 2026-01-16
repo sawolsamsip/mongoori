@@ -18,6 +18,8 @@ from routes.api.warranty_api import warranty_api_bp
 from routes.admin.parking_lot_pages import parking_lot_pages_bp
 from routes.api.parking_lot_api import parking_lot_api_bp
 
+from routes.api.fleet_service_api import fleet_service_api_bp
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -38,6 +40,8 @@ app.register_blueprint(warranty_api_bp)
 ##app.register_blueprint(warranty_bp, url_prefix="/admin")
 app.register_blueprint(parking_lot_pages_bp)
 app.register_blueprint(parking_lot_api_bp)
+
+app.register_blueprint(fleet_service_api_bp)
 
 @app.route('/admin/dashboard', methods=['GET', 'POST'])
 def admin_dashboard():

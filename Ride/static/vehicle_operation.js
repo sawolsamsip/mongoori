@@ -105,9 +105,6 @@ $(document).ready(function () {
         const vin = $(this).data('vin');
         const plate = $(this).data('plate');
 
-        //debug
-        console.log(this);
-
         if (!vehicleId) return;
 
         $('#manageFleetModal').data('vehicleId', vehicleId);
@@ -123,6 +120,8 @@ $(document).ready(function () {
         $('#pastFleetTable').empty();
         $('#newFleetService').val('');
         $('#newFleetFrom').val('');
+        
+        loadFleetServiceOptions();
 
         const modal = new bootstrap.Modal(
             document.getElementById('manageFleetModal')
@@ -144,10 +143,80 @@ $(document).ready(function () {
         modal.show();
     });
 
+    // register new fleet button
+    $(document).on('click', '#registerFleetBtn', async function () {
+        const modal = $('#manageFleetModal');
+        const vehicleId = modal.data('vehicleId');
+
+        const fleetServiceId = $('#newFleetService').val();
+        const registeredFrom = $('#newFleetFrom').val();
+
+        if (!vehicleId) {
+            alert('Vehicle context missing.');
+            return;
+        }
+        if (!fleetServiceId) {
+            alert('Please select a fleet service.');
+            return;
+        }
+        if (!registeredFrom) {
+            alert('Please select a start date.');
+            return;
+        }
+
+        const btn = $(this);
+        btn.prop('disabled', true);
+
+        const payload = {
+            fleet_service_id: fleetServiceId,
+            registered_from: registeredFrom
+        }
+
+        try {
+            const res = await fetch(`/api/vehicles/${vehicleId}/fleets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+            alert(data.message || 'Failed to register fleet.');
+            return;
+            }
+
+            
+            $('#newFleetService').val('');
+            $('#newFleetFrom').val('');
+
+            //loadVehicleFleets(vehicleId);
+
+        } catch (err) {
+            console.error(err);
+            alert('Network error while registering fleet.');
+        } finally {
+            btn.prop('disabled', false);
+        }
+        });
+    //
 
     $(window).on('resize', function () {
         table.columns.adjust();
     });
 
+
+
 });
 
+async function loadVehicleFleets(vehicleId) {
+  const res = await fetch(`/api/vehicles/${vehicleId}/fleets`);
+  const data = await res.json();
+
+  if (!data.success) {
+    alert('Failed to load fleets');
+    return;
+  }
+
+  renderFleetTable(data.fleets);
+}
