@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session, redirect, url_for
 from db import get_conn
 import sqlite3
-from utils.time_utils import get_pacific_time
+from utils.time_utils import get_pacific_time, get_pacific_today
 
 vehicle_api_bp = Blueprint(
     "vehicle_api",
@@ -257,7 +257,7 @@ def register_vehicle_fleet(vehicle_id):
             message=str(e)
         ), 500
 
-## load list for a given vehicle    
+## load fleet list for a given vehicle    
 @vehicle_api_bp.route("/<int:vehicle_id>/fleets", methods=["GET"])
 def get_vehicle_fleets(vehicle_id):
     if not session.get("admin_logged_in"):
@@ -298,6 +298,7 @@ def get_vehicle_fleets(vehicle_id):
         success=True,
         fleets=fleets
     ), 200
+
 
 ####
 

@@ -122,6 +122,8 @@ $(document).ready(function () {
         $('#newFleetFrom').val('');
         
         loadFleetServiceOptions();
+        
+        loadVehicleFleets(vehicleId);
 
         const modal = new bootstrap.Modal(
             document.getElementById('manageFleetModal')
@@ -190,7 +192,7 @@ $(document).ready(function () {
             $('#newFleetService').val('');
             $('#newFleetFrom').val('');
 
-            //loadVehicleFleets(vehicleId);
+            loadVehicleFleets(vehicleId);
 
         } catch (err) {
             console.error(err);
@@ -198,25 +200,128 @@ $(document).ready(function () {
         } finally {
             btn.prop('disabled', false);
         }
-        });
+    });
     //
 
+    // Unregister
+    $(document).on('click', '.actUnregisterFleet', async function () {
+        const btn = $(this);
+        const vehicleFleetId = btn.data('id');
+
+        if (!vehicleFleetId) return;
+
+        if (!confirm('Unregister this fleet?')) return;
+
+        btn.prop('disabled', true);
+
+        try {
+            const res = await fetch(`/api/vehicle-fleets/${vehicleFleetId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                alert(data.message || 'Failed to unregister fleet.');
+            return;
+            }
+
+
+            const vehicleId = $('#manageFleetModal').data('vehicleId');
+            if (vehicleId) {
+                loadVehicleFleets(vehicleId);
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert('Network error while unregistering fleet.');
+        } finally {
+            btn.prop('disabled', false);
+        }
+    });
+    //
     $(window).on('resize', function () {
         table.columns.adjust();
     });
 
 
-
 });
 
 async function loadVehicleFleets(vehicleId) {
-  const res = await fetch(`/api/vehicles/${vehicleId}/fleets`);
-  const data = await res.json();
+    const activeBody = $('#activeFleetTable');
+    const pastBody = $('#pastFleetTable');
 
-  if (!data.success) {
-    alert('Failed to load fleets');
-    return;
+    activeBody.empty();
+    pastBody.empty();
+
+    try {
+    const res = await fetch(`/api/vehicles/${vehicleId}/fleets`);
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.message || 'Failed to load fleet data.');
+      return;
+    }
+
+    const fleets = data.fleets || [];
+
+    let hasActive = false;
+    let hasPast = false;
+
+    fleets.forEach(f => {
+        if (f.status === 'active') {
+            hasActive = true;
+            activeBody.append(`
+            <tr>
+                <td>${f.fleet_name}</td>
+                <td>${f.registered_from}</td>
+                <td>
+                <span class="badge bg-success">Active</span>
+                </td>
+                <td class="text-center">
+                <button
+                    class="btn btn-sm btn-outline-danger actUnregisterFleet"
+                    data-id="${f.vehicle_fleet_id}">
+                    Unregister
+                </button>
+                </td>
+            </tr>
+            `);
+        } else {
+            hasPast = true;
+            pastBody.append(`
+            <tr>
+                <td>${f.fleet_name}</td>
+                <td>${f.registered_from}</td>
+                <td>${f.registered_to || '-'}</td>
+            </tr>
+            `);
+        }
+    });
+
+    // empty states
+    if (!hasActive) {
+      activeBody.append(`
+        <tr class="text-muted">
+          <td colspan="4" class="text-center">No active fleet</td>
+        </tr>
+      `);
+    }
+
+    if (!hasPast) {
+      pastBody.append(`
+        <tr class="text-muted">
+          <td colspan="3" class="text-center">No fleet history</td>
+        </tr>
+      `);
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert('Network error while loading fleet data.');
   }
 
-  renderFleetTable(data.fleets);
 }
