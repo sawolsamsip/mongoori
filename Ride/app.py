@@ -26,7 +26,6 @@ app.secret_key = os.getenv("SECRET_KEY")
 
 app.teardown_appcontext(close_conn)
 
-
 app.register_blueprint(auth_bp, url_prefix="/")
 app.register_blueprint(vehicle_pages_bp)
 app.register_blueprint(vehicle_operation_pages_bp)

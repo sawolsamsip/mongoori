@@ -18,13 +18,45 @@ $(document).ready(function () {
                         </div>
                     `;
                 }
-                return `${data} ${vin}`;
+
+                if (type === 'filter') {
+                    // Plate + VIN for search
+                    return `${data} ${vin}`;
+                }
+
+                return data;
+            }
+        },
+
+        {
+            targets: 6, // Operation Status
+            render: function (data, type) {
+                const v = (data || '').toString().trim().toUpperCase();
+
+                if (type === 'display') {
+                return v === 'ACTIVE'
+                    ? '<span class="badge bg-success">Active</span>'
+                    : '<span class="badge bg-secondary">Inactive</span>';
+                }
+
+                if (type === 'sort' || type === 'type') {
+                // ACTIVE first
+                return v === 'ACTIVE' ? 0 : 1;
+                }
+
+                if (type === 'filter') {
+                // for search
+                return v; // 'ACTIVE' or 'INACTIVE'
+                }
+
+                return v;
             }
         },
 
         {
             targets: 2,
-            visible: false
+            visible: false,
+            searchable: true
         },
 
         { targets: 0, visible: false }
@@ -34,7 +66,10 @@ $(document).ready(function () {
         pre: [[0, 'asc']]
       },
 
-    order: [[1, 'asc']],
+    order: [
+        [6, 'asc'], // Operation Status
+        [1, 'asc']  // Plate
+        ],
 
     rowGroup: {
         dataSrc: 0,
@@ -42,7 +77,7 @@ $(document).ready(function () {
           const name = group;
           return $('<tr class="group-row"/>')
             .append(
-              `<td colspan="6" class="bg-light fw-bold">
+              `<td colspan="7" class="bg-light fw-bold">
                 <strong>${name}</strong> (${rows.count()})
               </td>`
             );
@@ -86,7 +121,7 @@ $(document).ready(function () {
                 Manage Fleet
             </button>
 
-            <button class="btn btn-sm btn-outline-info actSetParking" data-id="${vehicleId}">
+            <button class="btn btn-sm btn-outline-info actSetLocation" data-id="${vehicleId}">
                 Set Location
             </button>
 
@@ -107,7 +142,9 @@ $(document).ready(function () {
 
         if (!vehicleId) return;
 
-        $('#manageFleetModal').data('vehicleId', vehicleId);
+        const modalEl = document.getElementById('manageFleetModal');
+        $(modalEl).data('vehicleId', vehicleId);
+
         $('#mfVin').text(vin || '-');
         $('#mfPlate').text(plate || '-');
 
@@ -120,10 +157,6 @@ $(document).ready(function () {
         $('#pastFleetTable').empty();
         $('#newFleetService').val('');
         $('#newFleetFrom').val('');
-        
-        loadFleetServiceOptions();
-        
-        loadVehicleFleets(vehicleId);
 
         const modal = new bootstrap.Modal(
             document.getElementById('manageFleetModal')
@@ -131,197 +164,55 @@ $(document).ready(function () {
         modal.show();
     });
 
-    // set parking modal open
-    $(document).on('click', '.actSetParking', function(){
+    // set Location modal open
+    $(document).on('click', '.actSetLocation', function(){
         const id = $(this).data('id');
         if (!id) return;
 
-        const modalEl = document.getElementById('setParkingModal');
+        const modalEl = document.getElementById('setLocationModal');
         modalEl.dataset.vehicleId = id;
 
-        renderSetParkingForm(id);
+        renderSetLocationForm(id);
 
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
     });
-
-    // register new fleet button
-    $(document).on('click', '#registerFleetBtn', async function () {
-        const modal = $('#manageFleetModal');
-        const vehicleId = modal.data('vehicleId');
-
-        const fleetServiceId = $('#newFleetService').val();
-        const registeredFrom = $('#newFleetFrom').val();
-
-        if (!vehicleId) {
-            alert('Vehicle context missing.');
-            return;
-        }
-        if (!fleetServiceId) {
-            alert('Please select a fleet service.');
-            return;
-        }
-        if (!registeredFrom) {
-            alert('Please select a start date.');
-            return;
-        }
-
-        const btn = $(this);
-        btn.prop('disabled', true);
-
-        const payload = {
-            fleet_service_id: fleetServiceId,
-            registered_from: registeredFrom
-        }
-
-        try {
-            const res = await fetch(`/api/vehicles/${vehicleId}/fleets`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-            });
-
-            const data = await res.json();
-
-            if (!res.ok || !data.success) {
-            alert(data.message || 'Failed to register fleet.');
-            return;
-            }
-
-            
-            $('#newFleetService').val('');
-            $('#newFleetFrom').val('');
-
-            loadVehicleFleets(vehicleId);
-
-        } catch (err) {
-            console.error(err);
-            alert('Network error while registering fleet.');
-        } finally {
-            btn.prop('disabled', false);
-        }
-    });
     //
 
-    // Unregister
-    $(document).on('click', '.actUnregisterFleet', async function () {
-        const btn = $(this);
-        const vehicleFleetId = btn.data('id');
-
-        if (!vehicleFleetId) return;
-
-        if (!confirm('Unregister this fleet?')) return;
-
-        btn.prop('disabled', true);
-
-        try {
-            const res = await fetch(`/api/vehicle-fleets/${vehicleFleetId}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-            });
-
-            const data = await res.json();
-
-            if (!res.ok || !data.success) {
-                alert(data.message || 'Failed to unregister fleet.');
-            return;
-            }
-
-
-            const vehicleId = $('#manageFleetModal').data('vehicleId');
-            if (vehicleId) {
-                loadVehicleFleets(vehicleId);
-            }
-
-        } catch (err) {
-            console.error(err);
-            alert('Network error while unregistering fleet.');
-        } finally {
-            btn.prop('disabled', false);
-        }
-    });
     //
     $(window).on('resize', function () {
         table.columns.adjust();
     });
 
-
 });
 
-async function loadVehicleFleets(vehicleId) {
-    const activeBody = $('#activeFleetTable');
-    const pastBody = $('#pastFleetTable');
+function onFleetChanged(vehicleId) {
+    const table = $('#vehicleTable').DataTable();
+    refreshVehicleRow(vehicleId, table);
+}
 
-    activeBody.empty();
-    pastBody.empty();
-
-    try {
-    const res = await fetch(`/api/vehicles/${vehicleId}/fleets`);
+// refresh vehicle row
+async function refreshVehicleRow(vehicleId, table) {
+    const res = await fetch(`/api/vehicles/${vehicleId}`);
     const data = await res.json();
+    if (!data.success) return;
 
-    if (!data.success) {
-      alert(data.message || 'Failed to load fleet data.');
-      return;
-    }
+    const rowEl = document.querySelector(
+        `#vehicleTable tr[data-id="${vehicleId}"]`
+    );
+    if (!rowEl) return;
 
-    const fleets = data.fleets || [];
+    const row = table.row(rowEl);
+    const rowData = row.data();
 
-    let hasActive = false;
-    let hasPast = false;
+    // new location
+    rowData[0] =
+        data.vehicle.operation_location?.name || 'Unassigned';
 
-    fleets.forEach(f => {
-        if (f.status === 'active') {
-            hasActive = true;
-            activeBody.append(`
-            <tr>
-                <td>${f.fleet_name}</td>
-                <td>${f.registered_from}</td>
-                <td>
-                <span class="badge bg-success">Active</span>
-                </td>
-                <td class="text-center">
-                <button
-                    class="btn btn-sm btn-outline-danger actUnregisterFleet"
-                    data-id="${f.vehicle_fleet_id}">
-                    Unregister
-                </button>
-                </td>
-            </tr>
-            `);
-        } else {
-            hasPast = true;
-            pastBody.append(`
-            <tr>
-                <td>${f.fleet_name}</td>
-                <td>${f.registered_from}</td>
-                <td>${f.registered_to || '-'}</td>
-            </tr>
-            `);
-        }
-    });
+    // new status
+    rowData[6] = data.vehicle.operation_status;
 
-    // empty states
-    if (!hasActive) {
-      activeBody.append(`
-        <tr class="text-muted">
-          <td colspan="4" class="text-center">No active fleet</td>
-        </tr>
-      `);
-    }
+    row.data(rowData).invalidate();
 
-    if (!hasPast) {
-      pastBody.append(`
-        <tr class="text-muted">
-          <td colspan="3" class="text-center">No fleet history</td>
-        </tr>
-      `);
-    }
-
-  } catch (err) {
-    console.error(err);
-    alert('Network error while loading fleet data.');
-  }
-
+    table.draw(false);
 }

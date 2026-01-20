@@ -44,23 +44,17 @@ Mongoori - Vehicle List
     </div>
     <!--div for Table end-->
 
-
 </div>
 
 
 {% include "fleet_modal/manage_fleet_modal.html" %}
-{% include "parking_modal/parking_modal.html" %}
+{% include "location_modal/location_modal.html" %}
 
 {% endblock %}
 
 {% block scripts %}
-<script>
-    const PURCHASE_WARRANTIES = JSON.parse(`{{ purchase_types | tojson | safe }}`);
-    const SUBSCRIPTION_WARRANTIES = JSON.parse(`{{ subscription_types | tojson | safe }}`);
-</script>
 
-
-<script src="{{ url_for('static', filename='parking_common.js') }}"></script>
+<script src="{{ url_for('static', filename='location_common.js') }}"></script>
 <script src="{{ url_for('static', filename='fleet_common.js') }}"></script>
 <script src="{{ url_for('static', filename='vehicle_operation.js') }}"></script>
 {% endblock %}

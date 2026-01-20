@@ -209,6 +209,73 @@ def admin_create_vehicle():
 
     return jsonify(success=True, message="Vehicle successfully added."), 201
 
+## operation
+@vehicle_api_bp.route("/<int:vehicle_id>", methods=["GET"])
+def get_vehicle(vehicle_id):
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized"), 401
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            v.vehicle_id,
+            v.plate_number,
+            v.vin,
+            v.model,
+            v.model_year,
+            v.trim,
+
+            pl.parking_lot_id,
+            pl.name AS operation_location_name,
+
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM vehicle_fleet vf
+                    WHERE vf.vehicle_id = v.vehicle_id
+                      AND vf.registered_to IS NULL
+                )
+                THEN 'ACTIVE'
+                ELSE 'INACTIVE'
+            END AS operation_status
+
+        FROM vehicle v
+
+        LEFT JOIN vehicle_operation_location vol
+            ON v.vehicle_id = vol.vehicle_id
+            AND vol.active_to IS NULL
+
+        LEFT JOIN parking_lot pl
+            ON vol.parking_lot_id = pl.parking_lot_id
+
+        WHERE v.vehicle_id = ?
+    """, (vehicle_id,))
+
+    row = cur.fetchone()
+    if not row:
+        return jsonify(success=False, message="Vehicle not found"), 404
+
+    return jsonify(
+        success=True,
+        vehicle={
+            "vehicle_id": row["vehicle_id"],
+            "plate_number": row["plate_number"],
+            "vin": row["vin"],
+            "model": row["model"],
+            "model_year": row["model_year"],
+            "trim": row["trim"],
+            "operation_status": row["operation_status"],
+            "operation_location": (
+                {
+                    "parking_lot_id": row["parking_lot_id"],
+                    "name": row["operation_location_name"]
+                } if row["parking_lot_id"] else None
+            )
+        }
+    )
+
 ## fleet ##
 @vehicle_api_bp.route("/<int:vehicle_id>/fleets", methods=["POST"])
 def register_vehicle_fleet(vehicle_id):
@@ -290,8 +357,7 @@ def get_vehicle_fleets(vehicle_id):
             "fleet_service_id": row["fleet_service_id"],
             "fleet_name": row["fleet_name"],
             "registered_from": row["registered_from"],
-            "registered_to": row["registered_to"],
-            "status": "active" if row["registered_to"] is None else "inactive"
+            "registered_to": row["registered_to"]
         })
 
     return jsonify(
