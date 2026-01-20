@@ -9,15 +9,17 @@ async function renderSetLocationForm(vehicleId) {
         return;
     }
 
-    const table = $('#vehicleTable').DataTable();
-    const row = table.row(tr);
-    const rowData = row.data();
+    
 
     // Current location
-    let currentLocationName = rowData[0];
-    if (!currentLocationName || currentLocationName === 'Unassigned') {
-        currentLocationName = 'Unassigned';
-    }
+    const rawLocationId = tr.data('location-id');
+    const currentLocationId =
+        rawLocationId === '' || rawLocationId === undefined
+            ? null
+            : Number(rawLocationId);
+        // for display            
+    const currentLocationName =
+        tr.find('td').eq(0).text().trim() || 'Unassigned';
 
     // Load Parking lot list
     let locations = [];
@@ -34,11 +36,19 @@ async function renderSetLocationForm(vehicleId) {
     }
 
     // Build Dropdown List
-    let optionsHtml = `<option value="">— Unassigned —</option>`;
-    locations.forEach(p => {
-        const selected = (p.name === currentLocationName) ? 'selected' : '';
-        optionsHtml += `<option value="${p.id}" ${selected}>${p.name}</option>`;
-    });
+    let optionsHtml = `<option value="">-- Unassigned </option>`;
+
+    locations
+        .filter(p => p.status === 'active')
+        .forEach(p => {
+            const label = `${p.name} — ${p.address_line1}, ${p.city}`;
+            const selected = (p.id === currentLocationId) ? 'selected' : '';
+            optionsHtml += `
+                <option value="${p.id}" ${selected}>
+                    ${label}
+                </option>
+            `;
+        });
 
     // Default dates
     const today = new Date();
@@ -49,28 +59,33 @@ async function renderSetLocationForm(vehicleId) {
 
     // Rendering
     body.innerHTML = `
-    <div class="mb-3">
-        <label class="form-label fw-bold">Current Location</label>
-        <div class="text-muted">${currentLocationName}</div>
-    </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Current Location</label>
+            <div class="text-muted">${currentLocationName}</div>
+        </div>
 
-    <div class="mb-3">
-        <label class="form-label fw-bold">New Location</label>
-        <select class="form-select" id="selectLocation">
-            ${optionsHtml}
-        </select>
-    </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">New Location</label>
+            <select class="form-select" id="selectLocation">
+                ${optionsHtml}
+            </select>
+        </div>
 
-    <hr/>
+        <hr/>
 
-    <div class="mb-3">
-        <label class="form-label fw-bold">Start Date</label>
-        <input type="date" class="form-control" id="locationStartDate" value="${todayStr}">
-    </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Start Date</label>
+            <input type="date"
+                   class="form-control"
+                   id="locationStartDate"
+                   value="${todayStr}">
+        </div>
     `;
 
     const modalEl = document.getElementById('setLocationModal');
-    modalEl.dataset.currentLocationName = currentLocationName;
+    modalEl.dataset.vehicleId = vehicleId;
+    modalEl.dataset.currentLocationId =
+        currentLocationId === null ? '' : String(currentLocationId);
 }
 
 // Save - for modal to change vehicle location
@@ -83,17 +98,18 @@ async function saveVehicleLocation() {
         alert('Vehicle ID missing.');
         return;
     }
-
+    
+    // new location
     const selectEl = document.getElementById('selectLocation');
-    const newLocationId = selectEl.value || null;
-    const newLocationName =
-        selectEl.options[selectEl.selectedIndex]?.text || 'Unassigned';
+    const rawValue = selectEl.value;
+    const newLocationId = rawValue === '' ? null : Number(rawValue);
+
 
     const startDate =
         document.getElementById('locationStartDate').value || null;
 
     // validation
-    if (newLocationId !== null && isNaN(Number(newLocationId))) {
+    if (newLocationId !== null && isNaN(newLocationId)) {
         alert('Invalid location.');
         return;
     }
@@ -103,14 +119,18 @@ async function saveVehicleLocation() {
         return;
     }
 
-    const currentLocationName =
-        modalEl.dataset.currentLocationName || 'Unassigned';
+    // isNewlocation?
+    const currentLocationId =
+        modalEl.dataset.currentLocationId === ''
+            ? null
+            : Number(modalEl.dataset.currentLocationId);
 
-    if (newLocationName === currentLocationName) {
+    if (newLocationId === currentLocationId) {
         bootstrap.Modal.getInstance(modalEl).hide();
         return;
     }
 
+    //API call
     try {
         const res = await fetch(`/api/vehicles/${vehicleId}/location`, {
             method: 'POST',

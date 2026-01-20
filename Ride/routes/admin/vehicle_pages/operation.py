@@ -25,6 +25,7 @@ def vehicle_list_page():
                     v.model_year,
                     v.trim,
 
+                    pl.parking_lot_id AS operation_location_id,
                     pl.name AS operation_location_name,
 
                     CASE

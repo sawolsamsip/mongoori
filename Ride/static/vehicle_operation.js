@@ -202,17 +202,18 @@ async function refreshVehicleRow(vehicleId, table) {
     );
     if (!rowEl) return;
 
-    const row = table.row(rowEl);
-    const rowData = row.data();
-
     // new location
-    rowData[0] =
-        data.vehicle.operation_location?.name || 'Unassigned';
+    table.cell(rowEl, 0).data(
+        data.vehicle.operation_location?.name || 'Unassigned'
+    );
 
     // new status
-    rowData[6] = data.vehicle.operation_status;
+    table.cell(rowEl, 6).data(
+        data.vehicle.operation_status
+    );
 
-    row.data(rowData).invalidate();
-
-    table.draw(false);
+    table.order([
+        [6, 'asc'],
+        [1, 'asc']
+    ]).draw(false);
 }

@@ -368,7 +368,7 @@ def get_vehicle_fleets(vehicle_id):
 
 ####
 
-@vehicle_api_bp.route("/<int:vehicle_id>/parking", methods=["POST"])
+@vehicle_api_bp.route("/<int:vehicle_id>/location", methods=["POST"])
 def set_vehicle_parking(vehicle_id):
     if not session.get("admin_logged_in"):
         return jsonify(success=False, message="Unauthorized"), 401
