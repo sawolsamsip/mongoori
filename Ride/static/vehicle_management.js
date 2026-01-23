@@ -124,33 +124,12 @@ $(document).ready(function () {
     });
 
 
-    // add warranty
-    // Purchase warranty modal open
-    $(document).on('click', '.actAddPurchase', function(){
-        const id = $(this).data('id');
-        if (!id) return;
-        
-        const modalEl = document.getElementById('purchaseWarrantyModal');
-        modalEl.dataset.vehicleId = id;
+    //manage warranty
+    $(document).on('click', '.actManageWarranty', function(){
+        const vehicleId = $(this).data('id');
 
-        renderPurchaseForm();
-        
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
-    });
-
-    // subscription warranty modal open
-    $(document).on('click', '.actAddSubscription', function(){
-        const id = $(this).data('id');
-        if (!id) return;
-
-        const modalEl = document.getElementById('subscriptionWarrantyModal');
-        modalEl.dataset.vehicleId = id;
-
-        renderSubscriptionForm();
-        
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
+        // redirection to warranty purchase
+        window.location.href = `/admin/warranties/purchase?vehicle_id=${vehicleId}`;
     });
 
     // set parking modal open

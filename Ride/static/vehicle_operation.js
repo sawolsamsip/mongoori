@@ -197,23 +197,38 @@ async function refreshVehicleRow(vehicleId, table) {
     const data = await res.json();
     if (!data.success) return;
 
-    const rowEl = document.querySelector(
-        `#vehicleTable tr[data-id="${vehicleId}"]`
-    );
-    if (!rowEl) return;
+    const tr = $(`#vehicleTable tr[data-id="${vehicleId}"]`);
+    if (!tr.length) return;
 
-    // new location
-    table.cell(rowEl, 0).data(
-        data.vehicle.operation_location?.name || 'Unassigned'
-    );
+    // location
+    const op = data.vehicle.operation_location;
+    const locationName = op?.name ?? 'Unassigned';
 
-    // new status
-    table.cell(rowEl, 6).data(
-        data.vehicle.operation_status
-    );
+    updateVehicleRow(tr, {
+        parking_lot_id: op?.parking_lot_id ?? null,
+        parking_lot_name: locationName
+    });
 
-    table.order([
-        [6, 'asc'],
-        [1, 'asc']
-    ]).draw(false);
+    const row = table.row(tr);
+    const rowData = row.data();
+
+    rowData[0] = locationName; // location
+    rowData[6] = data.vehicle.operation_status; // status
+
+    row.data(rowData);
+
+    //redraw
+    table.draw(false);
+}
+
+function updateVehicleRow(tr, payload) {
+    const locationId = payload.parking_lot_id ?? '';
+    const locationName = payload.parking_lot_name ?? 'Unassigned';
+
+    // source of truth
+    tr.data('location-id', locationId);
+    tr.data('location-name', locationName);
+
+    // view update only
+    tr.find('td.col-location').text(locationName);
 }

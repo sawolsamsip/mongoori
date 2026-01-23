@@ -166,6 +166,38 @@ Mongoori - {% if mode == 'detail' %}Vehicle Detail{% else %} Add Vehicle{% endif
             <!-- Footer End-->
         </form>
         <!-- Form End -->
+
+        <!-- Vehicle Lifecycle Management -->
+        {% if mode == 'detail' %}
+        <!-- Vehicle Lifecycle Management -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <strong>Vehicle Lifecycle Status</strong>
+            </div>
+
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <select id="vehicleStatusSelect" class="form-select">
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                            <option value="ARCHIVED">Archived</option>
+                            <option value="SOLD">Sold</option>
+                            <option value="RETIRED">Retired</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button type="button" id="updateVehicleStatusBtn" class="btn btn-primary">
+                            Update Status
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        {% endif %}
+
     </div>
 </div>
 

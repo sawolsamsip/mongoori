@@ -367,7 +367,7 @@ def get_vehicle_fleets(vehicle_id):
 
 
 ####
-
+## set location for a vehicle
 @vehicle_api_bp.route("/<int:vehicle_id>/location", methods=["POST"])
 def set_vehicle_parking(vehicle_id):
     if not session.get("admin_logged_in"):
@@ -375,33 +375,46 @@ def set_vehicle_parking(vehicle_id):
 
     data = request.get_json() or {}
 
-    ## test ##
-    print("[set_vehicle_parking] payload =", data)
-    return jsonify(success="TEST")
-    ##########
-
-    parking_lot_id = data.get("parking_lot_id")
-
-    now = get_pacific_time()
+    parking_lot_id = data.get("parking_lot_id")   # int | None
+    active_from = data.get("active_from") or get_pacific_time()
 
     conn = get_conn()
     cur = conn.cursor()
 
     try:
-        # cloase all active parking assignments for the given vehicle
+        # get current active location
         cur.execute("""
-            UPDATE vehicle_parking
-            SET unassigned_at = ?
+            SELECT vehicle_operation_location_id, parking_lot_id
+            FROM vehicle_operation_location
             WHERE vehicle_id = ?
-              AND unassigned_at IS NULL
-        """, (now, vehicle_id))
+              AND active_to IS NULL
+        """, (vehicle_id,))
+        current = cur.fetchone()
+
+        ## current lcoation == new location: return
+        if current and current["parking_lot_id"] == parking_lot_id:
+            return jsonify(
+                success=True,
+                message="Location unchanged",
+                parking_lot_id=parking_lot_id
+            ), 200
+        
+
+        ## close current location
+        if current:
+            cur.execute("""
+                UPDATE vehicle_operation_location
+                SET active_to = ?
+                WHERE vehicle_operation_location_id = ?
+            """, (active_from, current["vehicle_operation_location_id"]))   
 
         # assign new parking lot
         if parking_lot_id is not None:
             cur.execute("""
-                INSERT INTO vehicle_parking (vehicle_id, parking_lot_id, assigned_at)
+                INSERT INTO vehicle_operation_location
+                (vehicle_id, parking_lot_id, active_from)
                 VALUES (?, ?, ?)
-            """, (vehicle_id, parking_lot_id, now))
+            """, (vehicle_id, parking_lot_id, active_from))
 
         # return parking lot name (for return data)
         parking_lot_name = None
@@ -418,7 +431,7 @@ def set_vehicle_parking(vehicle_id):
 
         return jsonify(
             success=True,
-            message="Parking updated successfully",
+            message="Location updated successfully",
             parking_lot_id=parking_lot_id,
             parking_lot_name=parking_lot_name or "Unassigned"
         ), 200
@@ -427,6 +440,6 @@ def set_vehicle_parking(vehicle_id):
         conn.rollback()
         return jsonify(
             success=False,
-            message="Failed to update parking",
+            message="Failed to update vehicle location",
             error=str(e)
         ), 500

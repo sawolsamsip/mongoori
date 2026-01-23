@@ -9,7 +9,11 @@ async function renderSetLocationForm(vehicleId) {
         return;
     }
 
-    
+    const vin = tr.data('vin') || '';
+    const plate = tr.data('plate') || '';
+
+    document.getElementById('slVin').textContent = vin;
+    document.getElementById('slPlate').textContent = plate;
 
     // Current location
     const rawLocationId = tr.data('location-id');
@@ -19,7 +23,7 @@ async function renderSetLocationForm(vehicleId) {
             : Number(rawLocationId);
         // for display            
     const currentLocationName =
-        tr.find('td').eq(0).text().trim() || 'Unassigned';
+        tr.data('location-name');
 
     // Load Parking lot list
     let locations = [];

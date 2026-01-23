@@ -14,6 +14,8 @@ def purchase_warranty_list_page():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
     
+    vehicle_id = request.args.get("vehicle_id")
+
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
@@ -37,8 +39,9 @@ def purchase_warranty_list_page():
         LEFT JOIN warranty_purchase wp
             ON vw.vehicle_warranty_id = wp.vehicle_warranty_id
         WHERE wt.category = 'purchase'
+                AND (? IS NULL OR v.vehicle_id = ?)
         ORDER BY v.vin ASC, wt.sort_order ASC
-    """)
+    """, (vehicle_id, vehicle_id))
 
     rows = cur.fetchall()
 
@@ -57,6 +60,8 @@ def purchase_warranty_list_page():
 def subscription_warranty_list_page():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
+    
+    vehicle_id = request.args.get("vehicle_id")
     
     conn = get_conn()
     cur = conn.cursor()
@@ -81,8 +86,9 @@ def subscription_warranty_list_page():
         LEFT JOIN warranty_subscription ws
             ON vw.vehicle_warranty_id = ws.vehicle_warranty_id
         WHERE wt.category = 'subscription'
+                AND (? IS NULL OR v.vehicle_id = ?)
         ORDER BY v.vin ASC, wt.sort_order ASC
-    """)
+    """, (vehicle_id, vehicle_id))
 
     rows = cur.fetchall()
 

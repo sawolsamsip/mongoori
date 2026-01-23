@@ -13,16 +13,21 @@ Mongoori - Warranty List
 
             <ul class="nav nav-tabs card-header-tabs ms-auto">
                 <li class="nav-item">
-                <a class="nav-link {% if active_tab == 'purchase' %}active{% endif %}"
-                    href="{{ url_for('warranty_pages.purchase_warranty_list_page') }}">
-                    Purchase
-                </a>
+                    <a class="nav-link {% if active_tab == 'purchase' %}active{% endif %}"
+                        href="{{ url_for(
+                            'warranty_pages.purchase_warranty_list_page',
+                            vehicle_id=request.args.get('vehicle_id')) }}">
+                        Purchase
+                    </a>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link {% if active_tab == 'subscription' %}active{% endif %}"
-                    href="{{ url_for('warranty_pages.subscription_warranty_list_page') }}">
-                    Subscription
-                </a>
+                    <a class="nav-link {% if active_tab == 'subscription' %}active{% endif %}"
+                        href="{{ url_for(
+                                'warranty_pages.subscription_warranty_list_page',
+                                vehicle_id=request.args.get('vehicle_id')
+                        ) }}">
+                        Subscription
+                    </a>
                 </li>
             </ul>
         </div>
