@@ -71,3 +71,31 @@ INSERT OR IGNORE INTO expense_category (name) VALUES
 INSERT OR IGNORE INTO fleet_service (name) VALUES
 ('TURO'),
 ('Fleet Example');
+
+
+-- Finance Category
+-- cost - vehicle
+INSERT INTO finance_category (name, type, scope, description) VALUES
+('parking',        'cost', 'vehicle', 'Vehicle parking cost'),
+('insurance',      'cost', 'vehicle', 'Vehicle insurance'),
+('maintenance',    'cost', 'vehicle', 'Vehicle maintenance and repair'),
+('warranty',       'cost', 'vehicle', 'Vehicle warranty cost'),
+('registration',   'cost', 'vehicle', 'Vehicle registration and DMV fees'),
+('tax',            'cost', 'vehicle', 'Vehicle tax'),
+('cleaning',       'cost', 'vehicle', 'Vehicle cleaning and detailing'),
+('misc_cost',      'cost', 'vehicle', 'Miscellaneous vehicle costs');
+
+INSERT INTO finance_category (name, type, scope, description) VALUES
+('vehicle_purchase', 'cost', 'vehicle', 'Vehicle purchase price'),
+('acquisition_fee',  'cost', 'vehicle', 'Vehicle acquisition fees'),
+('dealer_fee',       'cost', 'vehicle', 'Dealer processing fee'),
+('registration_tax', 'cost', 'vehicle', 'Purchase-related tax and registration'),
+('import_fee',       'cost', 'vehicle', 'Import and customs fees');
+
+-- revenue - vehicle
+INSERT INTO finance_category (name, type, scope, description) VALUES
+('rental_income',  'revenue', 'vehicle', 'Vehicle rental income'),
+('misc_revenue',   'revenue', 'vehicle', 'Miscellaneous revenue');
+
+INSERT INTO finance_category (name, type, scope, description) VALUES
+('vehicle_sale',    'revenue', 'vehicle', 'Vehicle sale revenue');

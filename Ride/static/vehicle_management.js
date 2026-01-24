@@ -40,6 +40,9 @@ $(document).ready(function () {
         if ($(this).hasClass('group-row')) return;
 
         const vehicleId = $(this).data('id');
+        const vin = $(this).data('vin');
+        const plate = $(this).data('plate');
+        
         if (!vehicleId) return;
         
         const row = table.row(this);
@@ -61,8 +64,9 @@ $(document).ready(function () {
         
         const actionHtml = `
             <div class="d-flex gap-3 py-2">
-            <button class="btn btn-sm btn-outline-secondary actManageExpense" data-id="${vehicleId}">
-                Manage Expense
+            <button class="btn btn-sm btn-outline-secondary actManageFinance" data-id="${vehicleId}" data-vin="${vin}"
+            data-plate="${plate}">
+                Manage Finance
             </button>
 
             <button class="btn btn-sm btn-outline-info actManageWarranty" data-id="${vehicleId}">
@@ -86,6 +90,7 @@ $(document).ready(function () {
 
     });
 
+    // Edit
     $(document).on('click', '.actEditVehicle', function(){
         const id = $(this).data('id');
         if (!id) return;
@@ -123,6 +128,34 @@ $(document).ready(function () {
         }
     });
 
+    // manage Finance modal open
+    $(document).on('click', '.actManageFinance', function () {
+        const vehicleId = $(this).data('id');
+        const vin = $(this).data('vin');
+        const plate = $(this).data('plate');
+
+        if (!vehicleId) return;
+
+        const modalEl = document.getElementById('manageFinanceModal');
+        $(modalEl).data('vehicleId', vehicleId);
+
+        $('#mfVin').text(vin || '-');
+        $('#mfPlate').text(plate || '-');
+
+        // reset inputs
+        $('#costDate').val('');
+        $('#costCategory').val('');
+        $('#costAmount').val('');
+        $('#costNote').val('');
+
+        $('#revenueDate').val('');
+        $('#revenueCategory').val('');
+        $('#revenueAmount').val('');
+        $('#revenueNote').val('');
+
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    });
 
     //manage warranty
     $(document).on('click', '.actManageWarranty', function(){
@@ -132,19 +165,6 @@ $(document).ready(function () {
         window.location.href = `/admin/warranties/purchase?vehicle_id=${vehicleId}`;
     });
 
-    // set parking modal open
-    $(document).on('click', '.actSetParking', function(){
-        const id = $(this).data('id');
-        if (!id) return;
-
-        const modalEl = document.getElementById('setParkingModal');
-        modalEl.dataset.vehicleId = id;
-
-        renderSetParkingForm(id);
-
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
-    });
 
     $(window).on('resize', function () {
         table.columns.adjust();

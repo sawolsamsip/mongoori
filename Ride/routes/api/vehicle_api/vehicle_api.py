@@ -122,12 +122,46 @@ def admin_update_vehicle(vehicle_id):
         message="Vehicle updated successfully",
         ), 200
 
+## status update for vehicle management
+@vehicle_api_bp.route("/<int:vehicle_id>/status", methods=["PATCH"])
+def admin_update_vehicle_status(vehicle_id):
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized"), 401
 
+    data = request.get_json() or {}
+    new_status = data.get("vehicle_status")
+
+    if new_status not in ("Active", "Maintenance", "Archived"):
+        return jsonify(success=False, message="Invalid status value"), 422
+
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+
+        cur.execute("""
+            UPDATE vehicle
+            SET vehicle_status = ?
+            WHERE vehicle_id = ?
+        """, (new_status, vehicle_id))
+
+        if cur.rowcount == 0:
+            return jsonify(success=False, message="Vehicle not found"), 404
+
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify(success=False, message="Status update failed", error=str(e)), 500
+
+    return jsonify(success=True, message="Vehicle status updated successfully.")
+
+
+## add vehicle
 @vehicle_api_bp.route('/', methods = ['POST'])
 def admin_create_vehicle():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.admin_login"))
-    
+
     data = request.get_json()
 
     vin = (data.get("vin") or "").strip().upper()
@@ -159,15 +193,13 @@ def admin_create_vehicle():
     try:
         conn = get_conn()
         cur = conn.cursor()
-        
         ## insert vehicle data
         cur.execute("""
             INSERT INTO vehicle (vin, make, model, model_year, trim, exterior, interior, plate_number, mileage, software, vehicle_status, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Inactive', ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?)
         """, (vin, make or None, model or None, year or None, trim or None, exterior or None, interior or None, plate_number or None, mileage or None, software or None, get_pacific_time()))
         
         vehicle_id = cur.lastrowid
-
         ## insert common warranty data
         # insert warranties
         for w in warranties:

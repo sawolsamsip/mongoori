@@ -179,11 +179,9 @@ Mongoori - {% if mode == 'detail' %}Vehicle Detail{% else %} Add Vehicle{% endif
                 <div class="row align-items-center">
                     <div class="col-md-6">
                         <select id="vehicleStatusSelect" class="form-select">
-                            <option value="ACTIVE">Active</option>
-                            <option value="INACTIVE">Inactive</option>
-                            <option value="ARCHIVED">Archived</option>
-                            <option value="SOLD">Sold</option>
-                            <option value="RETIRED">Retired</option>
+                            <option value="Active" {% if vehicle.vehicle_status == 'Active' %}selected{% endif %}>Active</option>
+                            <option value="Maintenance" {% if vehicle.vehicle_status == 'Maintenance' %}selected{% endif %}>Maintenance</option>
+                            <option value="Archived" {% if vehicle.vehicle_status == 'Archived' %}selected{% endif %}>Archived</option>
                         </select>
                     </div>
 
@@ -198,15 +196,6 @@ Mongoori - {% if mode == 'detail' %}Vehicle Detail{% else %} Add Vehicle{% endif
         </div>
         {% endif %}
 
-    </div>
-</div>
-
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
-    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body" id="toastMsg"></div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
     </div>
 </div>
 

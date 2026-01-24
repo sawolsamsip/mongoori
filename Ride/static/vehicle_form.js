@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         trimSelect.appendChild(opt);
                         
                     });
-                    trimSelect.disabled = !isEditMode;
+                    trimSelect.disabled = (form.dataset.mode === "detail" && !isEditMode);
                 }
 
                 if (init && selectedTrim) {
@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         exteriorSelect.appendChild(opt);
                         
                     });
-                    exteriorSelect.disabled = !isEditMode;
+                    exteriorSelect.disabled = (form.dataset.mode === "detail" && !isEditMode);
                 }
             } catch(err){
                 console.error("Error while loading exteriors: ", err);
@@ -248,7 +248,6 @@ document.addEventListener("DOMContentLoaded", function () {
             method = "POST"
         }
 
-        const msgBox = document.getElementById("toastMsg");
 
         // JSON payload
         const payload = {
@@ -289,17 +288,16 @@ document.addEventListener("DOMContentLoaded", function () {
         //
         if(!payload.vin) {
             showFieldError("vin", "VIN is required.");
-            msgBox.textContent = "input VIN";
-            msgBox.className = "text-danger fw-bold mt-2";
+            showToast("VIN is required.");
             return;
         }
 
         if (payload.vin.length !== 17){
             showFieldError("vin", "VIN must be 17 characters and numbers.");
-            msgBox.textContent = "Incorrect VIN length";
-            msgBox.className = "text-danger fw-bold mt-2";
+            showToast("VIN must be 17 characters.");
             return;
         }
+
         try{
             const res = await fetch(url, {method, headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(payload)
@@ -308,33 +306,35 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await res.json().catch(() => ({}));
 
             if (res.ok && data.success){
-                const toastEl = document.getElementById("successToast");
-                const toast = new bootstrap.Toast(toastEl);
+                showToast(
+                    data.message || (mode === "detail"
+                        ? "Vehicle successfully updated."
+                        : "Vehicle successfully added.")
+                );
 
-                msgBox.textContent = data.message || (mode === "detail"
-                    ? "Vehicle successfully updated."
-                    : "Vehicle successfully added.");
-                toast.show();
-                
-                
-                setTimeout(() => {
-                    setEditMode(false);
-                }, 800);
-            
+                if (mode === "add") {
+                    setTimeout(() => {
+                        window.location.href = "/admin/vehicles";
+                    }, 800);
+                } else {
+                    setTimeout(() => {
+                        setEditMode(false);
+                    }, 800);
+                }
             }
             
             if (data.errors){
                 Object.entries(data.errors).forEach(([field, msg]) => showFieldError(field, msg));
             }
 
-            msgBox.textContent = data.message || "input error";
-            msgBox.className = "text-danger fw-bold mt-2"
+            if (data.errors){
+                Object.entries(data.errors).forEach(([field, msg]) => showFieldError(field, msg));
+                showToast(data.message || "Validation error");
+            }
 
         } catch (err) {
             console.error("Network error", err);
-            msgBox.textContent = "Network Error";
-            msgBox.className = "text-warning fw-bold mt-2";
-
+            showToast("Network error");
         }
 
     });
@@ -343,3 +343,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+// status update
+
+const updateStatusBtn = document.getElementById("updateVehicleStatusBtn");
+
+if (updateStatusBtn) {
+    updateStatusBtn.addEventListener("click", async () => {
+        const statusSelect = document.getElementById("vehicleStatusSelect");
+        const newStatus = statusSelect.value;
+
+        const form = document.getElementById("vehicleForm");
+        const updateUrl = form.dataset.updateUrl;
+
+        if (!newStatus) {
+            showToast("Please select a status.");
+            return;
+        }
+
+        try {
+            const res = await fetch(updateUrl + "/status", {
+                method: "PATCH",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    vehicle_status: newStatus
+                })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                showToast("Vehicle status updated.");
+            } else {
+                showToast(data.message || "Status update failed.");
+            }
+
+        } catch (err) {
+            console.error("Status update error:", err);
+            showToast("Network error while updating status.");
+        }
+    });
+}

@@ -19,6 +19,10 @@ from routes.api.fleet_service_api import fleet_service_api_bp
 
 from routes.api.vehicle_fleet_api import vehicle_fleet_api_bp
 
+from routes.admin.finance_pages.finance_pages import finance_pages_bp
+
+from routes.api.finance.finance_api import finance_api_bp
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -41,6 +45,10 @@ app.register_blueprint(fleet_service_api_bp)
 
 app.register_blueprint(vehicle_fleet_api_bp)
 
+app.register_blueprint(finance_pages_bp)
+app.register_blueprint(finance_api_bp)
+
+
 @app.route('/admin/dashboard', methods=['GET', 'POST'])
 def admin_dashboard():
     if not session.get("admin_logged_in"):
@@ -52,7 +60,6 @@ def admin_dashboard():
 def debug_session():
     return jsonify(dict(session))
     
-
 
 if __name__ == "__main__":
     init_db()

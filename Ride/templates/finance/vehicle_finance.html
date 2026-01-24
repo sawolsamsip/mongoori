@@ -1,0 +1,96 @@
+<div class="modal fade" id="manageFinanceModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title mb-1">Manage Finance</h5>
+          <small class="text-muted">
+            Plate: <span id="mfPlate"></span> · VIN: <span id="mfVin"></span>
+          </small>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+
+        <!-- COST INPUT -->
+        <h6 class="fw-bold mb-2">Add Cost</h6>
+
+        <div class="row g-2 mb-4">
+          <div class="col-md-3">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control" id="costDate">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="costCategory">
+                <option value="" selected disabled>Choose...</option>
+                <!-- filled by JS -->
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Amount</label>
+            <input type="number" class="form-control" id="costAmount" step="0.01">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Note</label>
+            <input type="text" class="form-control" id="costNote">
+          </div>
+
+          <div class="col-md-12 mt-2">
+            <button class="btn btn-danger" id="saveCostBtn">Save Cost</button>
+          </div>
+        </div>
+
+        <hr>
+
+        <!-- REVENUE INPUT -->
+        <h6 class="fw-bold mb-2">Add Revenue</h6>
+
+        <div class="row g-2">
+          <div class="col-md-3">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control" id="revenueDate">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="revenueCategory">
+                <option value="" selected disabled>Choose...</option>
+                <!-- filled by JS -->
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Amount</label>
+            <input type="number" class="form-control" id="revenueAmount" step="0.01">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Note</label>
+            <input type="text" class="form-control" id="revenueNote">
+          </div>
+
+          <div class="col-md-12 mt-2">
+            <button class="btn btn-success" id="saveRevenueBtn">Save Revenue</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
