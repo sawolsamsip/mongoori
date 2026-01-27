@@ -12,7 +12,14 @@
 <body class="d-flex align-items-center justify-content-center vh-100 bg-light">
     <div class="card shadow-sm" style="min-width: 320px; max-width: 400px;">
         <div class="card-body">
-            <h3 class="text-center mb-4">Admin Login</h3>
+            <div class="d-flex align-items-center justify-content-center mb-4">
+                <img src="{{ url_for('static', filename='images/Mongoori_Logo.png') }}"
+                    alt="Mongoori Rides"
+                    style="height: 48px;"
+                    class="me-3">
+
+                <div class="fw-semibold fs-5">Admin Login</div>
+            </div>
 
             <form action="{{ url_for('auth.admin_login') }}" method="post">
                 <div class="mb-3">

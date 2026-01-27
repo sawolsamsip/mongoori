@@ -183,3 +183,64 @@ def get_finance_categories():
         })
 
     return jsonify(success=True, categories=categories), 200
+
+
+## Finance time series (last N months)
+@finance_api_bp.route("/timeseries", methods=["GET"])
+def get_finance_timeseries():
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized"), 401
+
+    window = request.args.get("window", 12)
+    try:
+        window = int(window)
+    except:
+        window = 12
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT 
+            period_year,
+            period_month,
+            SUM(CASE WHEN fc.type='revenue' THEN ft.amount ELSE 0 END) AS revenue,
+            SUM(CASE WHEN fc.type='cost' THEN ft.amount ELSE 0 END) AS expense
+        FROM finance_transaction ft
+        JOIN finance_category fc
+          ON ft.category_id = fc.category_id
+        WHERE date(ft.transaction_date) >= date('now', ?, 'start of month')
+          AND date(ft.transaction_date) <= date('now', 'start of month', '+1 month', '-1 day')
+        GROUP BY period_year, period_month
+        ORDER BY period_year, period_month
+    """, (f"-{window-1} months",))
+
+    rows = cur.fetchall()
+
+    labels = []
+    revenue = []
+    expense = []
+    net = []
+
+    for r in rows:
+        y = r["period_year"]
+        m = str(r["period_month"]).zfill(2)
+        rev = r["revenue"] or 0
+        exp = r["expense"] or 0
+
+        labels.append(f"{y}-{m}")
+        revenue.append(rev)
+        expense.append(exp)
+        net.append(rev - exp)
+
+    return jsonify(
+        success=True,
+        resource="finance.timeseries",
+        window=window,
+        data={
+            "labels": labels,
+            "revenue": revenue,
+            "expense": expense,
+            "net": net
+        }
+    ), 200
