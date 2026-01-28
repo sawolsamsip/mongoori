@@ -23,6 +23,12 @@ Mongoori - Vehicle List
                     <th>Model</th>
                     <th>Year</th>
                     <th>Trim</th>
+
+                    <th>Addr1</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>Zip</th>
+                    
                     <th>Operation Status</th>
                 </tr>
             </thead>
@@ -37,6 +43,11 @@ Mongoori - Vehicle List
                     <td>{{ v.model }}</td>
                     <td>{{ v.model_year }}</td>
                     <td>{{ v.trim }}</td>
+
+                    <td>{{ v.address_line1 }}</td>
+                    <td>{{ v.city }}</td>
+                    <td>{{ v.state }}</td>
+                    <td>{{ v.zip_code }}</td>
                     <td>{{ v.operation_status }}</td>
                 </tr>
                 {% endfor %}

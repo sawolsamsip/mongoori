@@ -29,7 +29,7 @@ $(document).ready(function () {
         },
 
         {
-            targets: 6, // Operation Status
+            targets: 10, // Operation Status
             render: function (data, type) {
                 const v = (data || '').toString().trim().toUpperCase();
 
@@ -59,7 +59,14 @@ $(document).ready(function () {
             searchable: true
         },
 
-        { targets: 0, visible: false }
+        { targets: 0, visible: false },
+        {
+            targets: [6, 7, 8, 9],   // Addr1, City, State, Zip
+            visible: false,
+            searchable: false,
+            orderable: false
+        }
+        
     ],
     
     orderFixed: {
@@ -67,20 +74,42 @@ $(document).ready(function () {
       },
 
     order: [
-        [6, 'asc'], // Operation Status
+        [10, 'asc'], // Operation Status
         [1, 'asc']  // Plate
         ],
 
     rowGroup: {
         dataSrc: 0,
         startRender: function (rows, group) {
-          const name = group;
-          return $('<tr class="group-row"/>')
-            .append(
-              `<td colspan="7" class="bg-light fw-bold">
-                <strong>${name}</strong> (${rows.count()})
-              </td>`
-            );
+            const name = group;
+
+            const firstRow = rows.data()[0];
+            const addr1 = firstRow[6];
+            const city  = firstRow[7];
+            const state = firstRow[8];
+            const zip   = firstRow[9];
+
+            const address = addr1
+            ? `${addr1}, ${city}, ${state} ${zip}`
+            : '';
+
+            console.log(addr1, city, state, zip);
+
+            return $('<tr class="group-row"/>')
+                .append(
+                `
+                <td colspan="11" class="bg-light fw-bold">
+                    <div class="d-flex flex-column">
+                        <div>
+                            <strong>${group || 'Unassigned'}</strong> (${rows.count()})
+                        </div>
+                        <div class="text-muted small">
+                            ${address}
+                        </div>
+                    </div>
+                </td>
+            `
+                );
         }
       }
     

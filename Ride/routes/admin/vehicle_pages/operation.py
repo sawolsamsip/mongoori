@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, abort
 from db import get_conn
-from utils.warranty_utils import get_purchase_warranty_types, get_subscription_warranty_types
 
 vehicle_operation_pages_bp = Blueprint(
     "vehicle_operation_pages",
@@ -27,6 +26,10 @@ def vehicle_list_page():
 
                     pl.parking_lot_id AS operation_location_id,
                     pl.name AS operation_location_name,
+                    pl.address_line1,
+                    pl.city,
+                    pl.state,
+                    pl.zip_code,
 
                     CASE
                         WHEN EXISTS (
