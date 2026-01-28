@@ -54,7 +54,7 @@ Create `.env` file in project root:
 FLASK_ENV=production
 FLASK_APP=app.py
 SECRET_KEY=<secure_random_string>
-DB_PATH=./data/app.db
+DB_PATH=./app.db
 ```
 
 ---
@@ -64,8 +64,9 @@ DB_PATH=./data/app.db
 ### 5.1 Database File Setup
 
 ```bash
-mkdir -p data
-sqlite3 ./data/app.db < db/schema.sql
+sqlite3 ./app.db < db/schema.sql
+sqlite3 ./app.db < db/seed.sql
+
 ```
 
 ### 5.2 WAL Mode Verification
@@ -115,15 +116,19 @@ python app.py
 ```text
 project_root/
 ├── app.py
-├── blueprints/
+├── app.db
+├── app.db-wal
+├── app.db-shm
 ├── db/
-│   └── schema.sql
-├── scripts/
-│   └── create_admin.py
+│   ├── schema.sql
+│   └── seed.sql
+├── routes/
+├── utils/
 ├── templates/
 ├── static/
-├── data/
-│   └── app.db
+├── Docs/
+├── create_admin.py
+├── db.py
 ├── requirements.txt
 └── .env
 ```
@@ -154,13 +159,8 @@ project_root/
 ### 11.1 Manual Backup
 
 ```bash
-cp ./data/app.db ./backup/app_$(date +%F).db
+cp ./app.db ./backup/app_$(date +%F).db
 ```
-
-### 11.2 Recommended Policy
-
-* Daily backups
-* Weekly off-site backup
 
 ---
 
@@ -169,9 +169,8 @@ cp ./data/app.db ./backup/app_$(date +%F).db
 ### 12.1 DB Recovery
 
 ```bash
-cp ./backup/app_YYYY-MM-DD.db ./data/app.db
+cp ./backup/app_YYYY-MM-DD.db ./app.db
 ```
-
 ---
 
 ## 13. Operational Handover Notes

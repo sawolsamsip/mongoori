@@ -56,6 +56,7 @@ This system is a web-based administrative platform designed for fleet and vehicl
 - Warranty
 - ParkingLot
 - FleetService
+- Finance
 - AdminUser
 
 4.2 Domain Philosophy
@@ -73,7 +74,7 @@ This system is a web-based administrative platform designed for fleet and vehicl
 - warranty_subscription
 - parking_lot
 - vehicle_parking
-- fleet
+- fleet_service
 - vehicle_fleet
 
 5.2 Data Modeling Principles
@@ -95,6 +96,7 @@ This system is a web-based administrative platform designed for fleet and vehicl
 - /api/warranties/*
 - /api/parking/*
 - /api/fleets/*
+- /api/finance/*
 
 ## 7. Frontend Architecture
 7.1 Page Structure

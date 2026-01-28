@@ -21,10 +21,10 @@ def close_conn(e=None):
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
-    with open("schema.sql", "r", encoding="utf-8") as f:
+    with open("./db/schema.sql", "r", encoding="utf-8") as f:
         conn.executescript(f.read())
     
-    with open("db/seed.sql", "r", encoding="utf-8") as f:
+    with open("./db/seed.sql", "r", encoding="utf-8") as f:
         conn.executescript(f.read())
 
     conn.close()
