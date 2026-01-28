@@ -9,7 +9,7 @@ Mongoori - Vehicle List
 <div class="card">
     <!-- Card header -->
     <div class="card-header">
-        <h3 class="card-title">Vehicle Information</h3>
+        <h3 class="card-title">Vehicle Management</h3>
         <div class="card-tools">
             <a href="{{ url_for('vehicle_management_pages.vehicle_create_page') }}" class="btn btn-primary btn-sm">
                 + Add Vehicle
@@ -40,7 +40,15 @@ Mongoori - Vehicle List
                     <td>{{v.model}}</td>
                     <td>{{v.model_year}}</td>
                     <td>{{v.trim}}</td>
-                    <td>{{v.vehicle_status}}</td>
+                    <td>
+                        {% if v.vehicle_status == 'Active' %}
+                            <span class="badge bg-success">Active</span>
+                        {% elif v.vehicle_status == 'Maintenance' %}
+                            <span class="badge bg-warning text-dark">Maintenance</span>
+                        {% elif v.vehicle_status == 'Archived' %}
+                            <span class="badge bg-dark">Archived</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

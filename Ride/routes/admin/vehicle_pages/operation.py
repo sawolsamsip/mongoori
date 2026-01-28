@@ -47,6 +47,8 @@ def vehicle_list_page():
 
                 LEFT JOIN parking_lot pl
                     ON vol.parking_lot_id = pl.parking_lot_id
+                
+                WHERE v.vehicle_status = 'Active'
 
                 ORDER BY operation_location_name IS NULL, operation_location_name;
                 """)
