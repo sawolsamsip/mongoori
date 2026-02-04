@@ -5,10 +5,14 @@
       <!-- Header -->
       <div class="modal-header">
         <div>
-          <h5 class="modal-title mb-1">Manage Finance</h5>
+          <h5 class="modal-title mb-1">Manage Ownership Finance</h5>
           <small class="text-muted">
-            Plate: <span id="mfPlate"></span> · VIN: <span id="mfVin"></span>
+            Ownership obligations<br>
+            (purchase, tax, registration, personal insurance, sale).
           </small>
+          <div class="text-muted small mt-1">
+            Plate: <span id="mfPlate"></span> · VIN: <span id="mfVin"></span>
+          </div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -16,79 +20,165 @@
       <!-- Body -->
       <div class="modal-body">
 
-        <!-- COST INPUT -->
-        <h6 class="fw-bold mb-2">Add Cost</h6>
+        <!-- ===================== COST ===================== -->
+        <h6 class="fw-bold mb-2">Add Cost (Ownership)</h6>
 
-        <div class="row g-2 mb-4">
-          <div class="col-md-3">
-            <label class="form-label">Date</label>
-            <input type="date" class="form-control" id="costDate">
-          </div>
-
-          <div class="col-md-3">
+        <!-- Common -->
+        <div class="row g-2 mb-2">
+          <div class="col-md-4">
             <label class="form-label">Category</label>
             <select class="form-select" id="costCategory">
-                <option value="" selected disabled>Choose...</option>
-                <!-- filled by JS -->
+              <option value="" selected disabled>Choose...</option>
+              <!-- filled by JS: ownership cost categories only -->
             </select>
           </div>
 
-          <div class="col-md-3">
-            <label class="form-label">Amount</label>
-            <input type="number" class="form-control" id="costAmount" step="0.01">
+          <div class="col-md-4">
+            <label class="form-label">Event Date</label>
+            <input type="date" class="form-control" id="costEventDate">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Payment Type</label>
+
+            <div class="d-flex gap-4 flex-wrap pt-1">
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                      name="costPaymentType" id="costPtOneTime" value="one_time" checked>
+                <label class="form-check-label" for="costPtOneTime">
+                  One-time
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                      name="costPaymentType" id="costPtMonthly" value="monthly">
+                <label class="form-check-label" for="costPtMonthly">
+                  Monthly
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                      name="costPaymentType" id="costPtInstallment" value="installment">
+                <label class="form-check-label" for="costPtInstallment">
+                  Installment
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- One-time fields (default visible) -->
+        <div id="costFieldsOneTime" class="row g-2 mb-3">
+          <div class="col-md-5">
+            <label class="form-label">Total Amount</label>
+            <input type="number" class="form-control" id="costOneTimeAmount" step="0.01">
+          </div>
+        </div>
+
+        <!-- Monthly fields (hidden by default) -->
+        <div id="costFieldsMonthly" class="row g-2 mb-3 d-none">
+          <div class="col-md-4">
+            <label class="form-label">Monthly Amount</label>
+            <input type="number" class="form-control" id="costMonthlyAmount" step="0.01">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="costMonthlyStartDate">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">End Date (optional)</label>
+            <input type="date" class="form-control" id="costMonthlyEndDate">
+          </div>
+        </div>
+
+        <!-- Installment fields (hidden by default) -->
+        <div id="costFieldsInstallment" class="row g-2 mb-3 d-none">
+          <div class="col-md-5">
+            <label class="form-label">Total Amount</label>
+            <input type="number" class="form-control" id="costInstallTotal" step="0.01">
           </div>
 
           <div class="col-md-3">
+            <label class="form-label">Months</label>
+            <input type="number" class="form-control" id="costInstallMonths" min="1" step="1">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="costInstallStartDate">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">End Date (auto)</label>
+            <input type="text" class="form-control" id="costInstallEndDate" readonly
+                   placeholder="Auto-calculated">
+          </div>
+
+          <div class="col-md-8">
+            <label class="form-label">Monthly Amount (optional)</label>
+            <input type="number" class="form-control" id="costInstallMonthly" step="0.01">
+          </div>
+        </div>
+
+        <div class="row g-2 mb-4">
+          <div class="col-md-8">
             <label class="form-label">Note</label>
             <input type="text" class="form-control" id="costNote">
           </div>
-
-          <div class="col-md-12 mt-2">
-            <button class="btn btn-danger" id="saveCostBtn">Save Cost</button>
+          <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-danger w-100" id="saveCostBtn">
+              Save Cost
+            </button>
           </div>
         </div>
 
         <hr>
 
-        <!-- REVENUE INPUT -->
-        <h6 class="fw-bold mb-2">Add Revenue</h6>
+        <!-- ===================== REVENUE ===================== -->
 
-        <div class="row g-2">
-          <div class="col-md-3">
-            <label class="form-label">Date</label>
-            <input type="date" class="form-control" id="revenueDate">
-          </div>
+<!-- ===================== REVENUE ===================== -->
+        <h6 class="fw-bold mb-2">Add Revenue (Ownership)</h6>
 
-          <div class="col-md-3">
+        <div class="row g-2 mb-3">
+          <div class="col-md-4">
             <label class="form-label">Category</label>
             <select class="form-select" id="revenueCategory">
-                <option value="" selected disabled>Choose...</option>
-                <!-- filled by JS -->
+              <option value="" selected disabled>Choose...</option>
+              <!-- filled by JS: ownership revenue categories only -->
             </select>
           </div>
 
-          <div class="col-md-3">
-            <label class="form-label">Amount</label>
+          <div class="col-md-4">
+            <label class="form-label">Event Date</label>
+            <input type="date" class="form-control" id="revenueEventDate">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Total Amount</label>
             <input type="number" class="form-control" id="revenueAmount" step="0.01">
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label">Note</label>
-            <input type="text" class="form-control" id="revenueNote">
-          </div>
-
-          <div class="col-md-12 mt-2">
-            <button class="btn btn-success" id="saveRevenueBtn">Save Revenue</button>
           </div>
         </div>
 
-      </div>
+        <div class="row g-2">
+          <div class="col-md-8">
+            <label class="form-label">Note</label>
+            <input type="text" class="form-control" id="revenueNote">
+          </div>
+          <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-success w-100" id="saveRevenueBtn">
+              Save Revenue
+            </button>
+          </div>
+        </div>
+
 
       <!-- Footer -->
       <div class="modal-footer">
-        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-          Close
-        </button>
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
       </div>
 
     </div>

@@ -8,151 +8,112 @@ finance_api_bp = Blueprint(
     url_prefix="/api/finance"
 )
 
-## add cost for vehicle
-@finance_api_bp.route("/vehicles/<int:vehicle_id>/cost", methods=["POST"])
-def add_vehicle_cost(vehicle_id):
+
+## save cost/revenue from management page
+@finance_api_bp.route(
+    "/management/vehicles/<int:vehicle_id>/obligations",
+    methods=["POST"]
+)
+def create_vehicle_obligation(vehicle_id):
     if not session.get("admin_logged_in"):
         return jsonify(success=False, message="Unauthorized"), 401
 
     data = request.get_json() or {}
 
-    date = data.get("date")
     category_id = data.get("category_id")
-    amount = data.get("amount")
+    payment_type = data.get("payment_type")
+    event_date = data.get("event_date")
+
+    start_date = data.get("start_date")
+    end_date = data.get("end_date")
+    total_amount = data.get("total_amount")
+    monthly_amount = data.get("monthly_amount")
+    months = data.get("months")
     note = data.get("note")
 
-    if not date or not category_id or amount is None:
+    # validation
+    if not category_id or not payment_type or not event_date:
         return jsonify(
             success=False,
-            message="date, category_id, amount are required"
+            message="category_id, payment_type, event_date are required"
         ), 400
 
-    try:
-        amount = float(amount)
-    except:
-        return jsonify(success=False, message="Invalid amount"), 400
+    if payment_type not in ("one_time", "monthly", "installment"):
+        return jsonify(success=False, message="Invalid payment_type"), 400
 
-    try:
-        year, month, _ = date.split("-")
-    except:
-        return jsonify(success=False, message="Invalid date format"), 400
+    # validation for each payment type
+    if payment_type == "one_time":
+        if total_amount is None:
+            return jsonify(success=False, message="total_amount is required"), 400
+
+    if payment_type == "monthly":
+        if monthly_amount is None or not start_date:
+            return jsonify(
+                success=False,
+                message="monthly_amount and start_date are required"
+            ), 400
+
+    if payment_type == "installment":
+        if total_amount is None or not months or not start_date:
+            return jsonify(
+                success=False,
+                message="total_amount, months, start_date are required"
+            ), 400
 
     conn = get_conn()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO finance_transaction (
-            scope,
+        INSERT INTO finance_vehicle_obligation (
             vehicle_id,
             category_id,
-            amount,
-            transaction_date,
-            period_year,
-            period_month,
-            description,
-            source
+            payment_type,
+            event_date,
+            start_date,
+            end_date,
+            total_amount,
+            monthly_amount,
+            months,
+            note
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        "vehicle",
         vehicle_id,
         category_id,
-        amount,
-        date,
-        int(year),
-        int(month),
-        note,
-        "manual"
+        payment_type,
+        event_date,
+        start_date,
+        end_date,
+        total_amount,
+        monthly_amount,
+        months,
+        note
     ))
 
     conn.commit()
 
-    return jsonify(success=True, message="Cost recorded"), 200
+    return jsonify(success=True, message="Obligation created"), 201
 
 
-## Add revenue for vehicle
-
-@finance_api_bp.route("/vehicles/<int:vehicle_id>/revenue", methods=["POST"])
-def add_vehicle_revenue(vehicle_id):
+## Manage Finance- mangement: load category to fill modal
+@finance_api_bp.route("/management/categories", methods=["GET"])
+def get_ownership_categories():
     if not session.get("admin_logged_in"):
         return jsonify(success=False, message="Unauthorized"), 401
 
-    data = request.get_json() or {}
-
-    date = data.get("date")
-    category_id = data.get("category_id")
-    amount = data.get("amount")
-    note = data.get("note")
-
-    if not date or not category_id or amount is None:
-        return jsonify(
-            success=False,
-            message="date, category_id, amount are required"
-        ), 400
-
-    try:
-        amount = float(amount)
-    except:
-        return jsonify(success=False, message="Invalid amount"), 400
-
-    try:
-        year, month, _ = date.split("-")
-    except:
-        return jsonify(success=False, message="Invalid date format"), 400
-
-    conn = get_conn()
-    cur = conn.cursor()
-
-    cur.execute("""
-        INSERT INTO finance_transaction (
-            scope,
-            vehicle_id,
-            category_id,
-            amount,
-            transaction_date,
-            period_year,
-            period_month,
-            description,
-            source
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        "vehicle",
-        vehicle_id,
-        category_id,
-        amount,
-        date,
-        int(year),
-        int(month),
-        note,
-        "manual"
-    ))
-
-    conn.commit()
-
-    return jsonify(success=True, message="Revenue recorded"), 200
-
-
-## 
-@finance_api_bp.route("/categories", methods=["GET"])
-def get_finance_categories():
-    if not session.get("admin_logged_in"):
-        return jsonify(success=False, message="Unauthorized"), 401
-
-    scope = request.args.get("scope")
     type_ = request.args.get("type")
 
-    if not scope or not type_:
+    if not type_:
         return jsonify(
             success=False,
-            message="scope and type are required"
+            message="type is required"
         ), 400
 
-    if scope not in ("vehicle", "fleet", "global"):
-        return jsonify(success=False, message="Invalid scope"), 400
-
     if type_ not in ("cost", "revenue"):
-        return jsonify(success=False, message="Invalid type"), 400
+        return jsonify(
+            success=False,
+            message="Invalid type"
+        ), 400
 
     conn = get_conn()
     cur = conn.cursor()
@@ -162,25 +123,23 @@ def get_finance_categories():
             category_id,
             name,
             type,
-            scope,
             description
-        FROM finance_category
-        WHERE scope = ?
-          AND type = ?
+        FROM finance_management_category
+        WHERE type = ?
         ORDER BY name ASC
-    """, (scope, type_))
+    """, (type_,))
 
     rows = cur.fetchall()
 
-    categories = []
-    for r in rows:
-        categories.append({
+    categories = [
+        {
             "category_id": r["category_id"],
             "name": r["name"],
             "type": r["type"],
-            "scope": r["scope"],
             "description": r["description"]
-        })
+        }
+        for r in rows
+    ]
 
     return jsonify(success=True, categories=categories), 200
 

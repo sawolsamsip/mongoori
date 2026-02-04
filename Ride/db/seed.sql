@@ -74,28 +74,38 @@ INSERT OR IGNORE INTO fleet_service (name) VALUES
 
 
 -- Finance Category
--- cost - vehicle
-INSERT INTO finance_category (name, type, scope, description) VALUES
-('parking',        'cost', 'vehicle', 'Vehicle parking cost'),
-('insurance',      'cost', 'vehicle', 'Vehicle insurance'),
-('maintenance',    'cost', 'vehicle', 'Vehicle maintenance and repair'),
-('warranty',       'cost', 'vehicle', 'Vehicle warranty cost'),
-('registration',   'cost', 'vehicle', 'Vehicle registration and DMV fees'),
-('tax',            'cost', 'vehicle', 'Vehicle tax'),
-('cleaning',       'cost', 'vehicle', 'Vehicle cleaning and detailing'),
-('misc_cost',      'cost', 'vehicle', 'Miscellaneous vehicle costs');
 
-INSERT INTO finance_category (name, type, scope, description) VALUES
-('vehicle_purchase', 'cost', 'vehicle', 'Vehicle purchase price'),
-('acquisition_fee',  'cost', 'vehicle', 'Vehicle acquisition fees'),
-('dealer_fee',       'cost', 'vehicle', 'Dealer processing fee'),
-('registration_tax', 'cost', 'vehicle', 'Purchase-related tax and registration'),
-('import_fee',       'cost', 'vehicle', 'Import and customs fees');
+-- Finance Management Categories (COST)
+INSERT INTO finance_management_category (name, type, scope, description) VALUES
+('Vehicle Purchase Price', 'cost', 'vehicle', 'Base vehicle purchase price'),
+('Dealer Fee',             'cost', 'vehicle', 'Dealer or documentation fee'),
+('Sales Tax',              'cost', 'vehicle', 'Vehicle purchase sales tax'),
+('Registration Fee',       'cost', 'vehicle', 'DMV registration and title fee'),
+('Personal Insurance',     'cost', 'vehicle', 'Personal vehicle insurance premium'),
+('Loan Interest',          'cost', 'vehicle', 'Interest paid for vehicle financing'),
+('Other Cost',             'cost', 'vehicle', 'Uncategorized ownership-related cost');
 
--- revenue - vehicle
-INSERT INTO finance_category (name, type, scope, description) VALUES
-('rental_income',  'revenue', 'vehicle', 'Vehicle rental income'),
-('misc_revenue',   'revenue', 'vehicle', 'Miscellaneous revenue');
+-- Finance Management Categories (REVENUE)
+INSERT INTO finance_management_category (name, type, scope, description) VALUES
+('Vehicle Sale',           'revenue', 'vehicle', 'Revenue from selling the vehicle'),
+('Other Revenue',          'revenue', 'vehicle', 'Uncategorized ownership-related revenue');
 
-INSERT INTO finance_category (name, type, scope, description) VALUES
-('vehicle_sale',    'revenue', 'vehicle', 'Vehicle sale revenue');
+
+
+-- Finance Operation Categories (COST)
+INSERT INTO finance_operation_category (name, type, scope, description) VALUES
+('Platform Registration Fee', 'cost', 'vehicle', 'Platform registration or onboarding fee'),
+('Platform Service Fee',      'cost', 'vehicle', 'Platform commission or service fee'),
+('Platform Insurance',        'cost', 'vehicle', 'Insurance provided by rental platform'),
+('Maintenance',               'cost', 'vehicle', 'Vehicle maintenance and repair'),
+('Cleaning',                  'cost', 'vehicle', 'Cleaning and detailing cost'),
+('Accident Deductible',       'cost', 'vehicle', 'Deductible paid due to accident'),
+('Parking Fee',               'cost', 'vehicle', 'Parking or storage cost'),
+('Toll',                      'cost', 'vehicle', 'Toll charges during operation'),
+('Other Cost',                'cost', 'vehicle', 'Uncategorized operating cost');
+
+-- Finance Operation Categories (REVENUE)
+
+INSERT INTO finance_operation_category (name, type, scope, description) VALUES
+('Rental Revenue',          'revenue', 'vehicle', 'Revenue generated from vehicle rental'),
+('Other Revenue',           'revenue', 'vehicle', 'Uncategorized operating revenue');

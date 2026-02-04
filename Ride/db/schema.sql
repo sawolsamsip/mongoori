@@ -195,22 +195,84 @@ WHERE registered_to IS NULL;
 -- Finance
 
 -- finance_category
-CREATE TABLE IF NOT EXISTS finance_category (
+CREATE TABLE IF NOT EXISTS finance_management_category (
     category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    name TEXT NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('cost','revenue')),
+    scope TEXT NOT NULL CHECK (scope IN ('vehicle')),
+
+    description TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE (name, type)
+);
+
+CREATE TABLE IF NOT EXISTS finance_operation_category (
+    category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+
     name TEXT NOT NULL,
     type TEXT NOT NULL CHECK (type IN ('cost','revenue')),
     scope TEXT NOT NULL CHECK (scope IN ('vehicle','fleet','global')),
+
     description TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
     UNIQUE (name, scope)
 );
 
 
 -- finance_transaction
+CREATE TABLE IF NOT EXISTS finance_vehicle_obligation (
+    obligation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    vehicle_id INTEGER NOT NULL,
+    category_id INTEGER NOT NULL,
+
+    payment_type TEXT NOT NULL
+        CHECK (payment_type IN ('one_time','monthly','installment')),
+
+    event_date DATE NOT NULL,
+    
+    start_date DATE,
+    end_date DATE,
+    
+    total_amount REAL,
+    monthly_amount REAL,
+    months INTEGER,
+
+    note TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CHECK (
+        start_date IS NULL
+        OR end_date IS NULL
+        OR end_date >= start_date
+    ),
+
+    CHECK (
+        (payment_type = 'one_time' AND total_amount IS NOT NULL)
+        OR (payment_type = 'monthly' AND monthly_amount IS NOT NULL AND start_date IS NOT NULL)
+        OR (payment_type = 'installment' AND total_amount IS NOT NULL AND months IS NOT NULL AND start_date IS NOT NULL)
+    ),
+
+    FOREIGN KEY (vehicle_id)
+        REFERENCES vehicle(vehicle_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (category_id)
+        REFERENCES finance_management_category(category_id)
+        ON DELETE RESTRICT
+);
+
+CREATE INDEX IF NOT EXISTS idx_obligation_vehicle
+ON finance_vehicle_obligation(vehicle_id);
+
 CREATE TABLE IF NOT EXISTS finance_transaction (
     finance_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    scope TEXT NOT NULL CHECK (scope IN ('vehicle','fleet','global')),
+    scope TEXT NOT NULL
+        CHECK (scope IN ('vehicle','fleet','global')),
 
     vehicle_id INTEGER,
     fleet_service_id INTEGER,
@@ -218,14 +280,9 @@ CREATE TABLE IF NOT EXISTS finance_transaction (
     category_id INTEGER NOT NULL,
 
     amount REAL NOT NULL,
-
     transaction_date DATE NOT NULL,
 
-    period_year INTEGER,
-    period_month INTEGER,
-
-    description TEXT,
-    source TEXT DEFAULT 'manual',
+    note TEXT,
     reference_id TEXT,
 
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -239,31 +296,25 @@ CREATE TABLE IF NOT EXISTS finance_transaction (
         ON DELETE RESTRICT,
 
     FOREIGN KEY (category_id)
-        REFERENCES finance_category(category_id)
+        REFERENCES finance_operation_category(category_id)
         ON DELETE RESTRICT,
 
     CHECK (
         (scope = 'vehicle' AND vehicle_id IS NOT NULL AND fleet_service_id IS NULL) OR
         (scope = 'fleet'   AND fleet_service_id IS NOT NULL AND vehicle_id IS NULL) OR
-        (scope = 'global'  AND fleet_service_id IS NULL AND vehicle_id IS NULL)
+        (scope = 'global'  AND vehicle_id IS NULL AND fleet_service_id IS NULL)
     )
 );
 
 
-CREATE INDEX IF NOT EXISTS idx_finance_scope
-ON finance_transaction(scope);
-
-CREATE INDEX IF NOT EXISTS idx_finance_vehicle
+CREATE INDEX IF NOT EXISTS idx_tx_vehicle
 ON finance_transaction(vehicle_id);
 
-CREATE INDEX IF NOT EXISTS idx_finance_fleet
+CREATE INDEX IF NOT EXISTS idx_tx_fleet
 ON finance_transaction(fleet_service_id);
 
-CREATE INDEX IF NOT EXISTS idx_finance_period
-ON finance_transaction(period_year, period_month);
-
-CREATE INDEX IF NOT EXISTS idx_finance_date
+CREATE INDEX IF NOT EXISTS idx_tx_date
 ON finance_transaction(transaction_date);
 
-
-
+CREATE INDEX IF NOT EXISTS idx_tx_period
+ON finance_transaction(period_year, period_month);
