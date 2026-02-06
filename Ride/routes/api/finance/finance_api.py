@@ -24,12 +24,16 @@ def create_vehicle_obligation(vehicle_id):
     payment_type = data.get("payment_type")
     event_date = data.get("event_date")
 
-    start_date = data.get("start_date")
-    end_date = data.get("end_date")
+    start_date = data.get('start_date') or None
+    end_date   = data.get('end_date') or None
     total_amount = data.get("total_amount")
     monthly_amount = data.get("monthly_amount")
     months = data.get("months")
     note = data.get("note")
+
+    print("==== RAW REQUEST ====")
+    
+    print("data:", data)  
 
     # validation
     if not category_id or not payment_type or not event_date:

@@ -52,19 +52,52 @@ $('input[name="costPaymentType"]').on('change', function () {
 
 /* Installment */
 $('#costInstallStartDate, #costInstallMonths').on('change', function () {
-  const startDate = $('#costInstallStartDate').val();
-  const months = parseInt($('#costInstallMonths').val(), 10);
+    const startDate = $('#costInstallStartDate').val();
+    const months = parseInt($('#costInstallMonths').val(), 10);
 
-  if (!startDate || !months) {
-    $('#costInstallEndDate').val('');
-    return;
-  }
+    if (!startDate || !months) {
+        $('#costInstallEndDate').val('');
+        return;
+    }
 
-  const d = new Date(startDate);
-  d.setMonth(d.getMonth() + (months - 1));
+    const [y, m, d] = startDate.split('-').map(Number);
+    const start = new Date(y, m - 1, d);
 
-  $('#costInstallEndDate').val(d.toISOString().slice(0, 10));
+    const end = addMonthsKeepDay(start, months - 1);
+
+    $('#costInstallEndDate').val(toDisplayDate(end));
+    $('#costInstallEndDateValue').val(toISODateValue(end));
 });
+
+function addMonthsKeepDay(date, months) {
+  const y = date.getFullYear();
+  const m = date.getMonth();
+  const d = date.getDate();
+
+  // last day of the target month
+  const lastDayOfTargetMonth =
+    new Date(y, m + months + 1, 0).getDate();
+
+  return new Date(
+    y,
+    m + months,
+    Math.min(d, lastDayOfTargetMonth)
+  );
+}
+
+function toDisplayDate(date) {
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const y = date.getFullYear();
+  return `${m}/${d}/${y}`;
+}
+
+function toISODateValue(date) {
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const y = date.getFullYear();
+  return `${y}-${m}-${d}`;
+}
 
 
 /* save cost */
@@ -74,7 +107,8 @@ $(document).on('click', '#saveCostBtn', async function () {
   if (!vehicleId) return alert('Vehicle context missing.');
 
   const paymentType = $('input[name="costPaymentType"]:checked').val();
-  const categoryText = $('#costCategory option:selected').text();
+  const cSelect = document.getElementById('costCategory');
+  const categoryText = cSelect.options[cSelect.selectedIndex]?.text || ''; 
 
   const payload = {
     vehicle_id: vehicleId,
@@ -109,6 +143,8 @@ $(document).on('click', '#saveCostBtn', async function () {
     payload.total_amount = $('#costInstallTotal').val();
     payload.months = $('#costInstallMonths').val();
     payload.start_date = $('#costInstallStartDate').val();
+    payload.end_date = $('#costInstallEndDateValue').val();
+    payload.monthly_amount = $('#costInstallMonthly').val();
 
     if (!payload.total_amount || !payload.months || !payload.start_date) {
       return alert('Total amount, months, and start date are required.');
@@ -223,3 +259,22 @@ function resetRevenueForm() {
   $('#revenueAmount').val('');
   $('#revenueNote').val('');
 }
+
+function recalcMonthly() {
+    const total = parseFloat($('#costInstallTotal').val());
+    const months = parseInt($('#costInstallMonths').val(), 10);
+    if (!total || !months) return;
+
+    const auto = (total / months).toFixed(2);
+    const monthlyInput = $('#costInstallMonthly');
+
+    
+    monthlyInput.val(auto);
+}
+
+$('#costInstallMonthly').on('input', function () {
+  $(this).data('touched', true);
+  $('#monthlyHint').text('');
+});
+
+$('#costInstallTotal, #costInstallMonths').on('input', recalcMonthly);
