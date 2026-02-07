@@ -1,0 +1,106 @@
+<div class="modal fade" id="manageOperationFinanceModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title mb-1">Manage Operation Finance</h5>
+          <small class="text-muted">
+            Operation transactions<br>
+            (rental, cleaning, repair, platform fees).
+          </small>
+          <div class="text-muted small mt-1">
+            Plate: <span id="opPlate"></span> · VIN: <span id="opVin"></span>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+
+        <!-- ===================== COST ===================== -->
+        <h6 class="fw-bold mb-2">Add Cost (Operation)</h6>
+
+        <div class="row g-2 mb-3">
+          <div class="col-md-4">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="opCostCategory">
+              <option value="" selected disabled>Choose...</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control" id="opCostDate">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Amount</label>
+            <input type="number" class="form-control" id="opCostAmount" step="0.01">
+          </div>
+        </div>
+
+        <div class="row g-2 mb-4">
+          <div class="col-md-8">
+            <label class="form-label">Note</label>
+            <input type="text" class="form-control" id="opCostNote">
+          </div>
+
+          <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-danger w-100" id="saveOpCostBtn">
+              Save Cost
+            </button>
+          </div>
+        </div>
+
+        <hr>
+
+        <!-- ===================== REVENUE ===================== -->
+        <h6 class="fw-bold mb-2">Add Revenue (Operation)</h6>
+
+        <div class="row g-2 mb-3">
+          <div class="col-md-4">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="opRevenueCategory">
+              <option value="" selected disabled>Choose...</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control" id="opRevenueDate">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Amount</label>
+            <input type="number" class="form-control" id="opRevenueAmount" step="0.01">
+          </div>
+        </div>
+
+        <div class="row g-2">
+          <div class="col-md-8">
+            <label class="form-label">Note</label>
+            <input type="text" class="form-control" id="opRevenueNote">
+          </div>
+
+          <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-success w-100" id="saveOpRevenueBtn">
+              Save Revenue
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

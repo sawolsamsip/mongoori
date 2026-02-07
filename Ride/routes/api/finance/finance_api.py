@@ -31,10 +31,6 @@ def create_vehicle_obligation(vehicle_id):
     months = data.get("months")
     note = data.get("note")
 
-    print("==== RAW REQUEST ====")
-    
-    print("data:", data)  
-
     # validation
     if not category_id or not payment_type or not event_date:
         return jsonify(
@@ -145,6 +141,34 @@ def get_ownership_categories():
         for r in rows
     ]
 
+    return jsonify(success=True, categories=categories), 200
+
+## Manage Finance- operation: load category to fill modal
+@finance_api_bp.route("/operation/categories", methods=["GET"])
+def get_operation_categories():
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized"), 401
+
+    type_ = request.args.get("type")
+    if type_ not in ("cost", "revenue"):
+        return jsonify(success=False, message="Invalid type"), 400
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            category_id,
+            name,
+            type,
+            scope,
+            description
+        FROM finance_operation_category
+        WHERE type = ?
+        ORDER BY name ASC
+    """, (type_,))
+
+    categories = [dict(r) for r in cur.fetchall()]
     return jsonify(success=True, categories=categories), 200
 
 

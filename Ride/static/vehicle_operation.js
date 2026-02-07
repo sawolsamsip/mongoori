@@ -154,6 +154,11 @@ $(document).ready(function () {
                 Set Location
             </button>
 
+            <button class="btn btn-sm btn-outline-success actManageOperationFinance"
+                data-id="${vehicleId}" data-vin="${vin}" data-plate="${plate}">
+                Operation Finance
+            </button>
+
         </div>
         `;
         
@@ -207,6 +212,36 @@ $(document).ready(function () {
         modal.show();
     });
     //
+    // Operation Finance Manage modal
+    $(document).on('click', '.actManageOperationFinance', function () {
+        const vehicleId = $(this).data('id');
+        const vin = $(this).data('vin');
+        const plate = $(this).data('plate');
+
+        if (!vehicleId) return;
+
+        const modalEl = document.getElementById('manageOperationFinanceModal');
+        $(modalEl).data('vehicleId', vehicleId);
+
+        $('#opVin').text(vin || '-');
+        $('#opPlate').text(plate || '-');
+
+        // reset COST inputs
+        $('#opCostCategory').val('');
+        $('#opCostDate').val('');
+        $('#opCostAmount').val('');
+        $('#opCostNote').val('');
+
+        // reset REVENUE inputs
+        $('#opRevenueCategory').val('');
+        $('#opRevenueDate').val('');
+        $('#opRevenueAmount').val('');
+        $('#opRevenueNote').val('');
+
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    });
+
 
     //
     $(window).on('resize', function () {
