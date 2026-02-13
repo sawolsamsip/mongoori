@@ -9,90 +9,109 @@ finance_api_bp = Blueprint(
 )
 
 
-## save cost/revenue from management page
+## save cost/revenue from management page - one-time
 @finance_api_bp.route(
-    "/management/vehicles/<int:vehicle_id>/obligations",
+    "/management/vehicles/<int:vehicle_id>/transactions",
     methods=["POST"]
 )
-def create_vehicle_obligation(vehicle_id):
+def create_management_transaction(vehicle_id):
     if not session.get("admin_logged_in"):
         return jsonify(success=False, message="Unauthorized"), 401
 
     data = request.get_json() or {}
 
     category_id = data.get("category_id")
-    payment_type = data.get("payment_type")
-    event_date = data.get("event_date")
-
-    start_date = data.get('start_date') or None
-    end_date   = data.get('end_date') or None
-    total_amount = data.get("total_amount")
-    monthly_amount = data.get("monthly_amount")
-    months = data.get("months")
+    amount = data.get("amount")
+    transaction_date = data.get("transaction_date")
     note = data.get("note")
 
-    # validation
-    if not category_id or not payment_type or not event_date:
-        return jsonify(
-            success=False,
-            message="category_id, payment_type, event_date are required"
-        ), 400
-
-    if payment_type not in ("one_time", "monthly", "installment"):
-        return jsonify(success=False, message="Invalid payment_type"), 400
-
-    # validation for each payment type
-    if payment_type == "one_time":
-        if total_amount is None:
-            return jsonify(success=False, message="total_amount is required"), 400
-
-    if payment_type == "monthly":
-        if monthly_amount is None or not start_date:
-            return jsonify(
-                success=False,
-                message="monthly_amount and start_date are required"
-            ), 400
-
-    if payment_type == "installment":
-        if total_amount is None or not months or not start_date:
-            return jsonify(
-                success=False,
-                message="total_amount, months, start_date are required"
-            ), 400
+    if not category_id or not amount or not transaction_date:
+        return jsonify(success=False, message="Missing required fields"), 400
 
     conn = get_conn()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO finance_vehicle_obligation (
+        INSERT INTO finance_management_transaction (
             vehicle_id,
             category_id,
-            payment_type,
-            event_date,
-            start_date,
-            end_date,
-            total_amount,
-            monthly_amount,
-            months,
+            amount,
+            transaction_date,
             note
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?)
     """, (
         vehicle_id,
         category_id,
-        payment_type,
-        event_date,
+        amount,
+        transaction_date,
+        note
+    ))
+
+    conn.commit()
+
+    return jsonify(success=True), 201
+
+
+## save cost/revenue from management page - monthly, installment
+
+@finance_api_bp.route(
+    "/management/vehicles/<int:vehicle_id>/contracts",
+    methods=["POST"]
+)
+def create_management_contract(vehicle_id):
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized"), 401
+
+    data = request.get_json() or {}
+
+    category_id = data.get("category_id")
+    contract_type = data.get("payment_type")
+
+    start_date = data.get("start_date")
+    end_date = data.get("end_date")
+    monthly_amount = data.get("monthly_amount")
+    total_amount = data.get("total_amount")
+    months = data.get("months")
+    note = data.get("note")
+
+    if contract_type not in ("monthly", "installment"):
+        return jsonify(success=False, message="Invalid contract type"), 400
+
+    if not category_id or not start_date or not monthly_amount:
+        return jsonify(success=False, message="Missing required fields"), 400
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO finance_management_contract (
+            vehicle_id,
+            category_id,
+            contract_type,
+            start_date,
+            end_date,
+            monthly_amount,
+            total_amount,
+            months,
+            note
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        vehicle_id,
+        category_id,
+        contract_type,
         start_date,
         end_date,
-        total_amount,
         monthly_amount,
+        total_amount,
         months,
         note
     ))
 
     conn.commit()
 
-    return jsonify(success=True, message="Obligation created"), 201
+    return jsonify(success=True), 201
 
 
 ## Manage Finance- mangement: load category to fill modal
@@ -165,20 +184,41 @@ def get_operation_categories():
             description
         FROM finance_operation_category
         WHERE type = ?
-        ORDER BY name ASC
+        ORDER BY category_id ASC
     """, (type_,))
 
     categories = [dict(r) for r in cur.fetchall()]
     return jsonify(success=True, categories=categories), 200
 
+## Manage Finance- operation: load fleet category to fill modal
+@finance_api_bp.route("/fleets", methods=["GET"])
+def get_fleet_services():
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized"), 401
 
-## Finance time series (last N months)
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT fleet_service_id, name
+        FROM fleet_service
+        ORDER BY fleet_service_id ASC
+    """)
+
+    fleets = [dict(r) for r in cur.fetchall()]
+
+    return jsonify(success=True, fleets=fleets), 200
+
+## Manage Finance- operation: save
 @finance_api_bp.route("/timeseries", methods=["GET"])
 def get_finance_timeseries():
+
     if not session.get("admin_logged_in"):
         return jsonify(success=False, message="Unauthorized"), 401
 
     window = request.args.get("window", 12)
+    mode = request.args.get("mode", "operation")
+
     try:
         window = int(window)
     except:
@@ -187,31 +227,69 @@ def get_finance_timeseries():
     conn = get_conn()
     cur = conn.cursor()
 
-    cur.execute("""
-        SELECT 
-            period_year,
-            period_month,
-            SUM(CASE WHEN fc.type='revenue' THEN ft.amount ELSE 0 END) AS revenue,
-            SUM(CASE WHEN fc.type='cost' THEN ft.amount ELSE 0 END) AS expense
-        FROM finance_transaction ft
-        JOIN finance_category fc
-          ON ft.category_id = fc.category_id
-        WHERE date(ft.transaction_date) >= date('now', ?, 'start of month')
-          AND date(ft.transaction_date) <= date('now', 'start of month', '+1 month', '-1 day')
-        GROUP BY period_year, period_month
-        ORDER BY period_year, period_month
-    """, (f"-{window-1} months",))
+    date_filter = """
+        date >= date('now', ?, 'start of month')
+        AND date <= date('now', 'start of month', '+1 month', '-1 day')
+    """
 
+    # FULL MODE: operation + management
+    if mode == "full":
+        query = f"""
+            SELECT
+                strftime('%Y', tx_date) AS year,
+                strftime('%m', tx_date) AS month,
+                SUM(revenue) AS revenue,
+                SUM(expense) AS expense
+            FROM (
+                -- Operation
+                SELECT
+                    ot.transaction_date AS tx_date,
+                    CASE WHEN oc.type='revenue' THEN ot.amount ELSE 0 END AS revenue,
+                    CASE WHEN oc.type='cost' THEN ot.amount ELSE 0 END AS expense
+                FROM finance_operation_transaction ot
+                JOIN finance_operation_category oc
+                    ON ot.category_id = oc.category_id
+
+                UNION ALL
+
+                -- Management
+                SELECT
+                    mt.transaction_date AS tx_date,
+                    CASE WHEN mc.type='revenue' THEN mt.amount ELSE 0 END AS revenue,
+                    CASE WHEN mc.type='cost' THEN mt.amount ELSE 0 END AS expense
+                FROM finance_management_transaction mt
+                JOIN finance_management_category mc
+                    ON mt.category_id = mc.category_id
+            ) AS combined
+            WHERE tx_date >= date('now', ?, 'start of month')
+            AND tx_date <= date('now', 'start of month', '+1 month', '-1 day')
+            GROUP BY year, month
+            ORDER BY year, month
+        """
+    else:
+        query = f"""
+            SELECT
+                strftime('%Y', ot.transaction_date) AS year,
+                strftime('%m', ot.transaction_date) AS month,
+                SUM(CASE WHEN oc.type='revenue' THEN ot.amount ELSE 0 END) AS revenue,
+                SUM(CASE WHEN oc.type='cost' THEN ot.amount ELSE 0 END) AS expense
+            FROM finance_operation_transaction ot
+            JOIN finance_operation_category oc
+                ON ot.category_id = oc.category_id
+            WHERE ot.transaction_date >= date('now', ?, 'start of month')
+            AND ot.transaction_date <= date('now', 'start of month', '+1 month', '-1 day')
+            GROUP BY year, month
+            ORDER BY year, month
+        """
+
+    cur.execute(query, (f"-{window-1} months",))
     rows = cur.fetchall()
 
-    labels = []
-    revenue = []
-    expense = []
-    net = []
+    labels, revenue, expense, net = [], [], [], []
 
     for r in rows:
-        y = r["period_year"]
-        m = str(r["period_month"]).zfill(2)
+        y = r["year"]
+        m = r["month"]
         rev = r["revenue"] or 0
         exp = r["expense"] or 0
 
@@ -222,7 +300,7 @@ def get_finance_timeseries():
 
     return jsonify(
         success=True,
-        resource="finance.timeseries",
+        mode=mode,
         window=window,
         data={
             "labels": labels,

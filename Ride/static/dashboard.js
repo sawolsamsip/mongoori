@@ -1,16 +1,37 @@
 let financeChart;
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadLast12Months();
+
+    loadFinanceSeries();
+
+    const switchEl = document.getElementById("dashboardModeSwitch");
+    const windowSelect = document.getElementById("financeWindowSelect");
+
+    if (switchEl) {
+        switchEl.addEventListener("change", loadFinanceSeries);
+    }
+
+    if (windowSelect) {
+        windowSelect.addEventListener("change", loadFinanceSeries);
+    }
 });
 
-async function loadLast12Months(){
-    const res = await fetch('/api/finance/timeseries?window=12');
-    const json = await res.json();
+async function loadFinanceSeries(){
 
+    const switchEl = document.getElementById("dashboardModeSwitch");
+    const mode = switchEl && switchEl.checked ? "full" : "operation";
+
+    const windowSelect = document.getElementById("financeWindowSelect");
+    const windowSize = windowSelect ? parseInt(windowSelect.value) : 12;
+
+    const res = await fetch(
+        `/api/finance/timeseries?window=${windowSize}&mode=${mode}`
+    );
+
+    const json = await res.json();
     if(!json.success) return;
 
-    const normalized = normalizeFinanceSeries(json.data, 12);
+    const normalized = normalizeFinanceSeries(json.data, windowSize);
 
     renderFinanceBarChart(
         normalized.labels,
@@ -22,6 +43,7 @@ async function loadLast12Months(){
 
 // rendering
 function renderFinanceBarChart(labels, revenue, expense, net){
+
     const canvas = document.getElementById("finance-bar-chart");
     if(!canvas) return;
 
@@ -39,17 +61,17 @@ function renderFinanceBarChart(labels, revenue, expense, net){
                 {
                     label: 'Revenue',
                     data: revenue,
-                    backgroundColor: 'rgba(40, 167, 69, 0.7)'  // green
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)'
                 },
                 {
                     label: 'Expense',
                     data: expense,
-                    backgroundColor: 'rgba(220, 53, 69, 0.7)'  // red
+                    backgroundColor: 'rgba(220, 53, 69, 0.7)'
                 },
                 {
                     label: 'Net',
                     data: net,
-                    backgroundColor: 'rgba(23, 162, 184, 0.7)' // blue
+                    backgroundColor: 'rgba(23, 162, 184, 0.7)'
                 }
             ]
         },
@@ -64,7 +86,6 @@ function renderFinanceBarChart(labels, revenue, expense, net){
                     callbacks: {
                         label: function(ctx){
                             const v = ctx.raw || 0;
-
                             const sign = v < 0 ? '-' : '';
                             return `${ctx.dataset.label}: ${sign}$${Math.abs(v).toLocaleString()}`;
                         }
@@ -86,6 +107,8 @@ function renderFinanceBarChart(labels, revenue, expense, net){
     });
 }
 
+
+// ---- Helper: generate expected month labels ----
 function generateLastMonths(window = 12){
     const months = [];
     const now = new Date();
@@ -100,10 +123,12 @@ function generateLastMonths(window = 12){
     return months;
 }
 
+
+// ---- Normalize API data ----
 function normalizeFinanceSeries(apiData, window = 12){
+
     const expectedMonths = generateLastMonths(window);
 
-    //
     const map = {};
     apiData.labels.forEach((label, i) => {
         map[label] = {

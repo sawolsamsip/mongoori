@@ -108,50 +108,60 @@ $(document).on('click', '#saveCostBtn', async function () {
 
   const paymentType = $('input[name="costPaymentType"]:checked').val();
   const cSelect = document.getElementById('costCategory');
-  const categoryText = cSelect.options[cSelect.selectedIndex]?.text || ''; 
+  const categoryText = cSelect.options[cSelect.selectedIndex]?.text || '';
 
   const payload = {
     vehicle_id: vehicleId,
     category_id: $('#costCategory').val(),
     payment_type: paymentType,
-    event_date: $('#costEventDate').val(),
     note: $('#costNote').val()
   };
 
-  /* ---- basic validation ---- */
-  if (!payload.category_id || !payload.event_date) {
-    return alert('Category and event date are required.');
+  if (!payload.category_id) {
+    return alert('Category is required.');
   }
 
-  /* ---- payment type specific ---- */
+  let endpoint = '';
+
+  /* ---- one_time → finance_management_transaction ---- */
   if (paymentType === 'one_time') {
-    payload.total_amount = $('#costOneTimeAmount').val();
-    if (!payload.total_amount) return alert('Total amount is required.');
+    payload.amount = $('#costOneTimeAmount').val();
+    payload.transaction_date = $('#costEventDate').val();
+
+    if (!payload.amount || !payload.transaction_date) {
+      return alert('Amount and date are required.');
+    }
+
+    endpoint = `/api/finance/management/vehicles/${vehicleId}/transactions`;
   }
 
+  /* ---- monthly / installment → finance_management_contract ---- */
   if (paymentType === 'monthly') {
-    payload.monthly_amount = $('#costMonthlyAmount').val();
     payload.start_date = $('#costMonthlyStartDate').val();
     payload.end_date = $('#costMonthlyEndDate').val() || null;
+    payload.monthly_amount = $('#costMonthlyAmount').val();
 
-    if (!payload.monthly_amount || !payload.start_date) {
+    if (!payload.start_date || !payload.monthly_amount) {
       return alert('Monthly amount and start date are required.');
     }
+
+    endpoint = `/api/finance/management/vehicles/${vehicleId}/contracts`;
   }
 
   if (paymentType === 'installment') {
-    payload.total_amount = $('#costInstallTotal').val();
-    payload.months = $('#costInstallMonths').val();
     payload.start_date = $('#costInstallStartDate').val();
     payload.end_date = $('#costInstallEndDateValue').val();
     payload.monthly_amount = $('#costInstallMonthly').val();
+    payload.total_amount = $('#costInstallTotal').val();
+    payload.months = $('#costInstallMonths').val();
 
-    if (!payload.total_amount || !payload.months || !payload.start_date) {
-      return alert('Total amount, months, and start date are required.');
+    if (!payload.start_date || !payload.monthly_amount || !payload.total_amount || !payload.months) {
+      return alert('Installment fields are required.');
     }
+
+    endpoint = `/api/finance/management/vehicles/${vehicleId}/contracts`;
   }
 
-  /* ---- Other Cost requires note ---- */
   if (categoryText === 'Other Cost' && !payload.note) {
     return alert('Note is required for Other Cost.');
   }
@@ -160,7 +170,7 @@ $(document).on('click', '#saveCostBtn', async function () {
   btn.prop('disabled', true);
 
   try {
-    const res = await fetch(`/api/finance/management/vehicles/${vehicleId}/obligations`, {
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -172,7 +182,7 @@ $(document).on('click', '#saveCostBtn', async function () {
       return;
     }
 
-    showToast?.('Ownership cost saved');
+    showToast?.('Saved successfully');
     resetCostForm();
 
   } catch (err) {
@@ -183,7 +193,7 @@ $(document).on('click', '#saveCostBtn', async function () {
   }
 });
 
-
+// save revenue
 /* save revenue */
 $(document).on('click', '#saveRevenueBtn', async function () {
   const modal = $('#manageFinanceModal');
@@ -195,13 +205,12 @@ $(document).on('click', '#saveRevenueBtn', async function () {
   const payload = {
     vehicle_id: vehicleId,
     category_id: $('#revenueCategory').val(),
-    payment_type: 'one_time',
-    event_date: $('#revenueEventDate').val(),
-    total_amount: $('#revenueAmount').val(),
+    amount: $('#revenueAmount').val(),
+    transaction_date: $('#revenueEventDate').val(),
     note: $('#revenueNote').val()
   };
 
-  if (!payload.category_id || !payload.event_date || !payload.total_amount) {
+  if (!payload.category_id || !payload.amount || !payload.transaction_date) {
     return alert('Category, date, and amount are required.');
   }
 
@@ -210,11 +219,14 @@ $(document).on('click', '#saveRevenueBtn', async function () {
   }
 
   try {
-    const res = await fetch(`/api/finance/vehicles/${vehicleId}/obligations`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const res = await fetch(
+      `/api/finance/management/vehicles/${vehicleId}/transactions`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }
+    );
 
     const data = await res.json();
     if (!res.ok || !data.success) {
@@ -222,7 +234,7 @@ $(document).on('click', '#saveRevenueBtn', async function () {
       return;
     }
 
-    showToast?.('Ownership revenue saved');
+    showToast?.('Revenue saved');
     resetRevenueForm();
 
   } catch (err) {
@@ -230,7 +242,6 @@ $(document).on('click', '#saveRevenueBtn', async function () {
     alert('Network error while saving revenue.');
   }
 });
-
 
 /* Form Reset Helpers */
 

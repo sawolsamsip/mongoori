@@ -3,6 +3,7 @@ $('#manageOperationFinanceModal').on('shown.bs.modal', function () {
     if (!vehicleId) return;
 
     loadOperationCategories();
+    loadFleetServices();
     resetOperationCostForm();
     resetOperationRevenueForm();
 });
@@ -46,6 +47,35 @@ async function loadOperationCategories() {
   }
 }
 
+/* Fleet Category Load For Revenue */
+async function loadFleetServices() {
+  const select = $('#opRevenueFleet');
+  select.empty().append(
+    '<option value="" disabled selected>Choose...</option>'
+  );
+
+  try {
+    const res = await fetch('/api/finance/fleets');
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      alert('Failed to load fleet services.');
+      return;
+    }
+
+    data.fleets.forEach(f => {
+      select.append(
+        `<option value="${f.fleet_service_id}">${f.name}</option>`
+      );
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert('Network error while loading fleets.');
+  }
+}
+
+
 
 /* Save Operation Cost */
 $(document).on('click', '#saveOpCostBtn', async function () {
@@ -57,7 +87,6 @@ $(document).on('click', '#saveOpCostBtn', async function () {
     $('#opCostCategory option:selected').text() || '';
 
   const payload = {
-    scope: 'vehicle',
     vehicle_id: vehicleId,
     category_id: $('#opCostCategory').val(),
     transaction_date: $('#opCostDate').val(),
@@ -114,10 +143,17 @@ $(document).on('click', '#saveOpRevenueBtn', async function () {
   const categoryText =
     $('#opRevenueCategory option:selected').text() || '';
 
+  const fleetId = $('#opRevenueFleet').val();
+
+  if (categoryText === 'Rental Revenue' && !fleetId) {
+    return alert('Platform selection is required for Rental Revenue.');
+  }
+
+
   const payload = {
-    scope: 'vehicle',
     vehicle_id: vehicleId,
     category_id: $('#opRevenueCategory').val(),
+    fleet_service_id: $('#opRevenueFleet').val(),
     transaction_date: $('#opRevenueDate').val(),
     amount: $('#opRevenueAmount').val(),
     note: $('#opRevenueNote').val()
@@ -171,4 +207,5 @@ function resetOperationRevenueForm() {
   $('#opRevenueDate').val('');
   $('#opRevenueAmount').val('');
   $('#opRevenueNote').val('');
+  $('#opRevenueFleet').val('');
 }

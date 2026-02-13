@@ -223,8 +223,8 @@ CREATE TABLE IF NOT EXISTS finance_operation_category (
 
 
 -- finance_transaction
-CREATE TABLE IF NOT EXISTS finance_vehicle_obligation (
-    obligation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS finance_management_transaction (
+    management_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     vehicle_id INTEGER NOT NULL,
     category_id INTEGER NOT NULL,
@@ -265,14 +265,11 @@ CREATE TABLE IF NOT EXISTS finance_vehicle_obligation (
         ON DELETE RESTRICT
 );
 
-CREATE INDEX IF NOT EXISTS idx_obligation_vehicle
-ON finance_vehicle_obligation(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_mgmt_tx_vehicle_date
+ON finance_management_transaction(vehicle_id, event_date);
 
-CREATE TABLE IF NOT EXISTS finance_transaction (
+CREATE TABLE IF NOT EXISTS finance_operation_transaction (
     finance_id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-    scope TEXT NOT NULL
-        CHECK (scope IN ('vehicle','fleet','global')),
 
     vehicle_id INTEGER,
     fleet_service_id INTEGER,
@@ -297,24 +294,21 @@ CREATE TABLE IF NOT EXISTS finance_transaction (
 
     FOREIGN KEY (category_id)
         REFERENCES finance_operation_category(category_id)
-        ON DELETE RESTRICT,
-
-    CHECK (
-        (scope = 'vehicle' AND vehicle_id IS NOT NULL AND fleet_service_id IS NULL) OR
-        (scope = 'fleet'   AND fleet_service_id IS NOT NULL AND vehicle_id IS NULL) OR
-        (scope = 'global'  AND vehicle_id IS NULL AND fleet_service_id IS NULL)
-    )
+        ON DELETE RESTRICT
 );
 
 
 CREATE INDEX IF NOT EXISTS idx_tx_vehicle
-ON finance_transaction(vehicle_id);
+ON finance_operation_transaction(vehicle_id);
 
 CREATE INDEX IF NOT EXISTS idx_tx_fleet
-ON finance_transaction(fleet_service_id);
+ON finance_operation_transaction(fleet_service_id);
 
 CREATE INDEX IF NOT EXISTS idx_tx_date
-ON finance_transaction(transaction_date);
+ON finance_operation_transaction(transaction_date);
 
-CREATE INDEX IF NOT EXISTS idx_tx_period
-ON finance_transaction(period_year, period_month);
+CREATE INDEX idx_mgmt_tx_date
+ON finance_management_transaction(transaction_date);
+
+CREATE INDEX idx_mgmt_contract_vehicle
+ON finance_management_contract(vehicle_id);

@@ -61,19 +61,29 @@
         <h6 class="fw-bold mb-2">Add Revenue (Operation)</h6>
 
         <div class="row g-2 mb-3">
-          <div class="col-md-4">
+          <div class="col-md-6">
             <label class="form-label">Category</label>
             <select class="form-select" id="opRevenueCategory">
               <option value="" selected disabled>Choose...</option>
             </select>
           </div>
 
-          <div class="col-md-4">
+        
+        <div class="col-md-6">
+            <label class="form-label">Platform</label>
+            <select class="form-select" id="opRevenueFleet">
+                <option value="" selected disabled>Choose...</option>
+                <!-- JS: fleet list -->
+            </select>
+        </div>  
+
+
+          <div class="col-md-6">
             <label class="form-label">Date</label>
             <input type="date" class="form-control" id="opRevenueDate">
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-6">
             <label class="form-label">Amount</label>
             <input type="number" class="form-control" id="opRevenueAmount" step="0.01">
           </div>

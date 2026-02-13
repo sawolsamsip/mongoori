@@ -13,14 +13,32 @@ Mongoori
 
           <div class="card">
             <div class="card-header border-0">
-              <div class="d-flex justify-content-between">
+              <div class="d-flex justify-content-between align-items-center">
                 <h3 class="card-title">Monthly Finance</h3>
+                
+                <!-- Window Dropdown -->
+                <select id="financeWindowSelect" class="form-select form-select-sm" style="width: 120px;">
+                  <option value="3">3 Months</option>
+                  <option value="6">6 Months</option>
+                  <option value="12" selected>12 Months</option>
+                </select>
+
+                <!-- Mode Switch -->
+                <div class="form-check form-switch">
+                  <input class="form-check-input"
+                         type="checkbox"
+                         id="dashboardModeSwitch">
+                  <label class="form-check-label"
+                         for="dashboardModeSwitch">
+                    Include Management
+                  </label>
+                </div>
               </div>
             </div>
 
             <div class="card-body">
-              <div class="position-relative mb-4">
-                <canvas id="finance-bar-chart" height="140"></canvas>
+              <div class="position-relative mb-4" style="height: 400px;">
+                <canvas id="finance-bar-chart"></canvas>
               </div>
             </div>
 
