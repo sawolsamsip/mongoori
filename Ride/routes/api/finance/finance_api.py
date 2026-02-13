@@ -209,7 +209,69 @@ def get_fleet_services():
 
     return jsonify(success=True, fleets=fleets), 200
 
+
 ## Manage Finance- operation: save
+@finance_api_bp.route(
+    "/operations/vehicles/<int:vehicle_id>/transactions",
+    methods=["POST"]
+)
+def create_operation_transaction(vehicle_id):
+
+    if not session.get("admin_logged_in"):
+        return jsonify(success=False, message="Unauthorized"), 401
+
+    data = request.get_json() or {}
+
+    category_id = data.get("category_id")
+    fleet_service_id = data.get("fleet_service_id")
+    transaction_date = data.get("transaction_date")
+    amount = data.get("amount")
+    note = data.get("note")
+
+    if not category_id or not transaction_date or amount is None:
+        return jsonify(
+            success=False,
+            message="category_id, transaction_date, amount are required"
+        ), 400
+
+    try:
+        amount = float(amount)
+        category_id = int(category_id)
+    except:
+        return jsonify(success=False, message="Invalid numeric value"), 400
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    if fleet_service_id:
+        fleet_service_id = int(fleet_service_id)
+    else:
+        fleet_service_id = None
+
+    cur.execute("""
+        INSERT INTO finance_operation_transaction (
+            vehicle_id,
+            fleet_service_id,
+            category_id,
+            amount,
+            transaction_date,
+            note
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (
+        vehicle_id,
+        fleet_service_id,
+        category_id,
+        amount,
+        transaction_date,
+        note
+    ))
+
+    conn.commit()
+
+    return jsonify(success=True), 201
+
+## Dashboard
 @finance_api_bp.route("/timeseries", methods=["GET"])
 def get_finance_timeseries():
 
